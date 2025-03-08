@@ -29,6 +29,9 @@ Run these commands:
 		No to anonymous user removal// choose these options for consistency
 		Yes reload privileges
 
+	After downloading repo and dependencies, go to the frontend directory
+	and run the command "npm install" to install the npm libraries.
+
 
 =========================================
 
