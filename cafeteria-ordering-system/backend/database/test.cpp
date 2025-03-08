@@ -1,7 +1,7 @@
-#include </usr/include/mysql-cppconn/jdbc/mysql_driver.h>
-#include </usr/include/mysql-cppconn/jdbc/mysql_connection.h>
-#include </usr/include/mysql-cppconn/jdbc/cppconn/prepared_statement.h>
-#include </usr/include/mysql-cppconn/jdbc/cppconn/resultset.h>
+#include </usr/include/mysql_driver.h>
+#include </usr/include/mysql_connection.h>
+#include </usr/include/cppconn/prepared_statement.h>
+#include </usr/include/cppconn/resultset.h>
 #include <iostream>
 
 void fetchFromDatabase() {
@@ -9,7 +9,7 @@ void fetchFromDatabase() {
 	sql::Connection *con;
 
 	driver = sql::mysql::get_mysql_driver_instance();
-	con = driver->connect("tcp://127.0.0.1:3306", "root", "");
+	con = driver->connect("tcp://127.0.0.1:3306", "root","");
 	sql::Statement *stmt = con->createStatement();
 
 	stmt->executeQuery("CREATE DATABASE IF NOT EXISTS test_db");
