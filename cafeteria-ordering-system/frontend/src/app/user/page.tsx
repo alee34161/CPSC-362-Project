@@ -1,4 +1,4 @@
-export default function UserInfoRoute() {
+export default function UserRoute() {
   return (
     <div className="flex flex-col items-center bg-gray-100 dark:bg-gray-900 min-h-screen">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-lg mt-10">
