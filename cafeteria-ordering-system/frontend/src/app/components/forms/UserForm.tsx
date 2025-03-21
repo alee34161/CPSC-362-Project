@@ -1,10 +1,15 @@
-export default function UserRoute() {
+"use client";
+
+import Link from "next/link";
+
+
+export function UserForm() {
   return (
     <div className="flex flex-col items-center bg-gray-100 dark:bg-gray-900 min-h-screen">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-lg mt-10">
         <div className="flex flex-col items-center mb-8">
           <img
-            src="https://media.tenor.com/2abbiMqSkOwAAAAM/charlotte-healing-song.gif"
+            src="https:media.tenor.com/2abbiMqSkOwAAAAM/charlotte-healing-song.gif"
             alt="User Profile"
             className="w-32 h-32 rounded-full border-4 border-gray-200 dark:border-gray-600 mb-4 object-cover"
           />
@@ -26,12 +31,16 @@ export default function UserRoute() {
           </div>
         </div>
         <div className="mt-8 flex justify-center space-x-4">
-          <button className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition duration-300">
-            Edit Profile
-          </button>
-          <button className="bg-gray-500 text-white py-2 px-6 rounded-md hover:bg-gray-600 transition duration-300">
-            Log Out
-          </button>
+          <Link href="/edit-info">
+            <button className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition duration-300">
+              Edit Profile
+            </button>
+          </Link>
+          <Link href="/">
+            <button className="bg-gray-500 text-white py-2 px-6 rounded-md hover:bg-gray-600 transition duration-300">
+              Home
+            </button>
+          </Link>
         </div>
       </div>
     </div>
