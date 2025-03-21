@@ -1,5 +1,8 @@
 {
-  "/_not-found/page": "/_not-found",
   "/favicon.ico/route": "/favicon.ico",
-  "/page": "/"
+  "/_not-found/page": "/_not-found",
+  "/signup/page": "/signup",
+  "/forgot-password/page": "/forgot-password",
+  "/page": "/",
+  "/login/page": "/login"
 }
