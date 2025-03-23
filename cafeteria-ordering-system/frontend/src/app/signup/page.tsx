@@ -1,5 +1,5 @@
 "use client";
-
+import axios from 'axios';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -7,7 +7,7 @@ export default function SignupPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "", confirmPassword: "" });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -17,7 +17,24 @@ export default function SignupPage() {
       alert("Passwords do not match!");
       return;
     }
-    alert("Account created for " + formData.email);
+
+    // Send POST request to backend using axios
+    axios
+      .post('http://localhost:8080/register', {
+        username: formData.email, // Match API's expected field (username = email)
+        password: formData.password
+      })
+      .then((response) => {
+        // If successful, show a success message
+        alert("Account created for " + formData.email);
+
+        // Redirect to home page
+        router.push("/");
+      })
+      .catch((error) => {
+        console.error("Error during registration:", error);
+        alert("Registration failed!"); // Show error if registration fails
+      });
   };
 
   return (

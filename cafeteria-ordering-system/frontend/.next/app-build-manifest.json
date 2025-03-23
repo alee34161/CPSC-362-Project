@@ -1,49 +1,25 @@
 {
   "pages": {
-    "/_not-found/page": [
-      "static/chunks/webpack-0d07bdc995b72354.js",
-      "static/chunks/4bd1b696-4781a963ad327daa.js",
-      "static/chunks/684-a2a45ea226d19f3c.js",
-      "static/chunks/main-app-76ca15ea8ec2252a.js",
-      "static/chunks/app/_not-found/page-cd1726d1b4a7e279.js"
-    ],
     "/layout": [
-      "static/chunks/webpack-0d07bdc995b72354.js",
-      "static/chunks/4bd1b696-4781a963ad327daa.js",
-      "static/chunks/684-a2a45ea226d19f3c.js",
-      "static/chunks/main-app-76ca15ea8ec2252a.js",
-      "static/css/eaa1228e3dd88b79.css",
-      "static/chunks/app/layout-d307783cac7d94f1.js"
-    ],
-    "/signup/page": [
-      "static/chunks/webpack-0d07bdc995b72354.js",
-      "static/chunks/4bd1b696-4781a963ad327daa.js",
-      "static/chunks/684-a2a45ea226d19f3c.js",
-      "static/chunks/main-app-76ca15ea8ec2252a.js",
-      "static/chunks/app/signup/page-f669e2d6d8fca83c.js"
-    ],
-    "/forgot-password/page": [
-      "static/chunks/webpack-0d07bdc995b72354.js",
-      "static/chunks/4bd1b696-4781a963ad327daa.js",
-      "static/chunks/684-a2a45ea226d19f3c.js",
-      "static/chunks/main-app-76ca15ea8ec2252a.js",
-      "static/chunks/app/forgot-password/page-c5c2f763cfedc6cc.js"
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/css/app/layout.css",
+      "static/chunks/app/layout.js"
     ],
     "/page": [
-      "static/chunks/webpack-0d07bdc995b72354.js",
-      "static/chunks/4bd1b696-4781a963ad327daa.js",
-      "static/chunks/684-a2a45ea226d19f3c.js",
-      "static/chunks/main-app-76ca15ea8ec2252a.js",
-      "static/chunks/874-e3190991eb624e1c.js",
-      "static/chunks/app/page-c57378a6edc70c1b.js"
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/page.js"
     ],
     "/login/page": [
-      "static/chunks/webpack-0d07bdc995b72354.js",
-      "static/chunks/4bd1b696-4781a963ad327daa.js",
-      "static/chunks/684-a2a45ea226d19f3c.js",
-      "static/chunks/main-app-76ca15ea8ec2252a.js",
-      "static/chunks/874-e3190991eb624e1c.js",
-      "static/chunks/app/login/page-6ea722d52bbdc2cf.js"
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/login/page.js"
+    ],
+    "/_not-found/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/_not-found/page.js"
     ]
   }
 }

@@ -3,30 +3,44 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import axios from 'axios';
 
 export default function LoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {  // Make it async
     e.preventDefault();
     try {
-      // Dummy authentication
-      if (formData.email === "test@example.com" && formData.password === "password123") {
+      // Use await to ensure the request completes before moving forward
+      const response = await axios.post('http://localhost:8080/login', {
+        username: formData.email,
+        password: formData.password,
+      });
+  
+      if (response.status === 200) {
         alert("Login successful!");
         router.push("/dashboard"); // Redirect after login
       } else {
         setError("Invalid login credentials");
       }
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      console.error("Error during login:", err); // Log the error object to the console
+      if (axios.isAxiosError(err)) {
+        // If it's an axios error, log the details
+        setError(`Something went wrong. Status: ${err.response?.status}, Message: ${err.response?.data?.message || err.message}`);
+      } else {
+        // If it's another type of error, log a generic message
+        setError("Something went wrong. Please try again.");
+      }
     }
   };
+  
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
