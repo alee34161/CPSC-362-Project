@@ -23,17 +23,26 @@ export default function LoginPage() {
         password: formData.password,
       });
   
-      if (response.status === 200) {
+      if (response.status === 201) {
         alert("Login successful!");
         router.push("/dashboard"); // Redirect after login
-      } else {
+      } else if (response.status === 202) {
+      	alert("Login successful!");
+      	router.push("/cafeteria");
+      } else if (response.status === 203) {
+      	alert("Login successful!");
+      	router.push("/delivery");
+      } else if (response.status === 204) {
+      	alert("Login successful!");
+      	router.push("/admin");
+      } else if (response.status === 400 || response.status === 401) {
         setError("Invalid login credentials");
       }
     } catch (err) {
       console.error("Error during login:", err); // Log the error object to the console
       if (axios.isAxiosError(err)) {
         // If it's an axios error, log the details
-        setError(`Something went wrong. Status: ${err.response?.status}, Message: ${err.response?.data?.message || err.message}`);
+        setError(`Invalid Credentials. Status: ${err.response?.status}, Message: ${err.response?.data?.message || err.message}`);
       } else {
         // If it's another type of error, log a generic message
         setError("Something went wrong. Please try again.");

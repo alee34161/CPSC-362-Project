@@ -22,7 +22,8 @@ export default function SignupPage() {
     axios
       .post('http://localhost:8080/register', {
         username: formData.email, // Match API's expected field (username = email)
-        password: formData.password
+        password: formData.password,
+        role: 'customer'
       })
       .then((response) => {
         // If successful, show a success message
