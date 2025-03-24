@@ -55,6 +55,6 @@ database/.cpp is compiled with the following command:\
 
 	**To test with frontend, refer to HOW TO RUN FRONTEND section above.**
 
-\
+
 ## SRS Documentation
 [SRS Google Doc](https://docs.google.com/document/d/1vHGxRGFeUjudUNqFsrj9UzxUwihta8cknSypmEp9GxA/edit?usp=sharing)
