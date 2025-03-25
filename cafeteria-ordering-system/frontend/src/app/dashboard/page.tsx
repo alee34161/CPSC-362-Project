@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect } from 'react'; // Import React and useEffect
 import './styles/styles.css'; // Import the CSS file for styling
 
@@ -57,7 +58,7 @@ const cafe: React.FC = () => {
 
                             <li>
                                 {/* Cart */}
-                                <a href="cart.html" title="Cart">
+                                <a href="/cart" title="Cart">
                                     <i className="fa-solid fa-cart-shopping"></i>
                                     <span className="nav-text">Cart</span>
                                 </a>
@@ -65,7 +66,7 @@ const cafe: React.FC = () => {
 
                             <li>
                                 {/* Account */}
-                                <a href="account.html" title="Account">
+                                <a href="/user" title="Account">
                                     <i className="fa-solid fa-circle-user"></i>
                                     <span className="nav-text">Account</span>
                                 </a>
@@ -73,7 +74,7 @@ const cafe: React.FC = () => {
 
                             <li>
                                 {/* About */}
-                                <a href="about.html" title="About">
+                                <a href="/about" title="About">
                                     <i className="fa-solid fa-circle-info"></i>
                                     <span className="nav-text">About</span>
                                 </a>
