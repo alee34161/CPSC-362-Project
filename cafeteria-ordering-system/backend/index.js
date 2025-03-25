@@ -31,14 +31,14 @@ db.connect((err) => {
 
 	// Creates the user information table if it isn't already made for authentication and account info.
 	// Note: username is the same thing as email
-    db.query('CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), PRIMARY KEY (id))', function(err, result) { if (err) throw err; });
+    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
     console.log("Created userInformation table");
 	// Automatically makes an admin account where username is Root@Root and password is admin IF there is no admin account
 	db.query("INSERT INTO userInformation(role) SELECT ('admin') WHERE NOT EXISTS (SELECT * FROM userInformation)");
 	db.query("UPDATE userInformation SET username = 'Root@Root', password = 'admin' WHERE username IS NULL");
 
 	// Creates currentUser Table if it isn't already made and empties it completely. Used to track user for account info
-    db.query('CREATE TABLE IF NOT EXISTS currentUser (username varchar(255), password varchar(255), name varchar(255), role varchar(255))', function(err, result) { if (err) throw err; });
+    db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
 	db.query('DELETE FROM currentUser');
 	console.log("Created new currentUser table");
 
@@ -126,6 +126,16 @@ app.post('/login', (req, res) => {
         // Check if the entered password matches the stored password and send to correct page according to role
         if (password === user.password) {
         	console.log("user and password recognized");
+
+        	// Set currentUser
+			db.query("INSERT INTO currentUser SELECT * FROM userInformation WHERE id = (?)", [user.id], (err, resu) => {
+				if(err) {
+					console.error('Error setting current user:', err);
+					return res.status(500).send('Error setting current user.');
+				}
+			});
+			console.log("Set current User.");
+        	
 			if(user.role === 'customer') {
 				res.status(201).send('Login Successful');
 			} else if(user.role === 'cafeteria') {
@@ -143,6 +153,79 @@ app.post('/login', (req, res) => {
         }
     });
 });
+
+app.get('/currentuserread', (req, res) => {
+	console.log("Received current user read:", req.query);
+
+	db.query("SELECT * FROM currentUser", (err, result) => {
+		if (err) {
+			console.error('Error reading current user:', err);
+			return res.status(500).send('Error reading current user.');
+		}
+
+		if (result.length > 0) {
+			// Log the username (assuming the result is an array of user records)
+			console.log("Current User read successfully:", result[0].username);
+			return res.json(result[0]);  // Send the first user record as a response
+		} else {
+			console.log('No current user found.');
+			return res.status(404).send('No current user found.');
+		}
+	});
+});
+
+
+app.post('/currentuserupdate', (req, res) => {
+  console.log("Received current user update:", req.body);
+  const { username, password, name, phone } = req.body;
+
+  // Step 1: Get the user id by username
+  db.query("SELECT id FROM currentUser", (err, result) => {
+    if (err) {
+      console.error('Error fetching user ID:', err);
+      return res.status(500).send('Error fetching user ID.');
+    }
+
+    if (result.length === 0) {
+      console.log('No current user found: did you log in correctly?');
+      return res.status(404).send('No user found with the given username');
+    }
+
+    const id = result[0].id; // Get the user id from the result
+
+    // Step 2: Update the currentUser table using the id
+    db.query("UPDATE currentUser SET username = ?, password = ?, name = ?, phone = ? WHERE id = ?", [username, password, name, phone, id], (err, result) => {
+      if (err) {
+        console.error('Error updating current user:', err);
+        return res.status(500).send('Error updating current user.');
+      }
+
+      if (result.affectedRows === 0) {
+        console.log('No user updated with the given ID');
+        return res.status(404).send('No user updated with the given ID');
+      }
+
+      console.log("Current User updated successfully.");
+
+      // Step 3: Update the userInformation table using the same id
+      db.query("UPDATE userInformation SET username = ?, password = ?, name = ?, phone = ? WHERE id = ?", [username, password, name, phone, id], (err, result) => {
+        if (err) {
+          console.error('Error updating user information:', err);
+          return res.status(500).send('Error updating user information.');
+        }
+
+        if (result.affectedRows === 0) {
+          console.log('No matching user information entry found.');
+          return res.status(404).send('No matching user information entry found.');
+        }
+
+        console.log("userInformation updated successfully.");
+        res.status(200).send('Update Successful');
+      });
+    });
+  });
+});
+
 
 
 // Handle the POST request from the registration form
