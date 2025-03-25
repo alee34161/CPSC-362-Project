@@ -42,7 +42,7 @@ db.connect((err) => {
 	db.query('DELETE FROM currentUser');
 	console.log("Created new currentUser table");
 
-    db.query('CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, name varchar(255), price varchar(255), quantity int unsigned, PRIMARY KEY (id)', function(err, result) { if (err) throw err; });
+    db.query('CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, name varchar(255), price varchar(255), quantity INT, PRIMARY KEY (id))', function(err, result) { if (err) throw err; });
 });
 
 
@@ -59,7 +59,7 @@ app.post('/cafmenuadd', (req, res) => {
 		}
 		res.status(200).send('Cafeteria Menu Item added successfully.');
 		console.log('Cafeteria Menu Item added successfully.');
-	};
+	});
 });
 
 // Handle the POST request from the cafmenuread form, meant to be used for the menu search bar.
@@ -74,7 +74,7 @@ app.post('/cafmenuread', (req, res) => {
 			return res.status(500).send('Error querying cafeteria menu.');
 		}
 		res.send(results);
-	};
+	});
 });
 	
 // Handle the POST request from the cafmenuupdate form, meant for admin to update menu
@@ -88,7 +88,7 @@ app.post('/cafmenuupdate', (req, res) => {
 			return res.status(500).send('Error querying cafeteria menu.');
 		}
 		res.status(200).send('Cafeteria Menu updated successfully.');
-	};
+	});
 });
 
 // Handle the POST request from the cafmenudelete form, meant for the admin to delete items
@@ -99,10 +99,10 @@ app.post('/cafmenudelete', (req, res) => {
 	db.query('DELETE FROM CafeteriaMenu WHERE name = (?) OR id = (?)', [name, id], (err, results) => {
 		if(err) {
 			console.error('Error deleting cafeteria menu item.');
-			resturn res.status(500).send('Error deleting cafeteria menu item.');
+			return res.status(500).send('Error deleting cafeteria menu item.');
 		}
 		res.status(200).send('Cafeteria Menu Item deleted successfully.');
-	};
+	});
 });
 
 // Handle the POST request from the login form
