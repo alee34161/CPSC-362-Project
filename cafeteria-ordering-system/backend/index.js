@@ -88,7 +88,6 @@ app.get('/cartread', (req, res) => {
 		}
 		console.log("Cart read successfully.");
 		return res.json(result);
-		};
 	});
 });
 
