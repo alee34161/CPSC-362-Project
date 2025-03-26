@@ -1,23 +1,30 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
-const cors = require('cors'); // Import CORS library
+const cors = require('cors');
 const app = express();
-
-// Enable CORS for all routes
 app.use(cors());
+app.use(bodyParser.json());
 
-// Middleware to parse JSON data
-app.use(bodyParser.json()); // This helps to parse JSON from incoming requests
+// =====================================================
+// WARNING:
+//	Current implementation can only support one customer
+// 	and only tracks customer account information.
+//
+//	Will need to implement web sockets to handle session
+// to session data.
+//
+// =====================================================
+
 
 // MySQL connection setup
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',  // use your MySQL password
+    password: '',  // use MySQL password for root, or make the password blank
 });
 
-// Connecting to MySQL and initialization commands
+// Connecting to MySQL and initialization commands on startup
 db.connect((err) => {
     if (err) {
         console.error('Error connecting to MySQL:', err);
@@ -33,25 +40,92 @@ db.connect((err) => {
 	// Note: username is the same thing as email
     db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
     console.log("Created userInformation table");
-	// Automatically makes an admin account where username is Root@Root and password is admin IF there is no admin account
+    
+	// Automatically makes an admin account where username is Root@Root and password is admin ONLY IF there is no admin account
 	db.query("INSERT INTO userInformation(role) SELECT ('admin') WHERE NOT EXISTS (SELECT * FROM userInformation)");
 	db.query("UPDATE userInformation SET username = 'Root@Root', password = 'admin' WHERE username IS NULL");
 
-	// Creates currentUser Table if it isn't already made and empties it completely. Used to track user for account info
+	// Creates currentUser Table if it isn't already made and empties it completely. Used to track current user for account info
     db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
 	db.query('DELETE FROM currentUser');
 	console.log("Created new currentUser table");
 
+	// Creates CafeteriaMenu table. Admin needs to manually add in new items.
     db.query('CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, name varchar(255), price varchar(255), quantity INT, PRIMARY KEY (id))', function(err, result) { if (err) throw err; });
+
+	// Implement cart table
+	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned, name varchar(255), price varchar(255), quantity INT)", function(err, result) { if (err) throw err; });
+	db.query("DELETE FROM Cart");
+	console.log("Created new Cart table.");
 });
 
 
-// Handle the POST request from the cafeteria menu add form, meant for admin to add new items
+// Cart Create function, meant for customers to add to the cart
+app.post('/cartadd', (req, res) => {
+	const { id, name, price, quantity } = req.body;
+	console.log("Cart add received with:" + name);
+	// Note to future self: may need to first query on the item based on id in the Menus, and then
+	// send in relevant data. quantity in the menu table and quantity from the customer are NOT the same.
+	db.query('INSERT INTO Cart (id, name, price, quantity) VALUES (?,?,?)', [id, name, price, quantity], (err, results) => {
+		if(err) {
+			console.error('Error adding item to cart.');
+			return res.status(500).send('Error adding item to cart.');
+		}
+		res.status(200).send('Item added to cart successfully.');
+		console.log('Item added to cart successfully.');
+	});
+});
+
+// Cart Read function, meant for the customer to be able to see current cart.
+// Will need adjustment based on frontend.
+app.get('/cartread', (req, res) => {
+	console.log("Received cart read:", req.query);
+	// Only read items that are above 0 quantity
+	db.query("SELECT * FROM Cart WHERE quantity > 0", (err, result) => {
+		if (err) {
+			console.error('Error reading cart:', err);
+			return res.status(500).send('Error reading cart.');
+		}
+		console.log("Cart read successfully.");
+		return res.json(result);
+		};
+	});
+});
+
+// Cart Update function, meant for customer to be able to update cart items.
+// Will need adjustment based on frontend.
+app.post('/cartupdate', (req, res) => {
+	console.log("Received cart update:", req.body);
+	const { id, quantity } = req.body;
+	db.query('UPDATE Cart SET name = (?), quantity = (?) WHERE id = (?)', [name, quantity, id], (err, results) => {
+		if(err) {
+			console.error('Error updating cart.');
+			return res.status(500).send('Error updating cart.');
+		}
+		res.status(200).send('Cart updated successfully.');
+		console.log('Cart updated successfully.');
+	});
+});
+
+// Cart Delete function. Might be unnecessary?
+app.pos('/cartdelete', (req, res) => {
+	console.log("Received cart delete:", req.body);
+	const { id } = req.body;
+	db.query('DELETE FROM Cart WHERE id = (?)', [id], (err, results) => {
+		if(err) {
+			console.error('Error deleting from cart.');
+			return res.status(500).send('Error deleting from cart.');
+		}
+		res.status(200).send('Cart item deleted successfully');
+		console.log('Cart item deleted successfully.');
+	});
+});
+
+
+// Cafeteria menu add function, meant for admin to add new items
 app.post('/cafmenuadd', (req, res) => {
 	const { name, price, quantity } = req.body;
 	console.log("Cafeteria Menu Add received with: " + name + " " + price + " " + quantity);
-
-	// Add item to cafeteria menu table
 	db.query('INSERT INTO CafeteriaMenu (name, price, quantity) VALUES (?,?,?)', [name, price, quantity], (err, results) => {
 		if (err) {
 			console.error('Error adding cafeteria menu item.');
@@ -62,7 +136,7 @@ app.post('/cafmenuadd', (req, res) => {
 	});
 });
 
-// Handle the POST request from the cafmenuread form, meant to be used for the menu search bar.
+// Cafeteria menu search function, meant to be used for the menu search bar at the dashboard.
 app.post('/cafmenusearch', (req, res) => {
 	const { name } = req.body;
 	console.log("Cafeteria Menu Search received with: " + req.body);
@@ -77,6 +151,7 @@ app.post('/cafmenusearch', (req, res) => {
 	});
 });
 
+// Cafeteria menu read function, meant for the customer to be able to see menu items.
 app.get('/cafmenuread', (req, res) => {
 	console.log("Received Cafeteria Menu read:", req.query);
 
@@ -97,7 +172,7 @@ app.get('/cafmenuread', (req, res) => {
 	});
 });
 	
-// Handle the POST request from the cafmenuupdate form, meant for admin to update menu
+// Cafeteria menu update function, meant for admin to update menu items
 app.post('/cafmenuupdate', (req, res) => {
 	const { id, name, quantity } = req.body;
 	console.log("Cafeteria Menu Update received with: " + req.body);
@@ -111,7 +186,7 @@ app.post('/cafmenuupdate', (req, res) => {
 	});
 });
 
-// Handle the POST request from the cafmenudelete form, meant for the admin to delete items
+// Cafeteria menu delete function, meant for the admin to delete items
 app.post('/cafmenudelete', (req, res) => {
 	const { id, name } = req.body;
 	console.log("Cafeteria Menu Delete received with: " + req.body);
@@ -125,7 +200,7 @@ app.post('/cafmenudelete', (req, res) => {
 	});
 });
 
-// Handle the POST request from the login form
+// Login function, meant for the user to be able to log into system and be sent to a page based on role
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     console.log("Login request received with: " + req.body);
@@ -147,15 +222,18 @@ app.post('/login', (req, res) => {
         if (password === user.password) {
         	console.log("user and password recognized");
 
-        	// Set currentUser
-			db.query("INSERT INTO currentUser SELECT * FROM userInformation WHERE id = (?)", [user.id], (err, resu) => {
-				if(err) {
-					console.error('Error setting current user:', err);
-					return res.status(500).send('Error setting current user.');
-				}
-			});
-			console.log("Set current User.");
-        	
+        	// Set currentUser if customer
+        	if('customer' === user.role) {
+        		db.query("INSERT INTO currentUser SELECT * FROM userInformation WHERE id = (?)", [user.id], (err, resu) => {
+        			if(err) {
+        				console.error('Error setting current user:', err);
+        				return res.status(500).send('Error setting current user.');
+        			}
+        		});
+        		console.log("Set current User.");
+        	};
+			
+        	// Send to correct landing page sorted by status
 			if(user.role === 'customer') {
 				res.status(201).send('Login Successful');
 			} else if(user.role === 'cafeteria') {
@@ -174,6 +252,7 @@ app.post('/login', (req, res) => {
     });
 });
 
+// Current user read function, meant for the account info page to display the current user's information
 app.get('/currentuserread', (req, res) => {
 	console.log("Received current user read:", req.query);
 
@@ -194,12 +273,24 @@ app.get('/currentuserread', (req, res) => {
 	});
 });
 
-
+// Current user update function, meant for the edit profile page
 app.post('/currentuserupdate', (req, res) => {
   console.log("Received current user update:", req.body);
   const { username, password, name, phone } = req.body;
+  
+    // First check for duplicate usernames
+    db.query('SELECT * FROM userInformation (username) VALUES (?)', [username], (err, result) => {
+    	if(err) {
+    		console.error('Error registering user:', err);
+    		return rest.status(500).send('Error registering user.');
+    	}
+    	if(result.length > 0) {
+    		console.log("Registering user denied. Email already in use.");
+    		return res.status(500).send('Email already in use.');
+    	}
+    });
 
-  // Step 1: Get the user id by username
+  // Gets the user id from currentUser table for updating. The table should only have one entry
   db.query("SELECT id FROM currentUser", (err, result) => {
     if (err) {
       console.error('Error fetching user ID:', err);
@@ -211,9 +302,9 @@ app.post('/currentuserupdate', (req, res) => {
       return res.status(404).send('No user found with the given username');
     }
 
-    const id = result[0].id; // Get the user id from the result
+    const id = result[0].id;
 
-    // Step 2: Update the currentUser table using the id
+    // Update the currentUser table using the id as an identifier
     db.query("UPDATE currentUser SET username = ?, password = ?, name = ?, phone = ? WHERE id = ?", [username, password, name, phone, id], (err, result) => {
       if (err) {
         console.error('Error updating current user:', err);
@@ -227,7 +318,7 @@ app.post('/currentuserupdate', (req, res) => {
 
       console.log("Current User updated successfully.");
 
-      // Step 3: Update the userInformation table using the same id
+      // Update the userInformation table using the same id so that the account changes are saved in the database, not just Account Info page
       db.query("UPDATE userInformation SET username = ?, password = ?, name = ?, phone = ? WHERE id = ?", [username, password, name, phone, id], (err, result) => {
         if (err) {
           console.error('Error updating user information:', err);
@@ -248,7 +339,7 @@ app.post('/currentuserupdate', (req, res) => {
 
 
 
-// Handle the POST request from the registration form
+// Register new user function, meant for users to be able to make an account
 app.post('/register', (req, res) => {
     console.log("Received data:", req.body); // Debugging
     const { username, password, role } = req.body;
@@ -256,8 +347,18 @@ app.post('/register', (req, res) => {
     if (!username || !password || !role) {
         return res.status(400).send("All fields are required.");
     }
+    // First check for duplicate usernames
+    db.query('SELECT * FROM userInformation (username) VALUES (?)', [username], (err, result) => {
+    	if(err) {
+    		console.error('Error registering user:', err);
+    		return rest.status(500).send('Error registering user.');
+    	}
+    	if(result.length > 0) {
+    		console.log("Registering user denied. Email already in use.");
+    		return res.status(500).send('Email already in use.');
+    	}
+    });
 
-    // Insert into the userInformation table
     db.query(
         'INSERT INTO userInformation (username, password, role) VALUES (?, ?, ?)',
         [username, password, role],
@@ -273,7 +374,7 @@ app.post('/register', (req, res) => {
 });
 
 
-// Handle the POST request from the updateUser form, meant for account info page.
+// Update user function, meant for the admin to update user information as needed, whether resetting passwords or whatnot
 app.post('/updateUser', (req, res) => {
 	console.log("Received data:", req.body);
 	const { username, password, name } = req.body;
@@ -291,7 +392,7 @@ app.post('/updateUser', (req, res) => {
 	)
 });
 
-// Handle the POST request from the updateAdmin form, meant to allow the admin to update any roles based on username/email.
+// Update admin function, meant for the current admin to promote/demote other users to and from admin role
 app.post('/updateAdmin', (req, res) => {
 	console.log("Received data:", req.body);
 	const { username, role } = req.body;
@@ -309,7 +410,7 @@ app.post('/updateAdmin', (req, res) => {
 	)
 });
 
-// Handle the POST request from the deleteUser form, meant to allow the admin to delete any users.
+// Delete user function, meant to allow the admin to delete any users.
 app.post('/deleteUser', (req, res) => {
 	console.log("Received data:", req.body);
 	const { username } = req.body;
@@ -328,7 +429,7 @@ app.post('/deleteUser', (req, res) => {
 });
 
 
-// Start the server using the listen function on port 8080
+// Start the server using port 8080
 app.listen(8080, () => {
     console.log('Server is running on http://localhost:8080');
 });
