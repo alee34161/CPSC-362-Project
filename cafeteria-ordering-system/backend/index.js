@@ -278,7 +278,7 @@ app.post('/currentuserupdate', (req, res) => {
   const { username, password, name, phone } = req.body;
   
     // First check for duplicate usernames
-    db.query('SELECT * FROM userInformation (username) VALUES (?)', [username], (err, result) => {
+    db.query('SELECT * FROM userInformation WHERE username = (?)', [username], (err, result) => {
     	if(err) {
     		console.error('Error registering user:', err);
     		return rest.status(500).send('Error registering user.');
@@ -286,7 +286,7 @@ app.post('/currentuserupdate', (req, res) => {
     	if(result.length > 0) {
     		console.log("Registering user denied. Email already in use.");
     		return res.status(500).send('Email already in use.');
-    	}
+    	} 
     });
 
   // Gets the user id from currentUser table for updating. The table should only have one entry
@@ -347,18 +347,16 @@ app.post('/register', (req, res) => {
         return res.status(400).send("All fields are required.");
     }
     // First check for duplicate usernames
-    db.query('SELECT * FROM userInformation (username) VALUES (?)', [username], (err, result) => {
+    db.query('SELECT * FROM userInformation WHERE username = (?)', [username], (err, result) => {
     	if(err) {
     		console.error('Error registering user:', err);
-    		return rest.status(500).send('Error registering user.');
+    		return res.status(500).send('Error registering user.');
     	}
     	if(result.length > 0) {
     		console.log("Registering user denied. Email already in use.");
     		return res.status(500).send('Email already in use.');
-    	}
-    });
-
-    db.query(
+    	} else {
+    	db.query(
         'INSERT INTO userInformation (username, password, role) VALUES (?, ?, ?)',
         [username, password, role],
         (err, result) => {
@@ -370,6 +368,10 @@ app.post('/register', (req, res) => {
             console.log("User registered successfully:", username);
         }
     );
+    	}
+    });
+
+
 });
 
 
