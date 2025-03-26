@@ -107,7 +107,7 @@ app.post('/cartupdate', (req, res) => {
 });
 
 // Cart Delete function. Might be unnecessary?
-app.pos('/cartdelete', (req, res) => {
+app.post('/cartdelete', (req, res) => {
 	console.log("Received cart delete:", req.body);
 	const { id } = req.body;
 	db.query('DELETE FROM Cart WHERE id = (?)', [id], (err, results) => {
