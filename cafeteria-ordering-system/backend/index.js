@@ -63,9 +63,9 @@ app.post('/cafmenuadd', (req, res) => {
 });
 
 // Handle the POST request from the cafmenuread form, meant to be used for the menu search bar.
-app.post('/cafmenuread', (req, res) => {
+app.post('/cafmenusearch', (req, res) => {
 	const { name } = req.body;
-	console.log("Cafeteria Menu Read received with: " + req.body);
+	console.log("Cafeteria Menu Search received with: " + req.body);
 
 	// Query table for any partial matches
 	db.query("SELECT * FROM CafeteriaMenu WHERE name LIKE '%?%'", [name], (err, results) => {
@@ -76,13 +76,33 @@ app.post('/cafmenuread', (req, res) => {
 		res.send(results);
 	});
 });
+
+app.get('/cafmenuread', (req, res) => {
+	console.log("Received Cafeteria Menu read:", req.query);
+
+	db.query("SELECT * FROM CafeteriaMenu", (err, result) => {
+		if (err) {
+			console.error('Error reading current user:', err);
+			return res.status(500).send('Error reading current user.');
+		}
+
+		if (result.length > 0) {
+			// Log the username (assuming the result is an array of user records)
+			console.log("Cafeteria Menu read successfully:", result[0].name);
+			return res.json(result[0]);  // Send the first user record as a response
+		} else {
+			console.log('No current user found.');
+			return res.status(404).send('No current user found.');
+		}
+	});
+});
 	
 // Handle the POST request from the cafmenuupdate form, meant for admin to update menu
 app.post('/cafmenuupdate', (req, res) => {
 	const { id, name, quantity } = req.body;
 	console.log("Cafeteria Menu Update received with: " + req.body);
 
-	db.query('UPDATE CafeteriaMenu SET quantity = (?) WHERE name = (?)', [quantity, name], (err, results) => {
+	db.query('UPDATE CafeteriaMenu SET quantity = (?) WHERE id = (?)', [quantity, id], (err, results) => {
 		if(err) {
 			console.error('Error updating cafeteria menu.');
 			return res.status(500).send('Error querying cafeteria menu.');
