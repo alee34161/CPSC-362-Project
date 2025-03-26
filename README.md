@@ -20,7 +20,12 @@ Run these commands:\
 	sudo apt update          // update lists\
 	sudo apt install npm     // install node manager\
 	npm install              // install react/node dependencies
-	sudo apt install mysql-server      // install mysql\
+	sudo apt install mysql-server      // install mysql
+
+
+
+
+ 
 Note: You will need to either set the root password in the index.js backend code,\
 	  or set the mysql root password to blank/NULL. To do this run these commands in separate order:\
    sudo mysql\
