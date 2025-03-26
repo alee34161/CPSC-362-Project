@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import axios from 'axios';
-import moment from 'moment';
 import React, { useState, useEffect } from "react";
 
 
@@ -18,7 +17,7 @@ export function UserForm() {
       axios.get('http://localhost:8080/currentuserread')
       .then((response) => {
       	setFormData(response.data);
-      	const results = response[0];
+      	const results = response;
       })      
     .catch((err) => {
       console.error('Error fetching data:', err);

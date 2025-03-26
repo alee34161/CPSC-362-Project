@@ -15,7 +15,7 @@ export function EditInfoForm() {
       axios.get('http://localhost:8080/currentuserread')
       .then((response) => {
       	setFormData(response.data);
-      	const results = response[0];
+      	const results = response;
       })      
     .catch((err) => {
       console.error('Error fetching data:', err);
