@@ -19,8 +19,7 @@ You must be running on Linux for the following method.
 Run these commands:\
 	sudo apt update          // update lists\
 	sudo apt install npm     // install node manager\
-	npm install              // install dependencies
-	npm install mysql        // install Node drivers for MySQL\
+	npm install              // install react/node dependencies
 	sudo apt install mysql-server      // install mysql\
 Note: You will need to either set the root password in the index.js backend code,\
 	  or set the mysql root password to blank/NULL
