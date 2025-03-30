@@ -17,13 +17,11 @@ app.use(bodyParser.json());
 // =====================================================
 
 
-// DNUISAONH&UYFQOYUVQNYVWAINUENOUID
-
 // MySQL connection setup
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',  // use MySQL password for root, or make the password blank
+    password: '1234567890',  // use MySQL password for root, or make the password blank
 });
 
 // Connecting to MySQL and initialization commands on startup
@@ -68,7 +66,7 @@ app.post('/cartadd', (req, res) => {
 	console.log("Cart add received with:" + name);
 	// Note to future self: may need to first query on the item based on id in the Menus, and then
 	// send in relevant data. quantity in the menu table and quantity from the customer are NOT the same.
-	db.query('INSERT INTO Cart (id, name, price, quantity) VALUES (?,?,?)', [id, name, price, quantity], (err, results) => {
+	db.query('INSERT INTO Cart (id, name, price, quantity) VALUES (?,?,?,?)', [id, name, price, quantity], (err, results) => {
 		if(err) {
 			console.error('Error adding item to cart.');
 			return res.status(500).send('Error adding item to cart.');
@@ -278,9 +276,20 @@ app.get('/currentuserread', (req, res) => {
 app.post('/currentuserupdate', (req, res) => {
   console.log("Received current user update:", req.body);
   const { username, password, name, phone } = req.body;
+  
+    // First check for duplicate usernames
+    db.query('SELECT * FROM userInformation WHERE username = (?)', [username], (err, result) => {
+    	if(err) {
+    		console.error('Error registering user:', err);
+    		return rest.status(500).send('Error registering user.');
+    	}
+    	if(result.length > 0) {
+    		console.log("Registering user denied. Email already in use.");
+    		return res.status(500).send('Email already in use.');
+    	} 
+    });
 
-
-    // Gets the user id from currentUser table for updating. The table should only have one entry
+  // Gets the user id from currentUser table for updating. The table should only have one entry
   db.query("SELECT id FROM currentUser", (err, result) => {
     if (err) {
       console.error('Error fetching user ID:', err);
@@ -293,22 +302,6 @@ app.post('/currentuserupdate', (req, res) => {
     }
 
     const id = result[0].id;
-
-    
-    // Check for duplicate usernames
-	// currently not working.
-    
-    /*db.query('SELECT * FROM userInformation WHERE username = (?)', [username], (err, checkResult) => {
-    	if(err) {
-    		console.error('Error registering user:', err);
-    		return rest.status(500).send('Error registering user.');
-    	}
-    	if(checkResult.length > 0 && checkResult[0].id != id) {
-    		console.log("Registering user denied. Email already in use.");
-    		return res.status(500).send('Email already in use.');
-    	} 
-    });*/
-
 
     // Update the currentUser table using the id as an identifier
     db.query("UPDATE currentUser SET username = ?, password = ?, name = ?, phone = ? WHERE id = ?", [username, password, name, phone, id], (err, result) => {
