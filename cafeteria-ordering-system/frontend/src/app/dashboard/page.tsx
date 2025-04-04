@@ -39,7 +39,7 @@ const cafe: React.FC = () => {
 
                     {/* Logo Section */}
                     <div className="logo">
-                        <a href="index.html">
+                        <a href="/dashboard">
                             <h1>Cafe CSUF</h1>
                         </a>
                     </div>

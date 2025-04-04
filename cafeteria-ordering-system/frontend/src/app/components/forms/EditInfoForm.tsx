@@ -34,8 +34,13 @@ export function EditInfoForm() {
         name: formData.name,
         phone: formData.phone,
       });
-      alert("Update successful!");  // Fixed alert call
-      router.push("/user");  // Navigate to user page upon successful submission
+      if(response.status === 500) {
+      	alert("Username already in use or server error");
+      	router.push("/dashboard");
+      } else if(response.status === 200) {
+      	alert("Update successful!");  // Fixed alert call
+      	router.push("/user");  // Navigate to user page upon successful submission
+      }
     } catch (err) {
       console.error("Error during update:", err);
       if (axios.isAxiosError(err)) {
