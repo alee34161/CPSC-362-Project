@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- Head begin -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cafe CSUF</title>
     <link rel="stylesheet" href="styles/styles.css">
-    <script src="https://kit.fontawesome.com/e5e14bbee1.js" crossorigin="anonymous"></script>
 </head>
+<!-- Head end -->
 
+<!-- Body begin -->
 <body>
-
+    
+    <!-- Header begin -->
     <header>
-
+        <!-- Navbar begin -->
         <div class="navbar-container">
 
             <div class="logo">
@@ -23,16 +26,27 @@
 
             <div class="search-container">
                 <input type="search" placeholder="Search for something...">
-                <button class="search-button"><i class="fa-solid fa-search"></i></button>
+                <button class="search-button"><img src="images/search.svg" class="icon"></button>
             </div>
 
+            <!-- Styling begin -->
             <nav class="nav-menu">
                 <ul>
-                    <li><a href="/cart" title="Cart"><i class="fa-solid fa-cart-shopping"></i><span class="nav-text">Cart</span></a></li>
-                    <li><a href="/components/forms/UserForm.tsx" title="Account"><i class="fa-solid fa-circle-user"></i><span class="nav-text">Account</span></a></li>
-                    <li><a href="/about" title="About"><i class="fa-solid fa-circle-info"></i><span class="nav-text">About</span></a></li>
+                    <li>
+                        <a href="cart.html" title="Cart">
+                            <img src="images/cart.svg" class="icon">
+                            <span class="nav-text">Bag</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="account.html" title="Account">
+                            <img src="images/account.svg" class="icon">
+                            <span class="nav-text">Account</span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
+            <!-- Styling end -->
 
             <!-- For Mobile Responsiveness -->
             <button class="hamburger-menu" aria-label="Toggle menu">
@@ -42,40 +56,52 @@
             </button>
 
         </div>
-
+        <!-- Navbar end -->
     </header>
+    <!-- Header end -->
 
-    <!-- Main content -->
+
+    <!-- Main begin -->
     <main>
 
+        <!-- Categories begin -->
         <section class="categories">
             <div class="categories-container">
                 <h3>Welcome!</h3>
                 <br>
                 <div class="placeholder-categories">
-
-                    <div class="category-item">
-                        <a href="/cafmenu">
-                            <i class="fa-solid fa-utensils" style="font-size: 6.5rem;"></i>
-                            <p>Our Cafeteria</p>
-                        </a>
-                    </div>
-
-                    <div class="category-item">
-                        <a href="restaurantmenu">
-                            <i class="fa-solid fa-people-group" style="font-size: 6.5rem;"></i>
-                            <p>Local Restaurants</p>
-                        </a>
-                    </div>
-                    
+                    <!-- Styling begin -->
+                    <nav class="nav-menu">
+                     <ul>
+                      <li>
+                       <div class="category-item">
+                         <a href="cafeteria_menu.html">
+                             <img src="images/menu_1.svg" class="categories-icon">
+                             <p>Our Cafeteria</p>
+                         </a>
+                       </div>
+                      </li>
+                     <li>
+                       <div class="category-item">
+                         <a href="restaurant_menu.html">
+                             <img src="images/menu_2.svg" class="categories-icon">
+                             <p>Local Restaurants</p>
+                         </a>
+                       </div>
+                      </li>
+                     </ul>
+                    </nav>
+                    <!-- Styling end -->
                 </div>
             </div>
         </section>
+        <!-- Categories end -->
 
-        <!-- Placeholder content -->
+        <!-- Featured meals begin -->
         <section class="products">
             <div class="products-container">
-                <h3>Featured Restaurants</h3>
+                <h2>Featured Meals</h2>
+                <br>
                 <div class="placeholder-products">
                     <div class="placeholder-product"></div>
                     <div class="placeholder-product"></div>
@@ -83,8 +109,10 @@
                 </div>
             </div>
         </section>
+        <!-- Featured meals end -->
 
     </main>
+    <!-- Main end -->
 
     <footer>
     </footer>
@@ -107,5 +135,6 @@
     </script>
 
 </body>
+<!-- Body end -->
 
 </html>
