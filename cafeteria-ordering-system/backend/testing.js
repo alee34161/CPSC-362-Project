@@ -12,7 +12,7 @@ const db = mysql.createConnection({
     password: '1234567890',  // use MySQL password for root, or make the password blank
 });
 
-// Connecting to MySQL & making the database/tables
+// Connecting to MySQL and initializing the database/tables
 db.connect((err) => {
     if (err) {
         console.error('Error connecting to MySQL:', err);
@@ -20,98 +20,152 @@ db.connect((err) => {
     }
     console.log('Connected to MySQL!');
 
-	// Creates the main cafeteria ordering system database if it isnt already made and use it
-    db.query('CREATE DATABASE IF NOT EXISTS cafeteriaDB', function(err, result) { if (err) throw err; });
-    db.query('USE cafeteriaDB', function(err, result) { if (err) throw err; });
+    // Create the main cafeteria ordering system database if it isn't already created and use it
+    db.query('CREATE DATABASE IF NOT EXISTS cafeteriaDB', function(err, result) {
+        if (err) throw err;
+        console.log('Database cafeteriaDB is ready.');
+    });
 
-	// Creates the user information table if it isn't already made for authentication and account info.
-	// Note: username is the same thing as email
-    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
-    console.log("Created userInformation table");
+    db.query('USE cafeteriaDB', function(err, result) {
+        if (err) throw err;
+    });
 
-	// Automatically makes an admin account where username is Root@Root and password is admin ONLY IF there is no admin account
-	db.query("INSERT INTO userInformation(role) SELECT ('admin') WHERE NOT EXISTS (SELECT * FROM userInformation)");
-	db.query("UPDATE userInformation SET username = 'Root@Root', password = 'admin' WHERE username IS NULL");
+    // User Information Table (Authentication and Account Info)
+    db.query(`
+        CREATE TABLE IF NOT EXISTS userInformation (
+            id INT UNSIGNED AUTO_INCREMENT,
+            username VARCHAR(255),
+            password VARCHAR(255),
+            name VARCHAR(255),
+            role VARCHAR(255),
+            phone VARCHAR(255),
+            location VARCHAR(255) DEFAULT 'Fullerton, CA',
+            PRIMARY KEY (id)
+        );
+    `, function(err, result) {
+        if (err) throw err;
+        console.log("Created userInformation table");
+    });
 
-	// Creates currentUser Table if it isn't already made and empties it completely. Used to track current user for account info
-    db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
-	db.query('DELETE FROM currentUser');
-	console.log("Created new currentUser table");
+    // Automatically creating default user accounts (Admin & Cafeteria staff)
+    db.query(`
+        INSERT INTO userInformation(role) 
+        SELECT ('admin') WHERE NOT EXISTS (SELECT * FROM userInformation);
+    `);
 
-	// Creates CafeteriaMenu table. Admin needs to manually add in new items.
-    db.query('CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, name varchar(255), price varchar(255), quantity INT, PRIMARY KEY (id))', function(err, result) { if (err) throw err; });
+	// Ensure only one admin exists with username
+	db.query(`
+		INSERT INTO userInformation (username, password, role)
+		SELECT 'Root@Root', 'admin', 'admin'
+		WHERE NOT EXISTS (SELECT 1 FROM userInformation WHERE role = 'admin');
+	`);
 
-	// Creates RestaurantMenu table. Admin needs to manually add in nearby restaurants with links?
-	db.query(`CREATE TABLE IF NOT EXISTS RestaurantMenu (id INT UNSIGNED AUTO_INCREMENT, restaurant_name VARCHAR(255), name VARCHAR(255), price VARCHAR(255), quantity INT, PRIMARY KEY (id))`, (err) => { if (err) throw err; });
-	console.log("Created RestaurantMenu table");
+	// Ensure only one cafeteria staff exists with username
+	db.query(`
+		INSERT INTO userInformation (username, password, role)
+		SELECT 'cafeteria@example.com', 'cafepass', 'cafeteria'
+		WHERE NOT EXISTS (SELECT 1 FROM userInformation WHERE role = 'cafeteria');
+	`);
 
-	// Implement cart table
-	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned, name varchar(255), price varchar(255), quantity INT)", function(err, result) { if (err) throw err; });
-	db.query("DELETE FROM Cart");
-	console.log("Created new Cart table.");
-});
+    db.query(`
+        UPDATE userInformation 
+        SET username = 'cafeteria@example.com', password = 'cafepass' 
+        WHERE role = 'cafeteria' AND username IS NULL;
+    `);
 
-// =====================================================
-// Cart
-// =====================================================
+    // Current User Table (Tracks the current user's session info)
+    db.query(`
+        CREATE TABLE IF NOT EXISTS currentUser (
+            id INT UNSIGNED,
+            username VARCHAR(255),
+            password VARCHAR(255),
+            name VARCHAR(255),
+            role VARCHAR(255),
+            phone VARCHAR(255),
+            location VARCHAR(255)
+        );
+    `, function(err, result) {
+        if (err) throw err;
+        db.query('DELETE FROM currentUser');  // Clearing the currentUser table
+        console.log("Created new currentUser table");
+    });
 
-// Cart Create function, meant for customers to add to the cart
-app.post('/cartadd', (req, res) => {
-	const { id, name, price, quantity } = req.body;
-	console.log("Cart add received with:" + name);
-	// Note to future self: may need to first query on the item based on id in the Menus, and then
-	// send in relevant data. quantity in the menu table and quantity from the customer are NOT the same.
-	db.query('INSERT INTO Cart (id, name, price, quantity) VALUES (?,?,?)', [id, name, price, quantity], (err, results) => {
-		if(err) {
-			console.error('Error adding item to cart.');
-			return res.status(500).send('Error adding item to cart.');
-		}
-		res.status(200).send('Item added to cart successfully.');
-		console.log('Item added to cart successfully.');
+    // Cafeteria Menu Table (Admin adds items)
+    db.query(`
+        CREATE TABLE IF NOT EXISTS CafeteriaMenu (
+            id INT UNSIGNED AUTO_INCREMENT,
+            name VARCHAR(255),
+            price VARCHAR(255),
+            quantity INT,
+            PRIMARY KEY (id)
+        );
+    `, function(err, result) {
+        if (err) throw err;
+        console.log("Created CafeteriaMenu table");
+    });
+
+    // Restaurant Menu Table (Admin adds nearby restaurant items)
+    db.query(`
+        CREATE TABLE IF NOT EXISTS RestaurantMenu (
+            id INT UNSIGNED AUTO_INCREMENT,
+            restaurant_name VARCHAR(255),
+            name VARCHAR(255),
+            price VARCHAR(255),
+            quantity INT,
+            PRIMARY KEY (id)
+        );
+    `, function(err, result) {
+        if (err) throw err;
+        console.log("Created RestaurantMenu table");
+    });
+
+    // Cart Table (Tracks user's selected items)
+    db.query(`
+        CREATE TABLE IF NOT EXISTS Cart (
+            id INT UNSIGNED,
+            name VARCHAR(255),
+            price VARCHAR(255),
+            quantity INT
+        );
+    `, function(err, result) {
+        if (err) throw err;
+        db.query('DELETE FROM Cart');  // Clearing the Cart table
+        console.log("Created new Cart table.");
+    });
+	
+	// Order Table (Tracks all user orders and their details)
+	db.query(`
+		CREATE TABLE IF NOT EXISTS Orders (
+		order_id INT UNSIGNED AUTO_INCREMENT,
+		user_id INT UNSIGNED,
+		order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		total_amount DECIMAL(10, 2),
+		order_status VARCHAR(50) DEFAULT 'pending',
+		payment_status VARCHAR(50) DEFAULT 'pending',
+		PRIMARY KEY (order_id),
+		FOREIGN KEY (user_id) REFERENCES userInformation(id)
+		);	
+	`, function(err, result) {
+		if (err) throw err; 
+		console.log("Created Order table");
 	});
-});
 
-// Cart Read function, meant for the customer to be able to see current cart.
-// Will need adjustment based on frontend.
-app.get('/cartread', (req, res) => {
-	console.log("Received cart read:", req.query);
-	// Only read items that are above 0 quantity
-	db.query("SELECT * FROM Cart WHERE quantity > 0", (err, result) => {
-		if (err) {
-			console.error('Error reading cart:', err);
-			return res.status(500).send('Error reading cart.');
-		}
-		console.log("Cart read successfully.");
-		return res.json(result);
-	});
-});
-
-// Cart Update function, meant for customer to be able to update cart items.
-// Will need adjustment based on frontend.
-app.post('/cartupdate', (req, res) => {
-	console.log("Received cart update:", req.body);
-	const { id, quantity } = req.body;
-	db.query('UPDATE Cart SET name = (?), quantity = (?) WHERE id = (?)', [name, quantity, id], (err, results) => {
-		if(err) {
-			console.error('Error updating cart.');
-			return res.status(500).send('Error updating cart.');
-		}
-		res.status(200).send('Cart updated successfully.');
-		console.log('Cart updated successfully.');
-	});
-});
-
-// Cart Delete function. Might be unnecessary?
-app.post('/cartdelete', (req, res) => {
-	console.log("Received cart delete:", req.body);
-	const { id } = req.body;
-	db.query('DELETE FROM Cart WHERE id = (?)', [id], (err, results) => {
-		if(err) {
-			console.error('Error deleting from cart.');
-			return res.status(500).send('Error deleting from cart.');
-		}
-		res.status(200).send('Cart item deleted successfully');
-		console.log('Cart item deleted successfully.');
+	// Payment Transactions Table (Tracks all user transactions)
+	db.query(`
+		CREATE TABLE IF NOT EXISTS Transaction (
+			transaction_id INT UNSIGNED AUTO_INCREMENT,  -- Unique transaction ID
+			user_id INT UNSIGNED,  -- References user ID from userInformation table
+			order_id INT UNSIGNED,  -- References order_id from Orders table (fixing the reference)
+			amount DECIMAL(10, 2),  -- Total transaction amount
+			payment_method VARCHAR(255),  -- Payment method (e.g., credit card, cash)
+			transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Date of transaction
+			PRIMARY KEY (transaction_id),  -- Make transaction_id the primary key
+			FOREIGN KEY (user_id) REFERENCES userInformation(id),  -- Link to user info
+			FOREIGN KEY (order_id) REFERENCES Orders(order_id)  -- Corrected reference to order_id
+		);
+	`, function(err, result) {
+		if (err) throw err; 
+		console.log("Created Transaction table");
 	});
 });
 
@@ -139,10 +193,10 @@ app.post('/resmenusearch', (req, res) => {
 	console.log("Restaurant Menu Search received with: " + req.body);
 
 	// Query table for any partial matches
-	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE '%?%'", [name], (err, results) => {
+	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE ?", [`%${name}%`], (err, results) => {
 		if(err) {
-			console.error('Error querying cafeteria menu.');
-			return res.status(500).send('Error querying cafeteria menu.');
+			console.error('Error querying restaurant menu.');
+			return res.status(500).send('Error querying restaurant menu.');
 		}
 		res.send(results);
 	});
@@ -198,7 +252,7 @@ app.post('/resmenudelete', (req, res) => {
 });
 
 // =====================================================
-// restaurant_menu
+// Cafeteria Menu
 // =====================================================
 
 // Cafeteria menu add function, meant for admin to add new items
@@ -279,11 +333,172 @@ app.post('/cafmenudelete', (req, res) => {
 	});
 });
 
+// =====================================================
+// Cart
+// =====================================================
 
+// Cart Create function, meant for customers to add to the cart
+app.post('/cartadd', (req, res) => {
+	const { id, name, price, quantity } = req.body;
+	console.log("Cart add received with:" + name);
+	// Note to future self: may need to first query on the item based on id in the Menus, and then
+	// send in relevant data. quantity in the menu table and quantity from the customer are NOT the same.
+	db.query('INSERT INTO Cart (id, name, price, quantity) VALUES (?,?,?)', [id, name, price, quantity], (err, results) => {
+		if(err) {
+			console.error('Error adding item to cart.');
+			return res.status(500).send('Error adding item to cart.');
+		}
+		res.status(200).send('Item added to cart successfully.');
+		console.log('Item added to cart successfully.');
+	});
+});
+
+// Cart Read function, meant for the customer to be able to see current cart.
+// Will need adjustment based on frontend.
+app.get('/cartread', (req, res) => {
+	console.log("Received cart read:", req.query);
+	// Only read items that are above 0 quantity
+	db.query("SELECT * FROM Cart WHERE quantity > 0", (err, result) => {
+		if (err) {
+			console.error('Error reading cart:', err);
+			return res.status(500).send('Error reading cart.');
+		}
+		console.log("Cart read successfully.");
+		return res.json(result);
+	});
+});
+
+// Cart Update function, meant for customer to be able to update cart items.
+// Will need adjustment based on frontend.
+app.post('/cartupdate', (req, res) => {
+	console.log("Received cart update:", req.body);
+	const { id, quantity } = req.body;
+	db.query('UPDATE Cart SET name = (?), quantity = (?) WHERE id = (?)', [name, quantity, id], (err, results) => {
+		if(err) {
+			console.error('Error updating cart.');
+			return res.status(500).send('Error updating cart.');
+		}
+		res.status(200).send('Cart updated successfully.');
+		console.log('Cart updated successfully.');
+	});
+});
+
+// Cart Delete function. Might be unnecessary?
+app.post('/cartdelete', (req, res) => {
+	console.log("Received cart delete:", req.body);
+	const { id } = req.body;
+	db.query('DELETE FROM Cart WHERE id = (?)', [id], (err, results) => {
+		if(err) {
+			console.error('Error deleting from cart.');
+			return res.status(500).send('Error deleting from cart.');
+		}
+		res.status(200).send('Cart item deleted successfully');
+		console.log('Cart item deleted successfully.');
+	});
+});
+
+// =====================================================
+// Order System (Testing)
+// =====================================================
+
+// Place Order function, used when a customer submits an order.
+app.post('/placeorder', (req, res) => {
+    console.log("Received order request:", req.body);
+    const { userId, cartItems } = req.body;
+
+    // Calculate the total amount for the order (you can customize this calculation)
+    let totalAmount = 0;
+    cartItems.forEach(item => {
+        totalAmount += parseFloat(item.price) * item.quantity; // Assuming cartItems contain 'price' and 'quantity'
+    });
+
+    // Insert order into Orders table with pending status
+    db.query('INSERT INTO Orders (user_id, total_amount, order_status) VALUES (?, ?, "pending")', [userId, totalAmount], (err, result) => {
+        if (err) {
+            console.error('Error placing order:', err);
+            return res.status(500).send('Error placing order');
+        }
+
+        const orderId = result.insertId; // Get the newly inserted order ID
+
+        // Log the order items in Cart (we assume that cartItems contains the correct details to insert into an order table)
+        cartItems.forEach(item => {
+            db.query('INSERT INTO OrderItems (order_id, meal_id, quantity, price) VALUES (?, ?, ?, ?)', 
+                [orderId, item.id, item.quantity, item.price], (err) => {
+                    if (err) {
+                        console.error('Error inserting order items:', err);
+                        return res.status(500).send('Error inserting order items');
+                    }
+                });
+        });
+
+        // Clear the cart after the order is placed
+        db.query('DELETE FROM Cart WHERE user_id = ?', [userId], (err) => {
+            if (err) {
+                console.error('Error clearing cart:', err);
+                return res.status(500).send('Error clearing cart');
+            }
+            console.log('Cart cleared successfully after order');
+        });
+
+        // Respond with success
+        res.status(200).send(`Order placed successfully with ID ${orderId}`);
+        console.log('Order placed successfully with ID:', orderId);
+    });
+});
+
+// Process Payment function, used when a customer makes a payment.
+app.post('/processpayment', (req, res) => {
+    console.log("Received payment request:", req.body);
+    const { orderId, paymentDetails, userId } = req.body;
+
+    // Assuming payment is successful and payment method is provided in the request
+    const paymentStatus = 'completed'; // This can be based on the payment gateway response
+    const amount = parseFloat(paymentDetails.amount); // Ensure amount is provided correctly
+
+    // Update the payment status in the Orders table
+    db.query('UPDATE Orders SET payment_status = ? WHERE order_id = ?', [paymentStatus, orderId], (err, result) => {
+        if (err) {
+            console.error('Error processing payment:', err);
+            return res.status(500).send('Error processing payment');
+        }
+
+        // Log the transaction in the Transaction table
+        db.query('INSERT INTO Transaction (user_id, order_id, amount, payment_method, payment_status) VALUES (?, ?, ?, ?, ?)', 
+            [userId, orderId, amount, paymentDetails.method, paymentStatus], (err, result) => {
+                if (err) {
+                    console.error('Error logging transaction:', err);
+                    return res.status(500).send('Error logging transaction');
+                }
+
+                // Respond with success
+                res.status(200).send('Payment processed and transaction logged successfully');
+                console.log('Payment processed and transaction logged successfully');
+            });
+    });
+});
+
+// Update Order Status function, used to change the status of an order (e.g., to "completed" or "canceled").
+app.post('/updateorderstatus', (req, res) => {
+    console.log("Received order status update:", req.body);
+    const { orderId, newStatus } = req.body;
+
+    // Update the order status in the Orders table
+    db.query('UPDATE Orders SET order_status = ? WHERE order_id = ?', [newStatus, orderId], (err, result) => {
+        if (err) {
+            console.error('Error updating order status:', err);
+            return res.status(500).send('Error updating order status');
+        }
+
+        // Respond with success
+        res.status(200).send(`Order status updated to ${newStatus}`);
+        console.log('Order status updated to', newStatus);
+    });
+});
 
 
 // =====================================================
-// user_information
+// User Information
 // =====================================================
 
 // Login function, meant for the user to be able to log into system and be sent to a page based on role
@@ -339,9 +554,8 @@ app.post('/login', (req, res) => {
 });
 
 // =====================================================
-// current
+// Current User	
 // =====================================================
-
 
 // Current user read function, meant for the account info page to display the current user's information
 app.get('/currentuserread', (req, res) => {
