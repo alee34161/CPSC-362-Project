@@ -12,168 +12,32 @@ const db = mysql.createConnection({
     password: '1234567890',  // use MySQL password for root, or make the password blank
 });
 
-// Connecting to MySQL and initializing the database/tables
 db.connect((err) => {
-    if (err) {
-        console.error('Error connecting to MySQL:', err);
-        return;
-    }
+    if (err) return console.error('Error connecting to MySQL:', err);
     console.log('Connected to MySQL!');
-
-    // Create the main cafeteria ordering system database if it isn't already created and use it
-    db.query('CREATE DATABASE IF NOT EXISTS cafeteriaDB', function(err, result) {
-        if (err) throw err;
-        console.log('Database cafeteriaDB is ready.');
-    });
-
-    db.query('USE cafeteriaDB', function(err, result) {
-        if (err) throw err;
-    });
-
-    // User Information Table (Authentication and Account Info)
-    db.query(`
-        CREATE TABLE IF NOT EXISTS userInformation (
-            id INT UNSIGNED AUTO_INCREMENT,
-            username VARCHAR(255),
-            password VARCHAR(255),
-            name VARCHAR(255),
-            role VARCHAR(255),
-            phone VARCHAR(255),
-            location VARCHAR(255) DEFAULT 'Fullerton, CA',
-            PRIMARY KEY (id)
-        );
-    `, function(err, result) {
-        if (err) throw err;
-        console.log("Created userInformation table");
-    });
-
-    // Automatically creating default user accounts (Admin & Cafeteria staff)
-    db.query(`
-        INSERT INTO userInformation(role) 
-        SELECT ('admin') WHERE NOT EXISTS (SELECT * FROM userInformation);
-    `);
-
-	// Ensure only one admin exists with username
-	db.query(`
-		INSERT INTO userInformation (username, password, role)
-		SELECT 'Root@Root', 'admin', 'admin'
-		WHERE NOT EXISTS (SELECT 1 FROM userInformation WHERE role = 'admin');
-	`);
-
-	// Ensure only one cafeteria staff exists with username
-	db.query(`
-		INSERT INTO userInformation (username, password, role)
-		SELECT 'cafeteria@example.com', 'cafepass', 'cafeteria'
-		WHERE NOT EXISTS (SELECT 1 FROM userInformation WHERE role = 'cafeteria');
-	`);
-
-    db.query(`
-        UPDATE userInformation 
-        SET username = 'cafeteria@example.com', password = 'cafepass' 
-        WHERE role = 'cafeteria' AND username IS NULL;
-    `);
-
-    // Current User Table (Tracks the current user's session info)
-    db.query(`
-        CREATE TABLE IF NOT EXISTS currentUser (
-            id INT UNSIGNED,
-            username VARCHAR(255),
-            password VARCHAR(255),
-            name VARCHAR(255),
-            role VARCHAR(255),
-            phone VARCHAR(255),
-            location VARCHAR(255)
-        );
-    `, function(err, result) {
-        if (err) throw err;
-        db.query('DELETE FROM currentUser');  // Clearing the currentUser table
-        console.log("Created new currentUser table");
-    });
-
-    // Cafeteria Menu Table (Admin adds items)
-    db.query(`
-        CREATE TABLE IF NOT EXISTS CafeteriaMenu (
-            id INT UNSIGNED AUTO_INCREMENT,
-            name VARCHAR(255),
-            price VARCHAR(255),
-            quantity INT,
-            PRIMARY KEY (id)
-        );
-    `, function(err, result) {
-        if (err) throw err;
-        console.log("Created CafeteriaMenu table");
-    });
-
-    // Restaurant Menu Table (Admin adds nearby restaurant items)
-    db.query(`
-        CREATE TABLE IF NOT EXISTS RestaurantMenu (
-            id INT UNSIGNED AUTO_INCREMENT,
-            restaurant_name VARCHAR(255),
-            name VARCHAR(255),
-            price VARCHAR(255),
-            quantity INT,
-            PRIMARY KEY (id)
-        );
-    `, function(err, result) {
-        if (err) throw err;
-        console.log("Created RestaurantMenu table");
-    });
-
-    // Cart Table (Tracks user's selected items)
-    db.query(`
-        CREATE TABLE IF NOT EXISTS Cart (
-            id INT UNSIGNED,
-            name VARCHAR(255),
-            price VARCHAR(255),
-            quantity INT
-        );
-    `, function(err, result) {
-        if (err) throw err;
-        db.query('DELETE FROM Cart');  // Clearing the Cart table
-        console.log("Created new Cart table.");
-    });
+    db.query('CREATE DATABASE IF NOT EXISTS cafeteriaDB', (err) => { if (err) throw err; console.log('Database cafeteriaDB is ready.'); });
+    db.query('USE cafeteriaDB', (err) => { if (err) throw err; });
 	
-	// Order Table (Tracks all user orders and their details)
-	db.query(`
-		CREATE TABLE IF NOT EXISTS Orders (
-		order_id INT UNSIGNED AUTO_INCREMENT,
-		user_id INT UNSIGNED,
-		order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-		total_amount DECIMAL(10, 2),
-		order_status VARCHAR(50) DEFAULT 'pending',
-		payment_status VARCHAR(50) DEFAULT 'pending',
-		PRIMARY KEY (order_id),
-		FOREIGN KEY (user_id) REFERENCES userInformation(id)
-		);	
-	`, function(err, result) {
-		if (err) throw err; 
-		console.log("Created Order table");
-	});
-
-	// Payment Transactions Table (Tracks all user transactions)
-	db.query(`
-		CREATE TABLE IF NOT EXISTS Transaction (
-			transaction_id INT UNSIGNED AUTO_INCREMENT,  -- Unique transaction ID
-			user_id INT UNSIGNED,  -- References user ID from userInformation table
-			order_id INT UNSIGNED,  -- References order_id from Orders table (fixing the reference)
-			amount DECIMAL(10, 2),  -- Total transaction amount
-			payment_method VARCHAR(255),  -- Payment method (e.g., credit card, cash)
-			transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- Date of transaction
-			PRIMARY KEY (transaction_id),  -- Make transaction_id the primary key
-			FOREIGN KEY (user_id) REFERENCES userInformation(id),  -- Link to user info
-			FOREIGN KEY (order_id) REFERENCES Orders(order_id)  -- Corrected reference to order_id
-		);
-	`, function(err, result) {
-		if (err) throw err; 
-		console.log("Created Transaction table");
-	});
+	// The Tables are created if they do not exist
+    db.query(`CREATE TABLE IF NOT EXISTS currentUser (id INT UNSIGNED, username VARCHAR(255), password VARCHAR(255), name VARCHAR(255), role VARCHAR(255), phone VARCHAR(255), location VARCHAR(255));`, (err) => { if (err) throw err; db.query('DELETE FROM currentUser'); console.log("Created new currentUser table"); });
+    db.query(`CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT UNSIGNED AUTO_INCREMENT, name VARCHAR(255), price VARCHAR(255), quantity INT, PRIMARY KEY (id));`, (err) => { if (err) throw err; console.log("Created CafeteriaMenu table"); });
+    db.query(`CREATE TABLE IF NOT EXISTS RestaurantMenu (id INT UNSIGNED AUTO_INCREMENT, restaurant_name VARCHAR(255), name VARCHAR(255), price VARCHAR(255), quantity INT, PRIMARY KEY (id));`, (err) => { if (err) throw err; console.log("Created RestaurantMenu table"); });
+    db.query(`CREATE TABLE IF NOT EXISTS Cart (id INT UNSIGNED, name VARCHAR(255), price VARCHAR(255), quantity INT);`, (err) => { if (err) throw err; db.query('DELETE FROM Cart'); console.log("Created new Cart table."); });
+	db.query(`CREATE TABLE IF NOT EXISTS userInformation (id INT UNSIGNED AUTO_INCREMENT, username VARCHAR(255), password VARCHAR(255), name VARCHAR(255), role VARCHAR(255), phone VARCHAR(255), location VARCHAR(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id));`, (err) => { if (err) throw err; console.log("Created userInformation table"); });
+	db.query(`CREATE TABLE IF NOT EXISTS Orders (order_id INT UNSIGNED AUTO_INCREMENT, user_id INT UNSIGNED, order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, total_amount DECIMAL(10, 2) NOT NULL, order_status VARCHAR(50) DEFAULT 'pending', payment_status VARCHAR(50) DEFAULT 'pending', PRIMARY KEY (order_id), FOREIGN KEY (user_id) REFERENCES userInformation(id));`, (err) => { if (err) throw err; console.log("Created Orders table"); });
+	db.query(`CREATE TABLE IF NOT EXISTS OrderItems (item_id INT UNSIGNED AUTO_INCREMENT, order_id INT UNSIGNED, menu_type ENUM('cafeteria', 'restaurant'), menu_item_id INT UNSIGNED, quantity INT NOT NULL, price_at_purchase DECIMAL(10, 2) NOT NULL, PRIMARY KEY (item_id), FOREIGN KEY (order_id) REFERENCES Orders(order_id));`, (err) => { if (err) throw err; console.log("Created OrderItems table"); });
+	db.query(`CREATE TABLE IF NOT EXISTS PaymentTransactions (transaction_id INT UNSIGNED AUTO_INCREMENT, user_id INT UNSIGNED, order_id INT UNSIGNED, amount DECIMAL(10, 2) NOT NULL, payment_method VARCHAR(255) NOT NULL, transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP, status VARCHAR(50) DEFAULT 'pending', PRIMARY KEY (transaction_id), FOREIGN KEY (user_id) REFERENCES userInformation(id), FOREIGN KEY (order_id) REFERENCES Orders(order_id));`, (err) => { if (err) throw err; console.log("Created PaymentTransactions table"); });
+	
+	db.query(`INSERT INTO userInformation(role) SELECT ('admin') WHERE NOT EXISTS (SELECT * FROM userInformation);`);
+    db.query(`INSERT INTO userInformation (username, password, role) SELECT 'Root@Root', 'admin', 'admin' WHERE NOT EXISTS (SELECT 1 FROM userInformation WHERE role = 'admin');`);
+    db.query(`INSERT INTO userInformation (username, password, role) SELECT 'cafeteria@example.com', 'cafepass', 'cafeteria' WHERE NOT EXISTS (SELECT 1 FROM userInformation WHERE role = 'cafeteria');`);
+    db.query(`UPDATE userInformation SET username = 'cafeteria@example.com', password = 'cafepass' WHERE role = 'cafeteria' AND username IS NULL;`);
 });
 
 // =====================================================
 // Restaurant Menu
 // =====================================================
 
-// Restaurant menu add function, meant for admin to add new items
 app.post('/resmenuadd', (req, res) => {
 	const { name, price, quantity } = req.body;
 	console.log("Restaurant Menu Add received with: " + name + " " + price + " " + quantity);
@@ -241,7 +105,6 @@ app.post('/resmenuupdate', (req, res) => {
 app.post('/resmenudelete', (req, res) => {
 	const { id, name } = req.body;
 	console.log("Restaurant Menu Delete received with: " + req.body);
-
 	db.query('DELETE FROM RestaurantMenu WHERE name = (?) OR id = (?)', [name, id], (err, results) => {
 		if(err) {
 			console.error('Error deleting restaurant menu item.');
@@ -255,7 +118,6 @@ app.post('/resmenudelete', (req, res) => {
 // Cafeteria Menu
 // =====================================================
 
-// Cafeteria menu add function, meant for admin to add new items
 app.post('/cafmenuadd', (req, res) => {
 	const { name, price, quantity } = req.body;
 	console.log("Cafeteria Menu Add received with: " + name + " " + price + " " + quantity);
@@ -337,7 +199,6 @@ app.post('/cafmenudelete', (req, res) => {
 // Cart
 // =====================================================
 
-// Cart Create function, meant for customers to add to the cart
 app.post('/cartadd', (req, res) => {
 	const { id, name, price, quantity } = req.body;
 	console.log("Cart add received with:" + name);
@@ -401,7 +262,6 @@ app.post('/cartdelete', (req, res) => {
 // Order System (Testing)
 // =====================================================
 
-// Place Order function, used when a customer submits an order.
 app.post('/placeorder', (req, res) => {
     console.log("Received order request:", req.body);
     const { userId, cartItems } = req.body;
@@ -501,7 +361,6 @@ app.post('/updateorderstatus', (req, res) => {
 // User Information
 // =====================================================
 
-// Login function, meant for the user to be able to log into system and be sent to a page based on role
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     console.log("Login request received with: " + req.body);
@@ -553,10 +412,6 @@ app.post('/login', (req, res) => {
     });
 });
 
-// =====================================================
-// Current User	
-// =====================================================
-
 // Current user read function, meant for the account info page to display the current user's information
 app.get('/currentuserread', (req, res) => {
 	console.log("Received current user read:", req.query);
@@ -597,21 +452,6 @@ app.post('/currentuserupdate', (req, res) => {
     }
 
     const id = result[0].id;
-
-    
-    // Check for duplicate usernames
-	// currently not working.
-    
-    /*db.query('SELECT * FROM userInformation WHERE username = (?)', [username], (err, checkResult) => {
-    	if(err) {
-    		console.error('Error registering user:', err);
-    		return rest.status(500).send('Error registering user.');
-    	}
-    	if(checkResult.length > 0 && checkResult[0].id != id) {
-    		console.log("Registering user denied. Email already in use.");
-    		return res.status(500).send('Email already in use.');
-    	} 
-    });*/
 
 
     // Update the currentUser table using the id as an identifier
@@ -681,8 +521,6 @@ app.post('/register', (req, res) => {
     );
     	}
     });
-
-
 });
 
 
@@ -690,7 +528,6 @@ app.post('/register', (req, res) => {
 app.post('/updateUser', (req, res) => {
 	console.log("Received data:", req.body);
 	const { username, password, name } = req.body;
-
 	db.query(
 		'UPDATE userInformation SET password = (?), name = (?) WHERE username = (?)', [password, name, username],
 		(err, result) => {
@@ -708,7 +545,6 @@ app.post('/updateUser', (req, res) => {
 app.post('/updateAdmin', (req, res) => {
 	console.log("Received data:", req.body);
 	const { username, role } = req.body;
-
 	db.query(
 		'UPDATE userInformation SET role = (?) WHERE username = (?)', [role, username],
 		(err, result) => {
@@ -726,7 +562,6 @@ app.post('/updateAdmin', (req, res) => {
 app.post('/deleteUser', (req, res) => {
 	console.log("Received data:", req.body);
 	const { username } = req.body;
-
 	db.query(
 		'DELETE FROM userInformation WHERE username = (?)', [username],
 		(err, result) => {
