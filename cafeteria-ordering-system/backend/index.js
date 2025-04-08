@@ -2,8 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const cors = require('cors');
+var fs = require('fs');
+var restMenu = './RestaurantMenu';
+var cafMenu = './CafeteriaMenu';
 const app = express();
 app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
 
 // =====================================================
@@ -16,8 +20,6 @@ app.use(bodyParser.json());
 //
 // =====================================================
 
-
-// DNUISAONH&UYFQOYUVQNYVWAINUENOUID
 
 // MySQL connection setup
 const db = mysql.createConnection({
@@ -53,29 +55,146 @@ db.connect((err) => {
 	console.log("Created new currentUser table");
 
 	// Creates CafeteriaMenu table. Admin needs to manually add in new items.
-    db.query('CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, name varchar(255), price varchar(255), quantity INT, PRIMARY KEY (id))', function(err, result) { if (err) throw err; });
+    db.query("CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, source varchar(255) DEFAULT 'cafeteria', name varchar(255), price decimal(10,2), quantity INT, PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
+    db.query("CREATE TABLE IF NOT EXISTS RestaurantMenu (id INT unsigned AUTO_INCREMENT, source varchar(255) DEFAULT 'restaurant', name varchar(255), price decimal(10,2), restaurant varchar(255), PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
+	db.query("DELETE FROM RestaurantMenu");
+
+	// Creates default values for Restaurant Menu ONLY IF it is empty
+	db.query("SELECT * FROM CafeteriaMenu", (err, results) => {
+		if(err) {
+			console.error("Failed to check CafeteriaMenu table.");
+		}
+		if(results.length == 0) {
+			fs.readFile(cafMenu, 'utf8', (err, myJSON) => {
+				if(err) {
+					console.log("Error reading default file cafeteria menu.", err);
+				}
+				try {
+					const cafData = JSON.parse(myJSON);
+					cafData.forEach(item => {
+						db.query("INSERT INTO CafeteriaMenu (id, name, price, quantity) VALUES (?,?,?,?)", [item.id, item.name, item.price, item.quantity], (err, result) => {
+							if(err) {
+								console.error('Error inserting cafeteria menu data:', err);
+								return;
+							}
+						})
+					})
+					console.log('Cafeteria default menu items added successfully');
+				} catch (err) {
+					console.log('Error parsing CafeteriaMenu file.');
+					console.error('Reason:', err);
+				}
+			});
+		}
+	});
+	
+	// Creates default values for Restaurant Menu
+	fs.readFile(restMenu, 'utf8', (err, myJSON) => {
+		if(err) {
+			console.log("Error reading restaurant menu.", err);
+		}
+	try {
+		const restData = JSON.parse(myJSON);
+		restData.forEach(item => {
+			db.query("INSERT INTO RestaurantMenu (id, name, price, restaurant) VALUES (?,?,?,?)", [item.id, item.name, item.price, item.restaurant], (err, result) => {
+				if(err) {
+					console.error('Error inserting restaurant menu data:', err);
+					return;
+				}
+			})
+		})
+		console.log('Restaurant menu items added successfully.');
+	} catch (err) {
+		console.log('Error parsing RestaurantMenu file.');
+		console.error('Reason:', err);
+	}
+});
 
 	// Implement cart table
-	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned, name varchar(255), price varchar(255), quantity INT)", function(err, result) { if (err) throw err; });
+	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned, source varchar(255), name varchar(255), price decimal(10,2), quantity INT)", function(err, result) { if (err) throw err; });
 	db.query("DELETE FROM Cart");
 	console.log("Created new Cart table.");
 });
 
+// ===============================================================
+// API request handlers below
+// ===============================================================
+
+// Search function for all menus, meant to be used for the dashboard search bar.
+app.post('/allmenusearch', (req, res) => {
+	const { name } = req.body;
+	console.log("All Menu Search received with: " + req.body);
+
+	// Query table for any partial matches
+	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE '%?%' UNION SELECT * FROM CafeteriaMenu WHERE name LIKE '%?%'", [name], (err, results) => {
+		if(err) {
+			console.error('Error querying all menu.');
+			return res.status(500).send('Error querying all menu.');
+		}
+		res.send(results);
+	});
+});
+
+
+// Restaurant menu search function, meant to be used for the menu search bar.
+app.post('/restaurantmenusearch', (req, res) => {
+	const { name } = req.body;
+	console.log("Restaurant Menu Search received with: " + req.body);
+
+	// Query table for any partial matches
+	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE '%?%'", [name], (err, results) => {
+		if(err) {
+			console.error('Error querying restaurant menu.');
+			return res.status(500).send('Error querying restaurant menu.');
+		}
+		res.send(results);
+	});
+});
+
+// Restaurant menu read function, meant for the customer to be able to see menu items.
+app.get('/restaurantmenuread', (req, res) => {
+	console.log("Received restaurant Menu read:", req.query);
+
+	db.query("SELECT * FROM RestaurantMenu", (err, result) => {
+		if (err) {
+			console.error('Error reading RestaurantMenu:', err);
+			return res.status(500).send('Error reading RestaurantMenu.');
+		}
+		return res.json(result);
+		})
+});
+	
+// Restaurant menu update function, meant for admin to update menu items in case local restaurant is out of stock
+app.post('/restaurantmenuupdate', (req, res) => {
+	const { id, name, quantity } = req.body;
+	console.log("Restaurant Menu Update received with: " + req.body);
+
+	db.query('UPDATE RestaurantMenu SET quantity = (?) WHERE id = (?)', [quantity, id], (err, results) => {
+		if(err) {
+			console.error('Error updating restaurant menu.');
+			return res.status(500).send('Error querying restaurant menu.');
+		}
+		res.status(200).send('Restaurant Menu updated successfully.');
+	});
+});
 
 // Cart Create function, meant for customers to add to the cart
 app.post('/cartadd', (req, res) => {
-	const { id, name, price, quantity } = req.body;
-	console.log("Cart add received with:" + name);
-	// Note to future self: may need to first query on the item based on id in the Menus, and then
-	// send in relevant data. quantity in the menu table and quantity from the customer are NOT the same.
-	db.query('INSERT INTO Cart (id, name, price, quantity) VALUES (?,?,?)', [id, name, price, quantity], (err, results) => {
-		if(err) {
-			console.error('Error adding item to cart.');
+	const { id, name, price, quantity, source } = req.body;
+	console.log("Cart add received with:", req.body);
+
+	db.query(
+		'INSERT INTO Cart (id, source, name, price, quantity) VALUES (?, ?, ?, ?, ?)', 
+		[id, source, name, price, quantity], 
+		(err, results) => {
+			if (err) {
+			console.error('Error adding item to cart:', err);
 			return res.status(500).send('Error adding item to cart.');
 		}
 		res.status(200).send('Item added to cart successfully.');
 		console.log('Item added to cart successfully.');
-	});
+		}
+	);
 });
 
 // Cart Read function, meant for the customer to be able to see current cart.
@@ -89,6 +208,20 @@ app.get('/cartread', (req, res) => {
 			return res.status(500).send('Error reading cart.');
 		}
 		console.log("Cart read successfully.");
+		return res.json(result);
+	});
+});
+
+// Cart Total function, meant for checkout purposes
+// Will need adjustment based on frontend
+app.get('/carttotal', (req, res) => {
+	console.log("Received cart total:", req.query);
+	db.query("SELECT Cart.quantity*Cart.price as TOTAL FROM Cart WHERE quantity > 0", (err, result) => {
+		if(err) {
+			console.error('Error totaling cart:', err);
+			return res.status(500).send('Error totaling cart.');
+		}
+		console.log("Cart totaled successfully.");
 		return res.json(result);
 	});
 });
@@ -111,8 +244,8 @@ app.post('/cartupdate', (req, res) => {
 // Cart Delete function. Might be unnecessary?
 app.post('/cartdelete', (req, res) => {
 	console.log("Received cart delete:", req.body);
-	const { id } = req.body;
-	db.query('DELETE FROM Cart WHERE id = (?)', [id], (err, results) => {
+	const { id, source } = req.body;
+	db.query('DELETE FROM Cart WHERE id = (?) AND source = (?)', [id, source], (err, results) => {
 		if(err) {
 			console.error('Error deleting from cart.');
 			return res.status(500).send('Error deleting from cart.');
@@ -158,18 +291,10 @@ app.get('/cafmenuread', (req, res) => {
 
 	db.query("SELECT * FROM CafeteriaMenu", (err, result) => {
 		if (err) {
-			console.error('Error reading current user:', err);
-			return res.status(500).send('Error reading current user.');
+			console.error('Error reading cafeteria menu:', err);
+			return res.status(500).send('Error reading cafeteria menu.');
 		}
-
-		if (result.length > 0) {
-			// Log the username (assuming the result is an array of user records)
-			console.log("Cafeteria Menu read successfully:", result[0].name);
-			return res.json(result[0]);  // Send the first user record as a response
-		} else {
-			console.log('No current user found.');
-			return res.status(404).send('No current user found.');
-		}
+		return res.json(result);
 	});
 });
 	

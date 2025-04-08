@@ -5,9 +5,9 @@
   "/dashboard/page": "/dashboard",
   "/forgot-password/page": "/forgot-password",
   "/login/page": "/login",
+  "/page": "/",
   "/restaurantmenu/page": "/restaurantmenu",
   "/signup/page": "/signup",
-  "/page": "/",
   "/(userinfo)/edit-info/page": "/edit-info",
   "/(userinfo)/user/page": "/user"
 }

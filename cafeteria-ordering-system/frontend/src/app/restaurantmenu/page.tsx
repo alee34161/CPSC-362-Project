@@ -1,7 +1,60 @@
-import React from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import '../dashboard/styles/styles.css';
 
 const RestaurantMenu: React.FC = () => {
+	const [menuItems, setMenuItems] = useState<any[]>([]);
+
+	useEffect(() => {
+	const fetchMenuData = async () => {
+	     try {
+	         const response = await fetch('http://localhost:8080/restaurantmenuread');
+	         const data = await response.json();
+	         setMenuItems(data);
+	     } catch (error) {
+	         console.error('Error fetching menu data:', error);
+	     }
+	 };
+	
+	        fetchMenuData();
+	    }, []);
+
+	const handleAddToCart = async (item: any) => {
+		  try {
+		    const response = await axios.post('http://localhost:8080/cartadd', {
+		      id: item.id,
+		      source: item.source,
+		      name: item.name,
+		      price: item.price,
+		      quantity: 1
+		    }, {
+		      headers: {
+		        'Content-Type': 'application/json'
+		      }
+		    });
+		  } catch (error) {
+		    console.error("Error adding to cart.", error);
+		  }
+		  alert("Added one " + item.name + " to cart.");
+	};
+	
+	const handleRemoveFromCart = async (item: any) => {
+		try {
+			const response = await axios.post('http://localhost:8080/cartdelete', {
+				id: item.id,
+				source: item.source
+			}, {
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+		} catch (error) {
+			console.error("Error removing from cart.", error);
+		}
+		alert("All " + item.name + " items removed from cart.");
+	};
+
     return (
         <>
             {/* Header */}
@@ -57,11 +110,20 @@ const RestaurantMenu: React.FC = () => {
                     <div className="products-container">
                         <img src="/drinks.svg" className="categories-food" alt="Drinks" />
                         <div className="placeholder-products">
-                            {[...Array(6)].map((_, index) => (
-                                <div className="placeholder-product" key={index}>
+                            {menuItems.map((item: any) => (
+                                <div className="product" key={item.id}>
+                                	<div className="product-info">
+                                    	<h4>{item.name}</h4>
+                                    	<p>${item.price}</p>
+                                    	<p>{item.restaurant}</p>
+                                    </div>
                                     <div className="product-buttons">
-                                        <button className="add-to-bag">Add</button>
-                                        <button className="remove-from-bag">Remove</button>
+                                        <button className="add-to-bag"
+                                        onClick={() => handleAddToCart(item)}
+                                        >Add</button>
+                                        <button className="remove-from-bag"
+                                        onClick={() => handleRemoveFromCart(item)}
+                                        >Remove</button>
                                     </div>
                                 </div>
                             ))}
