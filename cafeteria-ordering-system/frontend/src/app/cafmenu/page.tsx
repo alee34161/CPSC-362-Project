@@ -36,6 +36,7 @@ const CafeteriaMenu: React.FC = () => {
 		  } catch (error) {
 		    console.error("Error adding to cart.", error);
 		  }
+		  alert("Added one " + item.name + " to cart.")
 	};
 
 	const handleRemoveFromCart = async (item: any) => {

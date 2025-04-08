@@ -3,11 +3,11 @@
   "/favicon.ico/route": "/favicon.ico",
   "/cafmenu/page": "/cafmenu",
   "/dashboard/page": "/dashboard",
+  "/restaurantmenu/page": "/restaurantmenu",
   "/forgot-password/page": "/forgot-password",
   "/login/page": "/login",
   "/page": "/",
-  "/restaurantmenu/page": "/restaurantmenu",
   "/signup/page": "/signup",
-  "/(userinfo)/edit-info/page": "/edit-info",
-  "/(userinfo)/user/page": "/user"
+  "/(userinfo)/user/page": "/user",
+  "/(userinfo)/edit-info/page": "/edit-info"
 }
