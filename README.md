@@ -20,7 +20,8 @@ Run these commands:\
 	sudo apt update          // update lists\
 	sudo apt install npm     // install node manager\
 	npm install              // install react/node dependencies
-	sudo apt install mysql-server      // install mysql
+	
+ 	sudo apt install mysql-server      // install mysql
 
 
 
