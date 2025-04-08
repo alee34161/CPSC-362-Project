@@ -18,7 +18,7 @@ const Cafe: React.FC = () => {
                     <div className="search-container">
                         <input type="search" placeholder="Search for something..." />
                         <button className="search-button">
-                            <img src="images/search.svg" className="icon" alt="Search" />
+                            <img src='/search.svg' className="icon" alt="Search" />
                         </button>
                     </div>
 
@@ -27,13 +27,13 @@ const Cafe: React.FC = () => {
                         <ul>
                             <li>
                                 <a href="/cart" title="Cart">
-                                    <img src="images/cart.svg" className="icon" alt="Cart" />
+                                    <img src={"/cart.svg"} className="icon" alt="Cart" />
                                     <span className="nav-text">Bag</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="/user" title="Account">
-                                    <img src="images/account.svg" className="icon" alt="Account" />
+                                    <img src="/account.svg" className="icon" alt="Account" />
                                     <span className="nav-text">Account</span>
                                 </a>
                             </li>
@@ -63,7 +63,7 @@ const Cafe: React.FC = () => {
                                         <div className="category-item">
                                             <a href="/cafmenu">
                                                 <img
-                                                    src="images/menu_1.svg"
+                                                    src="/menu_1.svg"
                                                     className="categories-icon"
                                                     alt="Our Cafeteria"
                                                 />
@@ -75,7 +75,7 @@ const Cafe: React.FC = () => {
                                         <div className="category-item">
                                             <a href="/restaurantmenu">
                                                 <img
-                                                    src="images/menu_2.svg"
+                                                    src="/menu_2.svg"
                                                     className="categories-icon"
                                                     alt="Local Restaurants"
                                                 />

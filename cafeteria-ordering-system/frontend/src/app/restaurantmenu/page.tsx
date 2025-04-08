@@ -18,7 +18,7 @@ const RestaurantMenu: React.FC = () => {
                     <div className="search-container">
                         <input type="search" placeholder="Search for something..." />
                         <button className="search-button">
-                            <img src="../dashboard/images/search.svg" className="icon" alt="Search" />
+                            <img src="/search.svg" className="icon" alt="Search" />
                         </button>
                     </div>
 
@@ -27,13 +27,13 @@ const RestaurantMenu: React.FC = () => {
                         <ul>
                             <li>
                                 <a href="/cart" title="Cart">
-                                    <img src="../dashboard/images/cart.svg" className="icon" alt="Cart" />
+                                    <img src="/cart.svg" className="icon" alt="Cart" />
                                     <span className="nav-text">Bag</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="/user" title="Account">
-                                    <img src="../dashboard/images/account.svg" className="icon" alt="Account" />
+                                    <img src="/account.svg" className="icon" alt="Account" />
                                     <span className="nav-text">Account</span>
                                 </a>
                             </li>
@@ -55,7 +55,7 @@ const RestaurantMenu: React.FC = () => {
                 <section className="products">
                     <h3>Local Restaurants Menu</h3>
                     <div className="products-container">
-                        <img src="../dashboard/images/drinks.svg" className="categories-food" alt="Drinks" />
+                        <img src="/drinks.svg" className="categories-food" alt="Drinks" />
                         <div className="placeholder-products">
                             {[...Array(6)].map((_, index) => (
                                 <div className="placeholder-product" key={index}>
