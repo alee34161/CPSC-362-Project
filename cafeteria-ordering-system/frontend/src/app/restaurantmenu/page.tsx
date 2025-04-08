@@ -1,7 +1,7 @@
 import React from 'react';
-import './styles/styles.css';
+import '../dashboard/styles/styles.css';
 
-const CafeteriaMenu: React.FC = () => {
+const RestaurantMenu: React.FC = () => {
     return (
         <>
             {/* Header */}
@@ -9,7 +9,7 @@ const CafeteriaMenu: React.FC = () => {
                 <div className="navbar-container">
                     {/* Logo */}
                     <div className="logo">
-                        <a href="cafe.html">
+                        <a href="/dashboard">
                             <h1>Cafe CSUF</h1>
                         </a>
                     </div>
@@ -18,7 +18,7 @@ const CafeteriaMenu: React.FC = () => {
                     <div className="search-container">
                         <input type="search" placeholder="Search for something..." />
                         <button className="search-button">
-                            <img src="images/search.svg" className="icon" alt="Search" />
+                            <img src="../dashboard/images/search.svg" className="icon" alt="Search" />
                         </button>
                     </div>
 
@@ -26,14 +26,14 @@ const CafeteriaMenu: React.FC = () => {
                     <nav className="nav-menu">
                         <ul>
                             <li>
-                                <a href="cart.html" title="Cart">
-                                    <img src="images/cart.svg" className="icon" alt="Cart" />
+                                <a href="/cart" title="Cart">
+                                    <img src="../dashboard/images/cart.svg" className="icon" alt="Cart" />
                                     <span className="nav-text">Bag</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="account.html" title="Account">
-                                    <img src="images/account.svg" className="icon" alt="Account" />
+                                <a href="/user" title="Account">
+                                    <img src="../dashboard/images/account.svg" className="icon" alt="Account" />
                                     <span className="nav-text">Account</span>
                                 </a>
                             </li>
@@ -53,9 +53,9 @@ const CafeteriaMenu: React.FC = () => {
             <main>
                 {/* Products Section */}
                 <section className="products">
-                    <h3>Cafe CSUF Menu</h3>
+                    <h3>Local Restaurants Menu</h3>
                     <div className="products-container">
-                        <img src="images/breakfast.svg" className="categories-food" alt="Breakfast" />
+                        <img src="../dashboard/images/drinks.svg" className="categories-food" alt="Drinks" />
                         <div className="placeholder-products">
                             {[...Array(6)].map((_, index) => (
                                 <div className="placeholder-product" key={index}>
@@ -76,4 +76,4 @@ const CafeteriaMenu: React.FC = () => {
     );
 };
 
-export default CafeteriaMenu;
+export default RestaurantMenu;

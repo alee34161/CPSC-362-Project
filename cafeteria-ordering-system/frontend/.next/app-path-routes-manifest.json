@@ -1,10 +1,12 @@
 {
   "/_not-found/page": "/_not-found",
   "/favicon.ico/route": "/favicon.ico",
+  "/cafmenu/page": "/cafmenu",
   "/dashboard/page": "/dashboard",
   "/forgot-password/page": "/forgot-password",
-  "/signup/page": "/signup",
   "/login/page": "/login",
+  "/restaurantmenu/page": "/restaurantmenu",
+  "/signup/page": "/signup",
   "/page": "/",
   "/(userinfo)/edit-info/page": "/edit-info",
   "/(userinfo)/user/page": "/user"

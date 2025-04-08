@@ -9,7 +9,7 @@ const Cafe: React.FC = () => {
                 <div className="navbar-container">
                     {/* Logo */}
                     <div className="logo">
-                        <a href="cafe.html">
+                        <a href="/dashboard">
                             <h1>Cafe CSUF</h1>
                         </a>
                     </div>
@@ -26,13 +26,13 @@ const Cafe: React.FC = () => {
                     <nav className="nav-menu">
                         <ul>
                             <li>
-                                <a href="cart.html" title="Cart">
+                                <a href="/cart" title="Cart">
                                     <img src="images/cart.svg" className="icon" alt="Cart" />
                                     <span className="nav-text">Bag</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="account.html" title="Account">
+                                <a href="/user" title="Account">
                                     <img src="images/account.svg" className="icon" alt="Account" />
                                     <span className="nav-text">Account</span>
                                 </a>
@@ -61,7 +61,7 @@ const Cafe: React.FC = () => {
                                 <ul>
                                     <li>
                                         <div className="category-item">
-                                            <a href="cafeteria_menu.html">
+                                            <a href="/cafmenu">
                                                 <img
                                                     src="images/menu_1.svg"
                                                     className="categories-icon"
@@ -73,7 +73,7 @@ const Cafe: React.FC = () => {
                                     </li>
                                     <li>
                                         <div className="category-item">
-                                            <a href="restaurant_menu.html">
+                                            <a href="/restaurantmenu">
                                                 <img
                                                     src="images/menu_2.svg"
                                                     className="categories-icon"
