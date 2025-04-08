@@ -52,7 +52,7 @@ Tutorials are provided on the default page.
 ## Backend
 
 
-Main code is in the index.js file.\
+Main code is in the index.js file.
 
 
 ### HOW TO RUN BACKEND:
