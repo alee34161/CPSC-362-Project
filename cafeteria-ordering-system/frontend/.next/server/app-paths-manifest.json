@@ -5,9 +5,9 @@
   "/dashboard/page": "app/dashboard/page.js",
   "/forgot-password/page": "app/forgot-password/page.js",
   "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
   "/restaurantmenu/page": "app/restaurantmenu/page.js",
   "/signup/page": "app/signup/page.js",
-  "/page": "app/page.js",
   "/(userinfo)/edit-info/page": "app/(userinfo)/edit-info/page.js",
   "/(userinfo)/user/page": "app/(userinfo)/user/page.js"
 }

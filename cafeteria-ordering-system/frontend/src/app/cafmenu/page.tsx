@@ -1,7 +1,59 @@
-import React from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import '../dashboard/styles/styles.css';
 
 const CafeteriaMenu: React.FC = () => {
+	const [menuItems, setMenuItems] = useState<any[]>([]);
+
+	useEffect(() => {
+		const fetchMenuData = async () => {
+			try {
+				const response = await fetch('http://localhost:8080/cafmenuread');
+				const data = await response.json();
+				setMenuItems(data);
+			} catch (error) {
+				console.error('Error fetching menu data:', error);
+			}
+		};
+		fetchMenuData();
+	}, []);
+
+	const handleAddToCart = async (item: any) => {
+		console.log("Item to be added:", item);
+		  try {
+		    const response = await axios.post('http://localhost:8080/cartadd', {
+		      id: item.id,
+		      source: item.source,
+		      name: item.name,
+		      price: item.price,
+		      quantity: 1
+		    }, {
+		      headers: {
+		        'Content-Type': 'application/json'
+		      }
+		    });
+		  } catch (error) {
+		    console.error("Error adding to cart.", error);
+		  }
+	};
+
+	const handleRemoveFromCart = async (item: any) => {
+		try {
+			const response = await axios.post('http://localhost:8080/cartdelete', {
+				id: item.id,
+				source: item.source
+			}, {
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+		} catch (error) {
+			console.error("Error removing from cart.", error);
+		}
+		alert("All " + item.name + " items removed from cart.");
+	};
+	
     return (
         <>
             {/* Header */}
@@ -57,11 +109,17 @@ const CafeteriaMenu: React.FC = () => {
                     <div className="products-container">
                         <img src="/breakfast.svg" className="categories-food" alt="Breakfast" />
                         <div className="placeholder-products">
-                            {[...Array(6)].map((_, index) => (
-                                <div className="placeholder-product" key={index}>
+                            {menuItems.map((item: any) => (
+                                <div className="placeholder-product" key={item.id}>
                                     <div className="product-buttons">
-                                        <button className="add-to-bag">Add</button>
-                                        <button className="remove-from-bag">Remove</button>
+                                    	<h4>{item.name}</h4>
+                                    	<p>${item.price}</p>
+                                        <button className="add-to-bag"
+                                        onClick={() => handleAddToCart(item)}
+                                        >Add</button>
+                                        <button className="remove-from-bag"
+                                        onClick={() => handleRemoveFromCart(item)}
+                                        >Remove</button>
                                     </div>
                                 </div>
                             ))}

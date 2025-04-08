@@ -4,8 +4,10 @@ const mysql = require('mysql2');
 const cors = require('cors');
 var fs = require('fs');
 var restMenu = './RestaurantMenu';
+var cafMenu = './CafeteriaMenu';
 const app = express();
 app.use(cors());
+app.use(express.json());
 app.use(bodyParser.json());
 
 // =====================================================
@@ -53,9 +55,38 @@ db.connect((err) => {
 	console.log("Created new currentUser table");
 
 	// Creates CafeteriaMenu table. Admin needs to manually add in new items.
-    db.query('CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, name varchar(255), price double(10,2), quantity INT, PRIMARY KEY (id))', function(err, result) { if (err) throw err; });
-    db.query('CREATE TABLE IF NOT EXISTS RestaurantMenu (id INT unsigned AUTO_INCREMENT, name varchar(255), price double(10,2), restaurant varchar(255), PRIMARY KEY (id))', function(err, result) { if (err) throw err; });
+    db.query("CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, source varchar(255) DEFAULT 'cafeteria', name varchar(255), price decimal(10,2), quantity INT, PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
+    db.query("CREATE TABLE IF NOT EXISTS RestaurantMenu (id INT unsigned AUTO_INCREMENT, source varchar(255) DEFAULT 'restaurant', name varchar(255), price decimal(10,2), restaurant varchar(255), PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
 	db.query("DELETE FROM RestaurantMenu");
+
+	// Creates default values for Restaurant Menu ONLY IF it is empty
+	db.query("SELECT * FROM CafeteriaMenu", (err, results) => {
+		if(err) {
+			console.error("Failed to check CafeteriaMenu table.");
+		}
+		if(results.length == 0) {
+			fs.readFile(cafMenu, 'utf8', (err, myJSON) => {
+				if(err) {
+					console.log("Error reading default file cafeteria menu.", err);
+				}
+				try {
+					const cafData = JSON.parse(myJSON);
+					cafData.forEach(item => {
+						db.query("INSERT INTO CafeteriaMenu (id, name, price, quantity) VALUES (?,?,?,?)", [item.id, item.name, item.price, item.quantity], (err, result) => {
+							if(err) {
+								console.error('Error inserting cafeteria menu data:', err);
+								return;
+							}
+						})
+					})
+					console.log('Cafeteria default menu items added successfully');
+				} catch (err) {
+					console.log('Error parsing CafeteriaMenu file.');
+					console.error('Reason:', err);
+				}
+			});
+		}
+	});
 	
 	// Creates default values for Restaurant Menu
 	fs.readFile(restMenu, 'utf8', (err, myJSON) => {
@@ -80,7 +111,7 @@ db.connect((err) => {
 });
 
 	// Implement cart table
-	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned, name varchar(255), price double(10,2), quantity INT)", function(err, result) { if (err) throw err; });
+	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned, source varchar(255), name varchar(255), price decimal(10,2), quantity INT)", function(err, result) { if (err) throw err; });
 	db.query("DELETE FROM Cart");
 	console.log("Created new Cart table.");
 });
@@ -149,18 +180,21 @@ app.post('/restaurantmenuupdate', (req, res) => {
 
 // Cart Create function, meant for customers to add to the cart
 app.post('/cartadd', (req, res) => {
-	const { id, name, price, quantity } = req.body;
-	console.log("Cart add received with:" + name);
-	// Note to future self: may need to first query on the item based on id in the Menus, and then
-	// send in relevant data. quantity in the menu table and quantity from the customer are NOT the same.
-	db.query('INSERT INTO Cart (id, name, price, quantity) VALUES (?,?,?)', [id, name, price, quantity], (err, results) => {
-		if(err) {
-			console.error('Error adding item to cart.');
+	const { id, name, price, quantity, source } = req.body;
+	console.log("Cart add received with:", req.body);
+
+	db.query(
+		'INSERT INTO Cart (id, source, name, price, quantity) VALUES (?, ?, ?, ?, ?)', 
+		[id, source, name, price, quantity], 
+		(err, results) => {
+			if (err) {
+			console.error('Error adding item to cart:', err);
 			return res.status(500).send('Error adding item to cart.');
 		}
 		res.status(200).send('Item added to cart successfully.');
 		console.log('Item added to cart successfully.');
-	});
+		}
+	);
 });
 
 // Cart Read function, meant for the customer to be able to see current cart.
@@ -210,8 +244,8 @@ app.post('/cartupdate', (req, res) => {
 // Cart Delete function. Might be unnecessary?
 app.post('/cartdelete', (req, res) => {
 	console.log("Received cart delete:", req.body);
-	const { id } = req.body;
-	db.query('DELETE FROM Cart WHERE id = (?)', [id], (err, results) => {
+	const { id, source } = req.body;
+	db.query('DELETE FROM Cart WHERE id = (?) AND source = (?)', [id, source], (err, results) => {
 		if(err) {
 			console.error('Error deleting from cart.');
 			return res.status(500).send('Error deleting from cart.');
