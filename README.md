@@ -52,14 +52,13 @@ Tutorials are provided on the default page.
 ## Backend
 
 
-database/.cpp is compiled with the following command:\
-	g++ -o nameofexecutable nameoffile.cpp -lmysqlcppconn
+Main code is in the index.js file.\
 
 
 ### HOW TO RUN BACKEND:
 
 	On Linux the command is "node index.js" in the backend directory.
-
+\
 	**To test with frontend, refer to HOW TO RUN FRONTEND section above.**
 
 
