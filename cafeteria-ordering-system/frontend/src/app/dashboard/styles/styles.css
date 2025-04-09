@@ -91,6 +91,43 @@ header {
     color: orange;
 }
 
+/* Search result container styling */
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+/* Style each search result item */
+.search-item {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+/* Hover effect on result items */
+.search-item:hover {
+    background-color: #f4f4f4;
+}
+
+/* Style the 'No results' message */
+.search-item.no-results {
+    text-align: center;
+    color: #777;
+}
+
 /* Navigation menu styling */
 .nav-menu ul {
     display: flex;
@@ -151,7 +188,7 @@ header {
     .navbar-container {
         padding: 1rem;
     }
-    
+
     .search-container {
         margin: 0 1rem;
     }
@@ -162,25 +199,25 @@ header {
         flex-wrap: wrap;
         gap: 1rem;
     }
-    
+
     .logo {
         flex: 1;
     }
-    
+
     .search-container {
         order: 3;
         flex: 0 0 100%;
         margin: 0.5rem 0 0 0;
     }
-    
+
     .nav-menu {
         display: none;
     }
-    
+
     .hamburger-menu {
         display: flex;
     }
-    
+
     /* Show navigation menu when active class is added (would be toggled with JavaScript) */
     .nav-menu.active {
         display: block;
@@ -192,17 +229,17 @@ header {
         padding: 1rem;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
-    
+
     .nav-menu.active ul {
         flex-direction: column;
         gap: 1rem;
     }
-    
+
     .nav-menu.active li a {
         flex-direction: row;
         gap: 0.5rem;
     }
-    
+
     .nav-menu.active i {
         margin-bottom: 0;
     }
