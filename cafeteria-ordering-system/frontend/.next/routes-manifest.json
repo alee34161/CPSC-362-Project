@@ -28,10 +28,58 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/cafmenu",
+      "regex": "^/cafmenu(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cafmenu(?:/)?$"
+    },
+    {
+      "page": "/dashboard",
+      "regex": "^/dashboard(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/edit-info",
+      "regex": "^/edit\\-info(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/edit\\-info(?:/)?$"
+    },
+    {
       "page": "/favicon.ico",
       "regex": "^/favicon\\.ico(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/favicon\\.ico(?:/)?$"
+    },
+    {
+      "page": "/forgot-password",
+      "regex": "^/forgot\\-password(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/forgot\\-password(?:/)?$"
+    },
+    {
+      "page": "/login",
+      "regex": "^/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/restaurantmenu",
+      "regex": "^/restaurantmenu(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/restaurantmenu(?:/)?$"
+    },
+    {
+      "page": "/signup",
+      "regex": "^/signup(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/signup(?:/)?$"
+    },
+    {
+      "page": "/user",
+      "regex": "^/user(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/user(?:/)?$"
     }
   ],
   "dataRoutes": [],
