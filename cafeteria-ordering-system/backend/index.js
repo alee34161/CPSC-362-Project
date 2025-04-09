@@ -123,10 +123,9 @@ db.connect((err) => {
 // Search function for all menus, meant to be used for the dashboard search bar.
 app.post('/allmenusearch', (req, res) => {
 	const { name } = req.body;
-	console.log("All Menu Search received with: " + req.body);
-
+	console.log("received allmenusearch");
 	// Query table for any partial matches
-	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE '%?%' UNION SELECT * FROM CafeteriaMenu WHERE name LIKE '%?%'", [name], (err, results) => {
+	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE ? UNION SELECT * FROM CafeteriaMenu WHERE name LIKE ?", [`%${name}%`,`%${name}%`], (err, results) => {
 		if(err) {
 			console.error('Error querying all menu.');
 			return res.status(500).send('Error querying all menu.');
@@ -134,6 +133,7 @@ app.post('/allmenusearch', (req, res) => {
 		res.send(results);
 	});
 });
+
 
 
 // Restaurant menu search function, meant to be used for the menu search bar.

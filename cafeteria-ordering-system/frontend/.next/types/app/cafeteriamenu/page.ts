@@ -1,8 +1,8 @@
-// File: /home/andrew-lee/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend/src/app/cafmenu/page.tsx
-import * as entry from '../../../../src/app/cafmenu/page.js'
+// File: /home/andrew-lee/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend/src/app/cafeteriamenu/page.tsx
+import * as entry from '../../../../src/app/cafeteriamenu/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
-type TEntry = typeof import('../../../../src/app/cafmenu/page.js')
+type TEntry = typeof import('../../../../src/app/cafeteriamenu/page.js')
 
 type SegmentParams<T extends Object = any> = T extends Record<string, any>
   ? { [K in keyof T]: T[K] extends string ? string | string[] | undefined : never }

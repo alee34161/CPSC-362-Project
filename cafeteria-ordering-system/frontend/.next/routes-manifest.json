@@ -28,10 +28,10 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
-      "page": "/cafmenu",
-      "regex": "^/cafmenu(?:/)?$",
+      "page": "/cafeteriamenu",
+      "regex": "^/cafeteriamenu(?:/)?$",
       "routeKeys": {},
-      "namedRegex": "^/cafmenu(?:/)?$"
+      "namedRegex": "^/cafeteriamenu(?:/)?$"
     },
     {
       "page": "/dashboard",

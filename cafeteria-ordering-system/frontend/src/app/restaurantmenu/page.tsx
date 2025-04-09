@@ -5,6 +5,38 @@ import '../dashboard/styles/styles.css';
 
 const RestaurantMenu: React.FC = () => {
 	const [menuItems, setMenuItems] = useState<any[]>([]);
+	const [searchTerm, setSearchTerm] = useState('');
+	const [results, setResults] = useState<any[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchTerm(event.target.value);
+	};
+
+	const fetchSearchResults = async (query: string) => {
+    if (query.trim() === '') {
+      setResults([]);
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        'http://localhost:8080/allmenusearch',
+        { name: query },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
+      setResults(response.data);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 	useEffect(() => {
 	const fetchMenuData = async () => {
@@ -19,6 +51,13 @@ const RestaurantMenu: React.FC = () => {
 	
 	        fetchMenuData();
 	    }, []);
+
+	useEffect(() => {
+    const delay = setTimeout(() => {
+      fetchSearchResults(searchTerm);
+    }, 500);
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
 
 	const handleAddToCart = async (item: any) => {
 		  try {
@@ -69,11 +108,32 @@ const RestaurantMenu: React.FC = () => {
 
                     {/* Search Container */}
                     <div className="search-container">
-                        <input type="search" placeholder="Search for something..." />
-                        <button className="search-button">
-                            <img src="/search.svg" className="icon" alt="Search" />
-                        </button>
-                    </div>
+                                <input
+                                  type="search"
+                                  placeholder="Search for something..."
+                                  value={searchTerm}
+                                  onChange={handleSearchChange}
+                                />
+                                <button className="search-button">
+                                  <img src="/search.svg" className="icon" alt="Search" />
+                                </button>
+                    
+                                {searchTerm && (
+                                  <ul className="search-results">
+                                    {isLoading ? (
+                                      <li className="search-item">Loading...</li>
+                                    ) : results.length > 0 ? (
+                                      results.map((result, index) => (
+                                        <li className="search-item" key={index}>
+                                          <a href={`/${result.source}menu`}>{result.name}</a>
+                                        </li>
+                                      ))
+                                    ) : (
+                                      <li className="search-item">No results found</li>
+                                    )}
+                                  </ul>
+                                )}
+                              </div>
 
                     {/* Navigation Menu */}
                     <nav className="nav-menu">
