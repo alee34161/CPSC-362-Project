@@ -19,7 +19,7 @@ You must be running on Linux for the following method.
 Run these commands:\
 	sudo apt update          // update lists\
 	sudo apt install npm     // install node manager\
-	npm install              // install react/node dependencies
+	npm install              // install react/node dependencies\
 	sudo apt install mysql-server      // install mysql
 
 
@@ -52,14 +52,13 @@ Tutorials are provided on the default page.
 ## Backend
 
 
-database/.cpp is compiled with the following command:\
-	g++ -o nameofexecutable nameoffile.cpp -lmysqlcppconn
+Main code is in the index.js file.
 
 
 ### HOW TO RUN BACKEND:
 
 	On Linux the command is "node index.js" in the backend directory.
-
+\
 	**To test with frontend, refer to HOW TO RUN FRONTEND section above.**
 
 

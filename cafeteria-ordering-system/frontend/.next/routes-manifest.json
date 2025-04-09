@@ -28,6 +28,12 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/cafeteriamenu",
+      "regex": "^/cafeteriamenu(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cafeteriamenu(?:/)?$"
+    },
+    {
       "page": "/dashboard",
       "regex": "^/dashboard(?:/)?$",
       "routeKeys": {},
@@ -56,6 +62,12 @@
       "regex": "^/login(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/login(?:/)?$"
+    },
+    {
+      "page": "/restaurantmenu",
+      "regex": "^/restaurantmenu(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/restaurantmenu(?:/)?$"
     },
     {
       "page": "/signup",

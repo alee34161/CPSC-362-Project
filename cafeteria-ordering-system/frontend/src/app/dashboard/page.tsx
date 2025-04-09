@@ -1,155 +1,175 @@
-"use client";
-import React, { useEffect } from 'react'; // Import React and useEffect
-import './styles/styles.css'; // Import the CSS file for styling
+'use client';
+import React, { useState, useEffect } from 'react';
+import './styles/styles.css';
+import axios from 'axios';
 
-// JavaScript begin
-const cafe: React.FC = () => {
-    useEffect(() => {
-        // JavaScript for hamburger menu toggle for mobile
-        const hamburger = document.querySelector('.hamburger-menu');
-        const navMenu = document.querySelector('.nav-menu');
+const Cafe: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-        const toggleMenu = () => {
-            // Toggle the 'active' class for the menu and hamburger button
-            navMenu?.classList.toggle('active');
-            hamburger?.classList.toggle('active');
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
 
-            // Accessibility - update aria-expanded attribute
-            const expanded = navMenu?.classList.contains('active') || false;
-            hamburger?.setAttribute('aria-expanded', expanded.toString());
-        };
+  const fetchSearchResults = async (query: string) => {
+    if (query.trim() === '') {
+      setResults([]);
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await axios.post(
+        'http://localhost:8080/allmenusearch',
+        { name: query },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
+        }
+      );
+      setResults(response.data);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        // Add event listener for the hamburger menu
-        hamburger?.addEventListener('click', toggleMenu);
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      fetchSearchResults(searchTerm);
+    }, 500);
+    return () => clearTimeout(delay);
+  }, [searchTerm]);
 
-        // Cleanup event listener on component unmount
-        return () => {
-            hamburger?.removeEventListener('click', toggleMenu);
-        };
-    }, []); // Empty dependency array ensures this runs only once when the component mounts
-    // JavaScript end
+  return (
+    <>
+      {/* Header */}
+      <header>
+        <div className="navbar-container">
+          {/* Logo */}
+          <div className="logo">
+            <a href="/dashboard">
+              <h1>Cafe CSUF</h1>
+            </a>
+          </div>
 
-    // html begin
-    return (
-        <>
-            {/* Header Section */}
-            <header>
+          {/* Search Container */}
+          <div className="search-container">
+            <input
+              type="search"
+              placeholder="Search for something..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            <button className="search-button">
+              <img src="/search.svg" className="icon" alt="Search" />
+            </button>
 
-                <div className="navbar-container">
+            {searchTerm && (
+              <ul className="search-results">
+                {isLoading ? (
+                  <li className="search-item">Loading...</li>
+                ) : results.length > 0 ? (
+                  results.map((result, index) => (
+                    <li className="search-item" key={index}>
+                      <a href={`/${result.source}menu`}>{result.name}</a>
+                    </li>
+                  ))
+                ) : (
+                  <li className="search-item">No results found</li>
+                )}
+              </ul>
+            )}
+          </div>
 
-                    {/* Logo Section */}
-                    <div className="logo">
-                        <a href="/dashboard">
-                            <h1>Cafe CSUF</h1>
-                        </a>
+          {/* Navigation Menu */}
+          <nav className="nav-menu">
+            <ul>
+              <li>
+                <a href="/cart" title="Cart">
+                  <img src={"/cart.svg"} className="icon" alt="Cart" />
+                  <span className="nav-text">Bag</span>
+                </a>
+              </li>
+              <li>
+                <a href="/user" title="Account">
+                  <img src="/account.svg" className="icon" alt="Account" />
+                  <span className="nav-text">Account</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+
+          {/* Hamburger Menu */}
+          <button className="hamburger-menu" aria-label="Toggle menu">
+            <span className="bar"></span>
+            <span className="bar"></span>
+            <span className="bar"></span>
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main>
+        {/* Categories Section */}
+        <section className="categories">
+          <div className="categories-container">
+            <h3>Welcome!</h3>
+            <br />
+            <div className="placeholder-categories">
+              <nav className="nav-menu">
+                <ul>
+                  <li>
+                    <div className="category-item">
+                      <a href="/cafeteriamenu">
+                        <img
+                          src="/menu_1.svg"
+                          className="categories-icon"
+                          alt="Our Cafeteria"
+                        />
+                        <p>Our Cafeteria</p>
+                      </a>
                     </div>
-
-                    {/* Search Bar */}
-                    <div className="search-container">
-                        <input type="search" placeholder="Search for something..." />
-                        <button className="search-button">
-                            <i className="fa-solid fa-search"></i>
-                        </button>
+                  </li>
+                  <li>
+                    <div className="category-item">
+                      <a href="/restaurantmenu">
+                        <img
+                          src="/menu_2.svg"
+                          className="categories-icon"
+                          alt="Local Restaurants"
+                        />
+                        <p>Local Restaurants</p>
+                      </a>
                     </div>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </section>
 
-                    {/* Navigation Menu */}
-                    <nav className="nav-menu">
-                        <ul>
+        {/* Featured Meals Section */}
+        <section className="products">
+          <div className="products-container">
+            <h2>Featured Meals</h2>
+            <br />
+            <div className="placeholder-products">
+              <div className="placeholder-product"></div>
+              <div className="placeholder-product"></div>
+              <div className="placeholder-product"></div>
+            </div>
+          </div>
+        </section>
+      </main>
 
-                            <li>
-                                {/* Cart */}
-                                <a href="/cart" title="Cart">
-                                    <i className="fa-solid fa-cart-shopping"></i>
-                                    <span className="nav-text">Cart</span>
-                                </a>
-                            </li>
-
-                            <li>
-                                {/* Account */}
-                                <a href="/user" title="Account">
-                                    <i className="fa-solid fa-circle-user"></i>
-                                    <span className="nav-text">Account</span>
-                                </a>
-                            </li>
-
-                            <li>
-                                {/* About */}
-                                <a href="/about" title="About">
-                                    <i className="fa-solid fa-circle-info"></i>
-                                    <span className="nav-text">About</span>
-                                </a>
-                            </li>
-
-                        </ul>
-                    </nav>
-
-                    {/* Hamburger Menu for Mobile Responsiveness */}
-                    <button className="hamburger-menu" aria-label="Toggle menu">
-                        <span className="bar"></span>
-                        <span className="bar"></span>
-                        <span className="bar"></span>
-                    </button>
-
-                </div>
-
-            </header>
-
-            {/* Main Content Section */}
-            <main>
-
-                {/* Categories Section */}
-                <section className="categories">
-                    <div className="categories-container">
-                        <h3>Categories</h3>
-                        <br />
-                        <div className="placeholder-categories">
-
-                            {/* Category: Our Cafeteria */}
-                            <div className="category-item">
-                                <a href="our_cafeteria.html">
-                                    <i
-                                        className="fa-solid fa-utensils"
-                                        style={{ fontSize: '6.5rem' }}
-                                    ></i>
-                                    <p>Our Cafeteria</p>
-                                </a>
-                            </div>
-
-                            {/* Category: Local Restaurants */}
-                            <div className="category-item">
-                                <a href="local_restaurants.html">
-                                    <i
-                                        className="fa-solid fa-people-group"
-                                        style={{ fontSize: '6.5rem' }}
-                                    ></i>
-                                    <p>Local Restaurants</p>
-                                </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </section>
-
-                {/* Featured Restaurants Section */}
-                <section className="products">
-                    <div className="products-container">
-                        <h3>Featured Restaurants</h3>
-                        <div className="placeholder-products">
-                            {/* Placeholder for Featured Restaurants */}
-                            <div className="placeholder-product"></div>
-                            <div className="placeholder-product"></div>
-                            <div className="placeholder-product"></div>
-                        </div>
-                    </div>
-                </section>
-
-            </main>
-
-            {/* Footer Section */}
-            <footer></footer>
-        </>
-    );
-    // html end
+      {/* Footer */}
+      <footer></footer>
+    </>
+  );
 };
 
-export default cafe; // Export the cafe component for use in other parts of the application
+export default Cafe;
