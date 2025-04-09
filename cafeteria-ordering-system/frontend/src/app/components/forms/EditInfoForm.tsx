@@ -33,9 +33,13 @@ export function EditInfoForm() {
     axios
       .get("http://localhost:8080/currentuserread")
       .then((response) => {
-        setFormData(response.data);
-        // if response includes profileImage, set it here
-        // setProfileImage(response.data.profileImage);
+        setFormData({
+          username: response.data.username || "",
+          password: response.data.password || "",
+          name: response.data.name || "",
+          phone: response.data.phone || ""
+        });
+        // setProfileImage(response.data.profileImage); // if profileImage is stored
       })
       .catch((err) => {
         console.error("Error fetching data:", err);
@@ -77,7 +81,7 @@ export function EditInfoForm() {
           password: formData.password,
           name: formData.name,
           phone: formData.phone
-          // profileImage: profileImage, // send this if needed
+          // profileImage: profileImage, // add if needed
         }
       );
 
@@ -154,7 +158,7 @@ export function EditInfoForm() {
                   name="name"
                   type="text"
                   placeholder="Name"
-                  value={formData.name}
+                  value={formData.name || ""}
                   onChange={handleChange}
                 />
               </div>
@@ -165,7 +169,7 @@ export function EditInfoForm() {
                   name="username"
                   type="text"
                   placeholder="Email"
-                  value={formData.username}
+                  value={formData.username || ""}
                   onChange={handleChange}
                 />
               </div>
@@ -176,7 +180,7 @@ export function EditInfoForm() {
                   name="password"
                   type="password"
                   placeholder="Password"
-                  value={formData.password}
+                  value={formData.password || ""}
                   onChange={handleChange}
                 />
               </div>
@@ -187,7 +191,7 @@ export function EditInfoForm() {
                   name="phone"
                   type="text"
                   placeholder="Phone number"
-                  value={formData.phone}
+                  value={formData.phone || ""}
                   onChange={handleChange}
                 />
               </div>
