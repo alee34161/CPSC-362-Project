@@ -111,8 +111,7 @@ db.connect((err) => {
 });
 
 	// Implement cart table
-	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned, source varchar(255), name varchar(255), price decimal(10,2), quantity INT)", function(err, result) { if (err) throw err; });
-	db.query("DELETE FROM Cart");
+	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned, source varchar(255), name varchar(255), price decimal(10,2), quantity INT, customerid INT unsigned)", function(err, result) { if (err) throw err; });
 	console.log("Created new Cart table.");
 });
 
@@ -182,19 +181,25 @@ app.post('/restaurantmenuupdate', (req, res) => {
 app.post('/cartadd', (req, res) => {
 	const { id, name, price, quantity, source } = req.body;
 	console.log("Cart add received with:", req.body);
+	db.query('SELECT id FROM currentUser', (err, result) => {
+		if(err) {
+			console.error('Error reading current customer id:', err);
+		}
+		const customerID = result[0].id
+		db.query(
+				'INSERT INTO Cart (id, source, name, price, quantity, customerid) VALUES (?, ?, ?, ?, ?, ?)', 
+				[id, source, name, price, quantity, customerID], 
+				(err, results) => {
+					if (err) {
+					console.error('Error adding item to cart:', err);
+					return res.status(500).send('Error adding item to cart.');
+				}
+				res.status(200).send('Item added to cart successfully.');
+				console.log('Item added to cart successfully.');
+				}
+			);
+	})
 
-	db.query(
-		'INSERT INTO Cart (id, source, name, price, quantity) VALUES (?, ?, ?, ?, ?)', 
-		[id, source, name, price, quantity], 
-		(err, results) => {
-			if (err) {
-			console.error('Error adding item to cart:', err);
-			return res.status(500).send('Error adding item to cart.');
-		}
-		res.status(200).send('Item added to cart successfully.');
-		console.log('Item added to cart successfully.');
-		}
-	);
 });
 
 // Cart Read function, meant for the customer to be able to see current cart.
