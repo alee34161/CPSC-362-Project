@@ -3,11 +3,12 @@
   "/favicon.ico/route": "/favicon.ico",
   "/cafeteriamenu/page": "/cafeteriamenu",
   "/dashboard/page": "/dashboard",
+  "/cart/page": "/cart",
   "/forgot-password/page": "/forgot-password",
-  "/login/page": "/login",
-  "/page": "/",
-  "/signup/page": "/signup",
   "/restaurantmenu/page": "/restaurantmenu",
-  "/(userinfo)/user/page": "/user",
-  "/(userinfo)/edit-info/page": "/edit-info"
+  "/page": "/",
+  "/login/page": "/login",
+  "/signup/page": "/signup",
+  "/(userinfo)/edit-info/page": "/edit-info",
+  "/(userinfo)/user/page": "/user"
 }

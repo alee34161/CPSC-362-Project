@@ -39,7 +39,7 @@ export function EditInfoForm() {
           name: response.data.name || "",
           phone: response.data.phone || ""
         });
-        // setProfileImage(response.data.profileImage); // if profileImage is stored
+        setProfileImage(response.data.profileImage); // if profileImage is stored
       })
       .catch((err) => {
         console.error("Error fetching data:", err);
@@ -61,10 +61,21 @@ export function EditInfoForm() {
     }
   };
 
-  const handleSaveImage = () => {
+  const handleSaveImage = async() => {
     setProfileImage(tempImage);
     setTempImage(null);
     // Optionally upload to server here
+    try {
+    	const response = await axios.post('http://localhost:8080/currentuserpicupdate', {
+    		profileImage: tempImage
+    	}, {
+    		headers: {
+    			'Content-Type': 'application/json'
+    		}
+    	});
+    } catch (error) {
+    	console.error("Error updated pic.", error);
+    }
   };
 
   const handleCancelImage = () => {
