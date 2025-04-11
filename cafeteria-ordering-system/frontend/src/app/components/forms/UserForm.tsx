@@ -10,7 +10,7 @@ import React, { useState, useEffect } from "react";
 
 export function UserForm() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ username: "", password: "", name: "", phone: "", location: "", role: "" });
+  const [formData, setFormData] = useState({ username: "", password: "", name: "", phone: "", location: "", role: "", profileImage: "" });
   const [error, setError] = useState("");
 
     useEffect(() => {
@@ -29,7 +29,7 @@ export function UserForm() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-lg mt-10">
         <div className="flex flex-col items-center mb-8">
           <img
-            src="https:media.tenor.com/2abbiMqSkOwAAAAM/charlotte-healing-song.gif"
+            src={formData.profileImage}
             alt="User Profile"
             className="w-32 h-32 rounded-full border-4 border-gray-200 dark:border-gray-600 mb-4 object-cover"
           />

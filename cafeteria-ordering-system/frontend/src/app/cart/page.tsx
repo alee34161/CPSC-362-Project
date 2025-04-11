@@ -1,7 +1,9 @@
 'use client'; // Needed for interactivity in Next.js App Router
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import Link from 'next/link';
 
 type CartItem = {
   id: number;
@@ -9,61 +11,108 @@ type CartItem = {
   price: number;
   quantity: number;
   image: string;
-  note: string;
+  customization: string;
 };
 
-const initialItems: CartItem[] = [
-  {
-    id: 1,
-    name: 'Wireless Headphones',
-    price: 99.99,
-    quantity: 2,
-    image: '/images/headphones.jpg',
-    note: '',
-  },
-  {
-    id: 2,
-    name: 'Mechanical Keyboard',
-    price: 129.99,
-    quantity: 1,
-    image: '/images/keyboard.jpg',
-    note: '',
-  },
-  {
-    id: 2,
-    name: 'Mechanical Keyboard',
-    price: 129.99,
-    quantity: 1,
-    image: '/images/keyboard.jpg',
-    note: '',
-  },
-];
-
 export default function CartPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>(initialItems);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [lastSentTotal, setLastSentTotal] = useState<number | null>(null);
+  const [isCartLoaded, setIsCartLoaded] = useState(false);
 
-  const updateQuantity = (id: number, newQty: number) => {
+  useEffect(() => {
+  	const fetchCartData = async () => {
+  	  	try {
+  	  		const response = await fetch('http://localhost:8080/cartread');
+  	  		const data = await response.json();
+  	  		setCartItems(data);
+  	  		setIsCartLoaded(true);
+  	  	} catch (error) {
+  	  		console.error('Error fetching cart items:', error);
+  	  	}
+  	  };
+  	  fetchCartData();
+  }, []);
+
+  const updateQuantity = async (itema:any, newQty: number) => {
+	try {
+		const response = await axios.post('http://localhost:8080/cartupdate', {
+			id: itema.id,
+			quantity: newQty
+			}, {
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+	} catch (error) {
+		console.error('Error updating cart:', error);
+	}
+	
+  
     setCartItems((items) =>
       items.map((item) =>
-        item.id === id ? { ...item, quantity: newQty } : item
+        item.id === itema.id ? { ...item, quantity: newQty } : item
       )
     );
   };
 
-  const updateNote = (id: number, newNote: string) => {
+  const updateNote = async (id: number, newNote: string) => {
+	try {
+		const response = await axios.post('http://localhost:8080/cartcustomupdate', {
+			id: id,
+			customization: newNote
+		}, {
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+	} catch (error) {
+		console.error('Error updating customization in cart.', error);
+	}
+  
     setCartItems((items) =>
       items.map((item) =>
-        item.id === id ? { ...item, note: newNote } : item
+        item.id === id ? { ...item, customization: newNote } : item
       )
     );
   };
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const tax = subtotal * 0.1;
-  const total = subtotal + tax;
+  const total = subtotal + tax;  
+  useEffect(() => {
+    if (!isCartLoaded) return; // Avoid running before cart is loaded
+    if (lastSentTotal !== total) {
+      const updateCartTotal = async () => {
+        try {
+          await axios.post(
+            'http://localhost:8080/updatetotal',
+            { cartTotal: total },
+            { headers: { 'Content-Type': 'application/json' } }
+          );
+          setLastSentTotal(total);
+        } catch (error) {
+          console.error('Error updating cart total:', error);
+        }
+      };
+  
+      updateCartTotal();
+    }
+  }, [total, lastSentTotal, isCartLoaded]);
+  
+ 
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
+		<div className="flex justify-end">
+ 		 <a
+		    href="/dashboard"
+		    className="text-sm font-medium text-blue-600 hover:underline"
+		  >
+ 		   Back to Menu
+		  </a>
+		</div>
+
+    
       <h1 className="text-3xl font-bold">Your Cart</h1>
 
       <div className="space-y-4">
@@ -80,7 +129,7 @@ export default function CartPage() {
                       type="number"
                       min={1}
                       value={item.quantity}
-                      onChange={(e) => updateQuantity(item.id, parseInt(e.target.value) || 1)}
+                      onChange={(e) => updateQuantity(item, parseInt(e.target.value) || 1)}
                       className="w-16 p-1 text-center border rounded"
                     />
                   </div>
@@ -92,7 +141,7 @@ export default function CartPage() {
               <label className="text-sm block mb-1 text-gray-500">Special Request</label>
               <input
                 type="text"
-                value={item.note}
+                value={item.customization}
                 onChange={(e) => updateNote(item.id, e.target.value)}
                 placeholder="ex: No onions, no pickles..."
                 className="w-full p-2 border rounded text-sm"
@@ -117,9 +166,11 @@ export default function CartPage() {
         </div>
       </div>
 
-      <button className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition">
-        Proceed to Checkout
-      </button>
+      <Link href="/checkout">
+        <button className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition">
+          Proceed to Checkout
+        </button>
+      </Link>
     </div>
   );
 }

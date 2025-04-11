@@ -42,15 +42,15 @@ db.connect((err) => {
 
 	// Creates the user information table if it isn't already made for authentication and account info.
 	// Note: username is the same thing as email
-    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
+    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
     console.log("Created userInformation table");
-    
+	    
 	// Automatically makes an admin account where username is Root@Root and password is admin ONLY IF there is no admin account
 	db.query("INSERT INTO userInformation(role) SELECT ('admin') WHERE NOT EXISTS (SELECT * FROM userInformation)");
 	db.query("UPDATE userInformation SET username = 'Root@Root', password = 'admin' WHERE username IS NULL");
 
 	// Creates currentUser Table if it isn't already made and empties it completely. Used to track current user for account info
-    db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
+    db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
 	db.query('DELETE FROM currentUser');
 	console.log("Created new currentUser table");
 
@@ -111,13 +111,27 @@ db.connect((err) => {
 });
 
 	// Implement cart table
-	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned, source varchar(255), name varchar(255), price decimal(10,2), quantity INT, customerid INT unsigned)", function(err, result) { if (err) throw err; });
+	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned AUTO_INCREMENT, source varchar(255), name varchar(255), price decimal(10,2), quantity INT, customization varchar(255), customerid INT unsigned, foodID INT unsigned, PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
 	console.log("Created new Cart table.");
 });
 
 // ===============================================================
 // API request handlers below
 // ===============================================================
+
+
+// Update cart total cost for checkout
+app.post('/updatetotal', (req, res) => {
+	const { cartTotal } = req.body;
+	db.query('UPDATE currentUser SET cartTotal = ?', [cartTotal], (err, result) => {
+		if(err) {
+			console.error('Error updating cart total.');
+			return res.status(500).send('Error updating cart total.');
+		}
+		res.status(200).send('Cart total updated successfully.');
+		console.log("currentUser cart total updated successfully.");
+	});
+});
 
 // Search function for all menus, meant to be used for the dashboard search bar.
 app.post('/allmenusearch', (req, res) => {
@@ -187,8 +201,8 @@ app.post('/cartadd', (req, res) => {
 		}
 		const customerID = result[0].id
 		db.query(
-				'INSERT INTO Cart (id, source, name, price, quantity, customerid) VALUES (?, ?, ?, ?, ?, ?)', 
-				[id, source, name, price, quantity, customerID], 
+				'INSERT INTO Cart (source, name, price, quantity, customerid, foodID) VALUES (?, ?, ?, ?, ?, ?)', 
+				[source, name, price, quantity, customerID, id], 
 				(err, results) => {
 					if (err) {
 					console.error('Error adding item to cart:', err);
@@ -245,7 +259,21 @@ app.get('/carttotal', (req, res) => {
 app.post('/cartupdate', (req, res) => {
 	console.log("Received cart update:", req.body);
 	const { id, quantity } = req.body;
-	db.query('UPDATE Cart SET name = (?), quantity = (?) WHERE id = (?)', [name, quantity, id], (err, results) => {
+	db.query('UPDATE Cart SET quantity = (?) WHERE id = (?)', [quantity, id], (err, results) => {
+		if(err) {
+			console.error('Error updating cart.');
+			return res.status(500).send('Error updating cart.');
+		}
+		res.status(200).send('Cart updated successfully.');
+		console.log('Cart updated successfully.');
+	});
+});
+
+// Cart customization update function
+app.post('/cartcustomupdate', (req, res) => {
+	console.log("Received customization field update:", req.body);
+	const { id, customization } = req.body;
+	db.query('UPDATE Cart SET customization = (?) WHERE id = (?)', [customization, id], (err, results) => {
 		if(err) {
 			console.error('Error updating cart.');
 			return res.status(500).send('Error updating cart.');
@@ -413,6 +441,28 @@ app.get('/currentuserread', (req, res) => {
 	});
 });
 
+// Current user profile pic update function
+app.post('/currentuserpicupdate', (req, res) => {
+	console.log("Received current user profile pic update:", req.body);
+	const { profileImage } = req.body;
+
+	db.query('UPDATE currentUser SET profileImage = ?', [profileImage], (err, result) => {
+		if(err) {
+			console.error("Error updating pic:", err);
+			return res.status(500).send('Error updating pic.');
+		}
+		console.log("current user pic updated successfully");
+	});
+	db.query('UPDATE userInformation SET profileImage = ?', [profileImage], (err, result) => {
+		if(err) {
+			console.error("Error updating pic in database:", err);
+			return res.status(500).send('Error updating pic in database.');
+		}
+		console.log("use pic updated in database successfully");
+	});
+});
+
+
 // Current user update function, meant for the edit profile page
 app.post('/currentuserupdate', (req, res) => {
   console.log("Received current user update:", req.body);
@@ -488,6 +538,7 @@ app.post('/currentuserupdate', (req, res) => {
 app.post('/register', (req, res) => {
     console.log("Received data:", req.body); // Debugging
     const { username, password, role } = req.body;
+    const profileImage = 'https:media.tenor.com/2abbiMqSkOwAAAAM/charlotte-healing-song.gif'
 
     if (!username || !password || !role) {
         return res.status(400).send("All fields are required.");
@@ -503,8 +554,8 @@ app.post('/register', (req, res) => {
     		return res.status(500).send('Email already in use.');
     	} else {
     	db.query(
-        'INSERT INTO userInformation (username, password, role) VALUES (?, ?, ?)',
-        [username, password, role],
+        'INSERT INTO userInformation (username, password, role, profileImage) VALUES (?, ?, ?, ?)',
+        [username, password, role, profileImage],
         (err, result) => {
             if (err) {
                 console.error('Error registering user:', err);
