@@ -207,14 +207,23 @@ app.post('/cartadd', (req, res) => {
 app.get('/cartread', (req, res) => {
 	console.log("Received cart read:", req.query);
 	// Only read items that are above 0 quantity
-	db.query("SELECT * FROM Cart WHERE quantity > 0", (err, result) => {
-		if (err) {
-			console.error('Error reading cart:', err);
-			return res.status(500).send('Error reading cart.');
+
+	db.query('SELECT id FROM currentUser', (err, result) => {
+		if(err) {
+			console.error('Error reading current customer id:', err);
 		}
-		console.log("Cart read successfully.");
-		return res.json(result);
-	});
+		const customerID = result[0].id
+		
+		db.query("SELECT * FROM Cart WHERE quantity > 0 AND customerID = ?", [customerID], (err, result) => {
+				if (err) {
+					console.error('Error reading cart:', err);
+					return res.status(500).send('Error reading cart.');
+				}
+				console.log("Cart read successfully.");
+				return res.json(result);
+			});
+	})
+	
 });
 
 // Cart Total function, meant for checkout purposes
