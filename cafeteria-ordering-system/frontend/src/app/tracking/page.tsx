@@ -27,32 +27,59 @@ export default function OrderConfirmationPage() {
     const fetchOrderStatus = async () => {
       try {
         const response = await axios.get('http://localhost:8080/orderstatus');
+        
+        // Check if response is valid
+        if (!response.data || !response.data.status) {
+          throw new Error('Invalid order status data');
+        }
+
         const newStatus = response.data.status;
 
+        // Check if status has changed, show toast notification
         if (newStatus !== lastStatus && lastStatus !== '') {
           toast.success(`Order is now: ${newStatus}`);
+        }
+
+        // Ensure that orderStatus is valid
+        if (!statusSteps.includes(newStatus)) {
+          throw new Error('Invalid order status value');
         }
 
         setOrderStatus(newStatus);
         setLastStatus(newStatus);
       } catch (error) {
         console.error('Error fetching order status:', error);
+        toast.error('Failed to fetch order status. Please try again later.');
       }
     };
 
     fetchOrderStatus();
-    const interval = setInterval(fetchOrderStatus, 10000);
+    const interval = setInterval(fetchOrderStatus, 10000); // Fetch every 10 seconds
     return () => clearInterval(interval);
   }, [lastStatus]);
 
-  // Fetch cart items
+  // Fetch cart items with checks for invalid or empty data
   useEffect(() => {
     const fetchCartData = async () => {
       try {
         const response = await axios.get('http://localhost:8080/cartread');
-        setCartItems(response.data);
+        
+        // Check if response contains valid data
+        if (!response.data || !Array.isArray(response.data)) {
+          throw new Error('Invalid cart data');
+        }
 
-        const subtotal = response.data.reduce(
+        const cartData = response.data;
+
+        // Check if cart data is empty
+        if (cartData.length === 0) {
+          toast.error('Your cart is empty!');
+        }
+
+        setCartItems(cartData);
+
+        // Calculate the total amount
+        const subtotal = cartData.reduce(
           (acc: number, item: CartItem) => acc + item.price * item.quantity,
           0
         );
@@ -60,6 +87,7 @@ export default function OrderConfirmationPage() {
         setTotal(subtotal + tax);
       } catch (error) {
         console.error('Error fetching cart data:', error);
+        toast.error('Failed to load cart items. Please try again later.');
       }
     };
 
@@ -76,22 +104,26 @@ export default function OrderConfirmationPage() {
       </div>
 
       <div className="space-y-4">
-        {cartItems.map((item) => (
-          <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md" />
-                <div>
-                  <p className="font-medium">{item.name}</p>
-                  <p className="text-sm text-gray-500">
-                    Qty: {item.quantity} | Special: {item.customization || 'None'}
-                  </p>
+        {cartItems.length === 0 ? (
+          <p>Your cart is empty. Please add items to your cart.</p>
+        ) : (
+          cartItems.map((item) => (
+            <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md" />
+                  <div>
+                    <p className="font-medium">{item.name}</p>
+                    <p className="text-sm text-gray-500">
+                      Qty: {item.quantity} | Special: {item.customization || 'None'}
+                    </p>
+                  </div>
                 </div>
+                <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
               </div>
-              <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       <div className="bg-gray-50 p-4 rounded-xl space-y-2 shadow-inner">
