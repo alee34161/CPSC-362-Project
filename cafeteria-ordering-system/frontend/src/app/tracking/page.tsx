@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import axios from 'axios';
+import toast from 'react-hot-toast'; // ✅ 1. Import toast
 
 type CartItem = {
   id: number;
@@ -17,26 +18,34 @@ type CartItem = {
 export default function OrderConfirmationPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [orderStatus, setOrderStatus] = useState<string>('Pending');
+  const [lastStatus, setLastStatus] = useState<string>(''); // ✅ 2. Keep track of previous status
   const [total, setTotal] = useState<number>(0);
   const statusSteps = ['Pending', 'Preparing', 'Out for Delivery', 'Completed'];
 
-  // Fetch order status
+  // ✅ 3. Fetch order status and show toast if changed
   useEffect(() => {
     const fetchOrderStatus = async () => {
       try {
         const response = await axios.get('http://localhost:8080/orderstatus');
-        setOrderStatus(response.data.status); // Example: { status: 'Preparing' }
+        const newStatus = response.data.status;
+
+        if (newStatus !== lastStatus && lastStatus !== '') {
+          toast.success(`Order is now: ${newStatus}`);
+        }
+
+        setOrderStatus(newStatus);
+        setLastStatus(newStatus);
       } catch (error) {
         console.error('Error fetching order status:', error);
       }
     };
 
     fetchOrderStatus();
-    const interval = setInterval(fetchOrderStatus, 10000); // poll every 10s
+    const interval = setInterval(fetchOrderStatus, 10000);
     return () => clearInterval(interval);
-  }, []);
+  }, [lastStatus]);
 
-  // Fetch ordered items
+  // Fetch cart items
   useEffect(() => {
     const fetchCartData = async () => {
       try {
