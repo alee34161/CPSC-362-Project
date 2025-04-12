@@ -1,40 +1,61 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
+import axios from 'axios';
+
+type CartItem = {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  customization: string;
+};
 
 export default function OrderConfirmationPage() {
-  const [orderStatus] = useState('Out for Delivery'); // Simulate real status here
-  const [statusSteps] = useState(['Pending', 'Preparing', 'Out for Delivery', 'Completed']);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [orderStatus, setOrderStatus] = useState<string>('Pending');
+  const [total, setTotal] = useState<number>(0);
+  const statusSteps = ['Pending', 'Preparing', 'Out for Delivery', 'Completed'];
 
-  // Simulated cart data
-  const cartItems = [
-    {
-      id: 1,
-      name: 'Classic Cheeseburger',
-      quantity: 2,
-      price: 7.99,
-      customization: 'No pickles',
-    },
-    {
-      id: 2,
-      name: 'Large Fries',
-      quantity: 1,
-      price: 2.99,
-      customization: '',
-    },
-    {
-      id: 3,
-      name: 'Chocolate Milkshake',
-      quantity: 1,
-      price: 3.5,
-      customization: 'Extra whipped cream',
-    },
-  ];
+  // Fetch order status
+  useEffect(() => {
+    const fetchOrderStatus = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/orderstatus');
+        setOrderStatus(response.data.status); // Example: { status: 'Preparing' }
+      } catch (error) {
+        console.error('Error fetching order status:', error);
+      }
+    };
 
-  const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const tax = subtotal * 0.1;
-  const total = subtotal + tax;
+    fetchOrderStatus();
+    const interval = setInterval(fetchOrderStatus, 10000); // poll every 10s
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch ordered items
+  useEffect(() => {
+    const fetchCartData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/cartread');
+        setCartItems(response.data);
+
+        const subtotal = response.data.reduce(
+          (acc: number, item: CartItem) => acc + item.price * item.quantity,
+          0
+        );
+        const tax = subtotal * 0.1;
+        setTotal(subtotal + tax);
+      } catch (error) {
+        console.error('Error fetching cart data:', error);
+      }
+    };
+
+    fetchCartData();
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -47,18 +68,18 @@ export default function OrderConfirmationPage() {
 
       <div className="space-y-4">
         {cartItems.map((item) => (
-          <div
-            key={item.id}
-            className="bg-white p-4 rounded-xl shadow-sm space-y-2 border"
-          >
-            <div className="flex justify-between">
-              <div>
-                <p className="font-semibold">{item.name}</p>
-                <p className="text-sm text-gray-500">
-                  Qty: {item.quantity} | Special: {item.customization || 'None'}
-                </p>
+          <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md" />
+                <div>
+                  <p className="font-medium">{item.name}</p>
+                  <p className="text-sm text-gray-500">
+                    Qty: {item.quantity} | Special: {item.customization || 'None'}
+                  </p>
+                </div>
               </div>
-              <p>${(item.price * item.quantity).toFixed(2)}</p>
+              <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
             </div>
           </div>
         ))}
@@ -66,14 +87,6 @@ export default function OrderConfirmationPage() {
 
       <div className="bg-gray-50 p-4 rounded-xl space-y-2 shadow-inner">
         <div className="flex justify-between text-sm">
-          <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span>Tax (10%)</span>
-          <span>${tax.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-base font-semibold border-t pt-2">
           <span>Total</span>
           <span>${total.toFixed(2)}</span>
         </div>
