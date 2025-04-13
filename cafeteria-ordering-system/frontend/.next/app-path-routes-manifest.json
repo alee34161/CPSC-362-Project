@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/cafeteriamenu/page": "/cafeteriamenu",
+  "/cart/page": "/cart",
+  "/documentation/page": "/documentation",
+  "/forgot-password/page": "/forgot-password",
+  "/dashboard/page": "/dashboard",
+  "/login/page": "/login",
+  "/page": "/",
+  "/signup/page": "/signup",
+  "/restaurantmenu/page": "/restaurantmenu",
+  "/tracking/page": "/tracking",
+  "/(userinfo)/edit-info/page": "/edit-info",
+  "/(userinfo)/user/page": "/user"
+}

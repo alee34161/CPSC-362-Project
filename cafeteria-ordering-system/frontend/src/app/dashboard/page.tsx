@@ -75,8 +75,13 @@ const Cafe: React.FC = () => {
                 ) : results.length > 0 ? (
                   results.map((result, index) => (
                     <li className="search-item" key={index}>
-                      <a href={`/${result.source}menu`}>{result.name}</a>
+                      <a href={`/${result.source}menu`} className="full-link">
+                        {result.name}
+                      </a>
                     </li>
+                    
+                    
+                    
                   ))
                 ) : (
                   <li className="search-item">No results found</li>
