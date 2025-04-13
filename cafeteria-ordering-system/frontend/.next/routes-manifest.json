@@ -46,6 +46,12 @@
       "namedRegex": "^/dashboard(?:/)?$"
     },
     {
+      "page": "/documentation",
+      "regex": "^/documentation(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/documentation(?:/)?$"
+    },
+    {
       "page": "/edit-info",
       "regex": "^/edit\\-info(?:/)?$",
       "routeKeys": {},
@@ -80,6 +86,12 @@
       "regex": "^/signup(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/signup(?:/)?$"
+    },
+    {
+      "page": "/tracking",
+      "regex": "^/tracking(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tracking(?:/)?$"
     },
     {
       "page": "/user",
