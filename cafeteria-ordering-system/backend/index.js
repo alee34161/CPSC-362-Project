@@ -111,14 +111,119 @@ db.connect((err) => {
 });
 
 	// Implement cart table
-	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned AUTO_INCREMENT, source varchar(255), name varchar(255), price decimal(10,2), quantity INT, customization varchar(255), customerid INT unsigned, foodID INT unsigned, PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
+	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned AUTO_INCREMENT, source varchar(255), name varchar(255), price decimal(10,2), quantity INT, customization varchar(255), customerid INT unsigned, foodID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerid) REFERENCES userInformation(id))", function(err, result) { if (err) throw err; });
 	console.log("Created new Cart table.");
 });
 
+	// Implement TempCart table for checkout
+	db.query("CREATE TABLE IF NOT EXISTS TempCart (id INT unsigned, source varchar(255), name varchar(255), price decimal(10,2), quantity INT, customization varchar(255), customerid INT unsigned, foodID INT unsigned, orderID INT unsigned, FOREIGN KEY (customerid) REFERENCES userInformation(id), FOREIGN KEY (orderID) REFERENCES Orders(id))", function(err, result) { if (err) throw err; });
+	console.log("Created a temp Cart table for checkout purposes.");
+	
+	// Implement Orders table
+	db.query("CREATE TABLE IF NOT EXISTS Orders (id INT unsigned AUTO_INCREMENT, status varchar(255), source varchar(255), customerID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerID) REFERENCES userInformation(id))")
+	console.log("Created new Orders table.");
+	
 // ===============================================================
 // API request handlers below
 // ===============================================================
 
+// Order status read function
+app.get('/orderstatus', (req, res) => {
+	db.query('SELECT id FROM currentUser', (err, resu) => {
+		if(err) {
+			console.error('Error reading current user ID');
+			return res.status(500).send('Error reading current user ID');
+		}
+		const customerID = resu[0].id;
+		db.query('SELECT status FROM Orders WHERE customerid = ?', [customerID], (err, result) => {
+			if(err) {
+				console.error('Error reading order status.');
+				return res.status(500).send('Error reading order status.');
+			}
+			return res.send(result);
+		});
+	});
+});
+
+// Order add function. Also sets up the TempCart entries necessary
+app.post('/orderadd', (req, res) => {
+	const { source } = req.body;
+	
+	db.query('SELECT id FROM currentUser LIMIT 1', (err, resu) => {
+		if (err) {
+			console.error('Error reading current user ID.');
+			return res.status(500).send('Error reading current user ID.');
+		}
+		const customerID = resu[0].id;
+		db.query(
+			'INSERT INTO Orders (source, status, customerID) VALUES (?, ?, ?)',
+			[source, 'Pending', customerID],
+			(err, result) => {
+				if (err) {
+					console.error('Error inserting into Orders.');
+					return res.status(500).send('Error adding to Orders.');
+				}
+				const orderID = result.insertId;
+				const copyQuery = `
+					INSERT INTO TempCart (source, name, price, quantity, customization, customerID, foodID, orderID)
+					SELECT source, name, price, quantity, customization, customerid, foodID, ? 
+					FROM Cart 
+					WHERE customerid = ?
+				`;
+
+				db.query(copyQuery, [orderID, customerID], (err, copyResult) => {
+					if (err) {
+						console.error('Error copying items to TempCart:', err);
+						return res.status(500).send('Error creating TempCart for order.');
+					}
+					console.log('Order added and items copied to TempCart successfully.');
+					res.status(200).send('Order placed and cart items stored.');
+				});
+			}
+		);
+	});
+});
+
+// View all orders
+app.get('/orderoverallview', (req, res) => {
+	db.query('SELECT * FROM Orders', (err, results) => {
+		if(err) {
+			console.error('Error reading Orders.');
+			res.status(500).send('Error reading Orders.');
+		}
+		console.log('Overall Orders read successfully.');
+		res.send(results);
+	})
+})
+
+// View specific order
+app.get('/orderspecificview', (req, res) => {
+	const { orderID } = req.body;
+	db.query('SELECT * 
+	FROM TempCart 
+	WHERE customerid = (SELECT id FROM currentUser LIMIT 1);
+	', (err, result) => {
+		if(err) {
+			console.error('Error reading order items.');
+			res.status(500).send('Error reading order items.');
+		}
+		res.send(result);
+	});
+});
+
+// Update order status
+app.post('/orderstatusupdate', (req, res) => {
+	const { orderID, newStatus } = req.body;
+	db.query('UPDATE Orders SET status = ? WHERE id = ?', [ newStatus, orderID ],
+	(err, result) => {
+		if(err) {
+			console.error('Error updating order status.');
+			res.status(500).send('Error updating order status.');
+		}
+		console.log('Order status updated successfully.');
+		res.status(200).send('Order status updated successfully.');
+	})
+})
 
 // Update cart total cost for checkout
 app.post('/updatetotal', (req, res) => {
