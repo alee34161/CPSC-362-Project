@@ -113,15 +113,17 @@ db.connect((err) => {
 	// Implement cart table
 	db.query("CREATE TABLE IF NOT EXISTS Cart (id INT unsigned AUTO_INCREMENT, source varchar(255), name varchar(255), price decimal(10,2), quantity INT, customization varchar(255), customerid INT unsigned, foodID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerid) REFERENCES userInformation(id))", function(err, result) { if (err) throw err; });
 	console.log("Created new Cart table.");
-});
 
-	// Implement TempCart table for checkout
-	db.query("CREATE TABLE IF NOT EXISTS TempCart (id INT unsigned, source varchar(255), name varchar(255), price decimal(10,2), quantity INT, customization varchar(255), customerid INT unsigned, foodID INT unsigned, orderID INT unsigned, FOREIGN KEY (customerid) REFERENCES userInformation(id), FOREIGN KEY (orderID) REFERENCES Orders(id))", function(err, result) { if (err) throw err; });
-	console.log("Created a temp Cart table for checkout purposes.");
-	
 	// Implement Orders table
 	db.query("CREATE TABLE IF NOT EXISTS Orders (id INT unsigned AUTO_INCREMENT, status varchar(255), source varchar(255), customerID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerID) REFERENCES userInformation(id))")
 	console.log("Created new Orders table.");
+	
+	// Implement TempCart table for checkout
+	db.query("CREATE TABLE IF NOT EXISTS TempCart (id INT unsigned, source varchar(255), name varchar(255), price decimal(10,2), quantity INT, customization varchar(255), customerid INT unsigned, foodID INT unsigned, orderID INT unsigned, FOREIGN KEY (customerid) REFERENCES userInformation(id), FOREIGN KEY (orderID) REFERENCES Orders(id))", function(err, result) { if (err) throw err; });
+	console.log("Created a temp Cart table for checkout purposes.");
+});
+
+
 	
 // ===============================================================
 // API request handlers below
@@ -199,10 +201,7 @@ app.get('/orderoverallview', (req, res) => {
 // View specific order
 app.get('/orderspecificview', (req, res) => {
 	const { orderID } = req.body;
-	db.query('SELECT * 
-	FROM TempCart 
-	WHERE customerid = (SELECT id FROM currentUser LIMIT 1);
-	', (err, result) => {
+	db.query('SELECT * 	FROM TempCart 	WHERE customerid = (SELECT id FROM currentUser LIMIT 1)', (err, result) => {
 		if(err) {
 			console.error('Error reading order items.');
 			res.status(500).send('Error reading order items.');
