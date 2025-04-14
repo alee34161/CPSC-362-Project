@@ -132,16 +132,6 @@ export default function OrderTrackingPage() {
           <p className="font-medium">{orderStatus}</p>
         </div>
       </div>
-      
-      {/* Test button for development */}
-      <div className="mt-4">
-        <button
-          onClick={() => toast.success('Test notification')}
-          className="px-3 py-1 bg-blue-500 text-white rounded"
-        >
-          Test Toast
-        </button>
-      </div>
     </div>
   );
 }
