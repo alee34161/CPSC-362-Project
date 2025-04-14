@@ -96,7 +96,7 @@ const Cafe: React.FC = () => {
               <li>
                 <a href="/cart" title="Cart">
                   <img src={"/cart.svg"} className="icon" alt="Cart" />
-                  <span className="nav-text">Bag</span>
+                  <span className="nav-text">Cart</span>
                 </a>
               </li>
               <li>

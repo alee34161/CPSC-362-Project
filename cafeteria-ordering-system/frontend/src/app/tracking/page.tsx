@@ -20,21 +20,18 @@ export default function OrderTrackingPage() {
   const [lastStatus, setLastStatus] = useState<string>('');
   const [total, setTotal] = useState<number>(0);
   const statusSteps = ['Pending', 'Preparing', 'Out for Delivery', 'Completed'];
-
   // Fetch order status and show toast if changed
   useEffect(() => {
     const fetchOrderStatus = async () => {
       try {
         const response = await axios.get('http://localhost:8080/orderstatus');
         
-        if (!response.data || !response.data.status) {
-          throw new Error('Invalid order status data');
-        }
-
-        const newStatus = response.data.status;
+        const newStatus = response.data[0].status;
 
         // Check if status has changed and show toast notification
         if (lastStatus && newStatus !== lastStatus) {
+          toast.success(`Order status updated: ${newStatus}`);
+        } else if (lastStatus == '') {
           toast.success(`Order status updated: ${newStatus}`);
         }
 
@@ -56,7 +53,7 @@ export default function OrderTrackingPage() {
   useEffect(() => {
     const fetchCartData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/cartread');
+        const response = await axios.get('http://localhost:8080/currentorderread');
         
         if (!response.data || !Array.isArray(response.data)) {
           throw new Error('Invalid cart data');

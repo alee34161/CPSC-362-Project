@@ -42,7 +42,7 @@ db.connect((err) => {
 
 	// Creates the user information table if it isn't already made for authentication and account info.
 	// Note: username is the same thing as email
-    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
+    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
     console.log("Created userInformation table");
 	    
 	// Automatically makes an admin account where username is Root@Root and password is admin ONLY IF there is no admin account
@@ -50,7 +50,7 @@ db.connect((err) => {
 	db.query("UPDATE userInformation SET username = 'Root@Root', password = 'admin' WHERE username IS NULL");
 
 	// Creates currentUser Table if it isn't already made and empties it completely. Used to track current user for account info
-    db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
+    db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
 	db.query('DELETE FROM currentUser');
 	console.log("Created new currentUser table");
 
@@ -115,7 +115,7 @@ db.connect((err) => {
 	console.log("Created new Cart table.");
 
 	// Implement Orders table
-	db.query("CREATE TABLE IF NOT EXISTS Orders (id INT unsigned AUTO_INCREMENT, status varchar(255), source varchar(255), customerID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerID) REFERENCES userInformation(id))")
+	db.query("CREATE TABLE IF NOT EXISTS Orders (id INT unsigned AUTO_INCREMENT, deliveryAddress varchar(255), status varchar(255), customerID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerID) REFERENCES userInformation(id))")
 	console.log("Created new Orders table.");
 	
 	// Implement TempCart table for checkout
@@ -142,6 +142,7 @@ app.get('/orderstatus', (req, res) => {
 				console.error('Error reading order status.');
 				return res.status(500).send('Error reading order status.');
 			}
+			console.log("Order status read successfully.");
 			return res.send(result);
 		});
 	});
@@ -149,8 +150,8 @@ app.get('/orderstatus', (req, res) => {
 
 // Order add function. Also sets up the TempCart entries necessary
 app.post('/orderadd', (req, res) => {
-	const { source } = req.body;
-	
+	const { delivery } = req.body;
+	console.log("Order add request received");
 	db.query('SELECT id FROM currentUser LIMIT 1', (err, resu) => {
 		if (err) {
 			console.error('Error reading current user ID.');
@@ -158,26 +159,34 @@ app.post('/orderadd', (req, res) => {
 		}
 		const customerID = resu[0].id;
 		db.query(
-			'INSERT INTO Orders (source, status, customerID) VALUES (?, ?, ?)',
-			[source, 'Pending', customerID],
+			'INSERT INTO Orders (deliveryAddress, status, customerID) VALUES (?, ?, ?)',
+			[delivery, 'Pending', customerID],
 			(err, result) => {
 				if (err) {
 					console.error('Error inserting into Orders.');
 					return res.status(500).send('Error adding to Orders.');
 				}
 				const orderID = result.insertId;
-				const copyQuery = `
-					INSERT INTO TempCart (source, name, price, quantity, customization, customerID, foodID, orderID)
-					SELECT source, name, price, quantity, customization, customerid, foodID, ? 
-					FROM Cart 
-					WHERE customerid = ?
-				`;
+				const copyQuery = `INSERT INTO TempCart (id, source, name, price, quantity, customization, customerID, foodID, orderID) SELECT id, source, name, price, quantity, customization, customerid, foodID, ? FROM Cart WHERE customerid = ?`;
 
+				db.query('UPDATE currentUser SET currentOrderID = ?', [orderID], (err, currentOrderResult) => {
+					if(err) {
+						console.error('Error setting current order ID:', err);
+					}
+					console.log("Set currentUser currentOrderID successfully.");
+				})
 				db.query(copyQuery, [orderID, customerID], (err, copyResult) => {
 					if (err) {
 						console.error('Error copying items to TempCart:', err);
 						return res.status(500).send('Error creating TempCart for order.');
 					}
+					db.query('DELETE FROM Cart WHERE customerID = ?', [customerID], (err, deleteresult) => {
+						if(err) {
+							console.error('Error deleting current cart:', err);
+							return res.status(500).send('Error deleting current cart.');
+						}
+						console.log("Cleared current cart.");
+					})
 					console.log('Order added and items copied to TempCart successfully.');
 					res.status(200).send('Order placed and cart items stored.');
 				});
@@ -208,6 +217,28 @@ app.get('/orderspecificview', (req, res) => {
 		}
 		res.send(result);
 	});
+});
+
+// Read for tracking page
+app.get('/currentorderread', (req, res) => {
+	console.log("Received current order read:", req.query);
+
+	db.query('SELECT currentOrderID FROM currentUser', (err, result) => {
+		if(err) {
+			console.error('Error reading current customer id:', err);
+		}
+		const orderID = result[0].currentOrderID;
+		
+		db.query("SELECT * FROM TempCart WHERE quantity > 0 AND orderID = ?", [orderID], (err, result) => {
+				if (err) {
+					console.error('Error reading temp cart:', err);
+					return res.status(500).send('Error reading temp cart.');
+				}
+				console.log("Current order items read successfully.");
+				return res.json(result);
+			});
+	})
+	
 });
 
 // Update order status
