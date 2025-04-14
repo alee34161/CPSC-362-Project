@@ -34,7 +34,46 @@ const dummyCartItems = [
   }
 ];
 
-
+// 📦 Dummy past orders
+const pastOrders = [
+  {
+    orderId: 101,
+    items: [
+      {
+        id: 1,
+        name: "Classic Cheeseburger",
+        price: 8.99,
+        quantity: 2,
+        customization: "No onions"
+      },
+      {
+        id: 2,
+        name: "French Fries",
+        price: 3.50,
+        quantity: 1,
+        customization: ""
+      }
+    ],
+    total: 21.48,
+    status: "Completed",
+    timestamp: new Date(Date.now() - 86400000).toISOString()
+  },
+  {
+    orderId: 102,
+    items: [
+      {
+        id: 3,
+        name: "Chocolate Milkshake",
+        price: 4.99,
+        quantity: 1,
+        customization: "Extra whipped cream"
+      }
+    ],
+    total: 4.99,
+    status: "Completed",
+    timestamp: new Date(Date.now() - 172800000).toISOString()
+  }
+];
 
 // 🌟 Loyalty system
 const loyaltyData = {
@@ -59,14 +98,13 @@ const loyaltyData = {
 let currentStatus = 'Pending';
 const statusStages = ['Pending', 'Preparing', 'Out for Delivery', 'Completed'];
 
-// Auto-progress order status every 30 seconds
 setInterval(() => {
   const currentIndex = statusStages.indexOf(currentStatus);
   if (currentIndex < statusStages.length - 1) {
     currentStatus = statusStages[currentIndex + 1];
     console.log(`Status updated to: ${currentStatus}`);
   }
-}, 30000);
+}, 30000); // every 30 seconds
 
 // 📡 API Routes
 
@@ -80,6 +118,10 @@ app.get('/orderstatus', (req, res) => {
 
 app.get('/cartread', (req, res) => {
   res.json(dummyCartItems);
+});
+
+app.get('/pastorders', (req, res) => {
+  res.json(pastOrders);
 });
 
 // 🎁 Redeem 50 points for $5 off
