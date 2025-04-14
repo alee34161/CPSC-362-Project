@@ -1,13 +1,12 @@
 const express = require('express');
 const app = express();
-const PORT = 8080;
 const cors = require('cors');
+const PORT = 8080;
+
 app.use(cors());
+app.use(express.json()); // To handle POST/PUT requests with body
 
-// Dummy order status for testing
-let currentStatus = 'Pending';
-
-// Dummy cart items array
+// 🛒 Dummy cart items
 const dummyCartItems = [
   {
     id: 1,
@@ -35,7 +34,7 @@ const dummyCartItems = [
   }
 ];
 
-// Dummy past orders data
+// 🧾 Dummy past orders
 const pastOrders = [
   {
     orderId: 101,
@@ -45,17 +44,17 @@ const pastOrders = [
         name: "Classic Cheeseburger",
         price: 8.99,
         quantity: 2,
-        customization: "No onions",
+        customization: "No onions"
       },
       {
         id: 2,
         name: "French Fries",
         price: 3.50,
         quantity: 1,
-        customization: "",
+        customization: ""
       }
     ],
-    total: 21.48, // (8.99 * 2) + 3.50
+    total: 21.48,
     status: "Completed",
     timestamp: new Date(Date.now() - 86400000).toISOString() // 1 day ago
   },
@@ -67,7 +66,7 @@ const pastOrders = [
         name: "Chocolate Milkshake",
         price: 4.99,
         quantity: 1,
-        customization: "Extra whipped cream",
+        customization: "Extra whipped cream"
       }
     ],
     total: 4.99,
@@ -76,9 +75,9 @@ const pastOrders = [
   }
 ];
 
-// Dummy loyalty data
+// 🌟 Loyalty system
 const loyaltyData = {
-  points: 26, // Total points user has
+  points: 26,
   history: [
     {
       orderId: 101,
@@ -95,41 +94,56 @@ const loyaltyData = {
   ]
 };
 
-// Endpoint to serve loyalty data
+// 🚚 Order status simulator
+let currentStatus = 'Pending';
+const statusStages = ['Pending', 'Preparing', 'Out for Delivery', 'Completed'];
+
+// Auto-progress order status every 30 seconds
+setInterval(() => {
+  const currentIndex = statusStages.indexOf(currentStatus);
+  if (currentIndex < statusStages.length - 1) {
+    currentStatus = statusStages[currentIndex + 1];
+    console.log(`Status updated to: ${currentStatus}`);
+  }
+}, 30000);
+
+// 📡 API Routes
+
 app.get('/loyalty', (req, res) => {
   res.json(loyaltyData);
 });
 
-// Endpoint to serve past orders
 app.get('/pastorders', (req, res) => {
   res.json(pastOrders);
 });
 
-// Order status endpoint
 app.get('/orderstatus', (req, res) => {
   res.json({ status: currentStatus });
 });
 
-// Cart data endpoint
 app.get('/cartread', (req, res) => {
-  // Return the dummy cart data as JSON
   res.json(dummyCartItems);
 });
 
-// Status progression simulation
-setInterval(() => {
-  const statuses = ['Pending', 'Preparing', 'Out for Delivery', 'Completed'];
-  const currentIndex = statuses.indexOf(currentStatus);
-  
-  // Advance to next status if not at the end
-  if (currentIndex < statuses.length - 1) {
-    currentStatus = statuses[currentIndex + 1];
-    console.log(`Status updated to: ${currentStatus}`);
+// 🎁 Redeem 50 points for $5 off
+app.post('/redeem', (req, res) => {
+  if (loyaltyData.points >= 50) {
+    loyaltyData.points -= 50;
+    res.json({ success: true, message: 'Redeemed 50 points for $5 off!' });
+  } else {
+    res.status(400).json({
+      success: false,
+      message: `Not enough points. You need ${50 - loyaltyData.points} more.`
+    });
   }
-}, 30000); // Change every 30 seconds
+});
 
+// 🚀 Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-  console.log(`- GET /orderstatus -> Returns current order status`);
-  console.log(`- GET /cartread -> Returns dummy cart items`);
+  console.log('- GET  /orderstatus  -> Returns current order status');
+  console.log('- GET  /cartread     -> Returns dummy cart items');
+  console.log('- GET  /loyalty      -> Returns loyalty info');
+  console.log('- GET  /pastorders   -> Returns past order data');
+  console.log('- POST /redeem       -> Redeem loyalty points');
 });
