@@ -68,7 +68,7 @@ export default function CartPage() {
 	} catch (error) {
 		console.error('Error updating customization in cart.', error);
 	}
-  
+
     setCartItems((items) =>
       items.map((item) =>
         item.id === id ? { ...item, customization: newNote } : item
