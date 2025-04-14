@@ -35,6 +35,52 @@ const dummyCartItems = [
   }
 ];
 
+// Dummy past orders data
+const pastOrders = [
+  {
+    orderId: 101,
+    items: [
+      {
+        id: 1,
+        name: "Classic Cheeseburger",
+        price: 8.99,
+        quantity: 2,
+        customization: "No onions",
+      },
+      {
+        id: 2,
+        name: "French Fries",
+        price: 3.50,
+        quantity: 1,
+        customization: "",
+      }
+    ],
+    total: 21.48, // (8.99 * 2) + 3.50
+    status: "Completed",
+    timestamp: new Date(Date.now() - 86400000).toISOString() // 1 day ago
+  },
+  {
+    orderId: 102,
+    items: [
+      {
+        id: 3,
+        name: "Chocolate Milkshake",
+        price: 4.99,
+        quantity: 1,
+        customization: "Extra whipped cream",
+      }
+    ],
+    total: 4.99,
+    status: "Completed",
+    timestamp: new Date(Date.now() - 172800000).toISOString() // 2 days ago
+  }
+];
+
+// Endpoint to serve past orders
+app.get('/pastorders', (req, res) => {
+  res.json(pastOrders);
+});
+
 // Order status endpoint
 app.get('/orderstatus', (req, res) => {
   res.json({ status: currentStatus });
