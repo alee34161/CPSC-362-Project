@@ -34,46 +34,7 @@ const dummyCartItems = [
   }
 ];
 
-// 🧾 Dummy past orders
-const pastOrders = [
-  {
-    orderId: 101,
-    items: [
-      {
-        id: 1,
-        name: "Classic Cheeseburger",
-        price: 8.99,
-        quantity: 2,
-        customization: "No onions"
-      },
-      {
-        id: 2,
-        name: "French Fries",
-        price: 3.50,
-        quantity: 1,
-        customization: ""
-      }
-    ],
-    total: 21.48,
-    status: "Completed",
-    timestamp: new Date(Date.now() - 86400000).toISOString() // 1 day ago
-  },
-  {
-    orderId: 102,
-    items: [
-      {
-        id: 3,
-        name: "Chocolate Milkshake",
-        price: 4.99,
-        quantity: 1,
-        customization: "Extra whipped cream"
-      }
-    ],
-    total: 4.99,
-    status: "Completed",
-    timestamp: new Date(Date.now() - 172800000).toISOString() // 2 days ago
-  }
-];
+
 
 // 🌟 Loyalty system
 const loyaltyData = {
@@ -111,10 +72,6 @@ setInterval(() => {
 
 app.get('/loyalty', (req, res) => {
   res.json(loyaltyData);
-});
-
-app.get('/pastorders', (req, res) => {
-  res.json(pastOrders);
 });
 
 app.get('/orderstatus', (req, res) => {
