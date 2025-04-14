@@ -76,6 +76,30 @@ const pastOrders = [
   }
 ];
 
+// Dummy loyalty data
+const loyaltyData = {
+  points: 26, // Total points user has
+  history: [
+    {
+      orderId: 101,
+      amountSpent: 21.48,
+      pointsEarned: 21,
+      timestamp: pastOrders[0].timestamp
+    },
+    {
+      orderId: 102,
+      amountSpent: 4.99,
+      pointsEarned: 5,
+      timestamp: pastOrders[1].timestamp
+    }
+  ]
+};
+
+// Endpoint to serve loyalty data
+app.get('/loyalty', (req, res) => {
+  res.json(loyaltyData);
+});
+
 // Endpoint to serve past orders
 app.get('/pastorders', (req, res) => {
   res.json(pastOrders);
