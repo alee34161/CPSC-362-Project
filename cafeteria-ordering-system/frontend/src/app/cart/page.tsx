@@ -79,6 +79,7 @@ export default function CartPage() {
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const tax = subtotal * 0.1;
   const total = subtotal + tax;  
+  
   useEffect(() => {
     if (!isCartLoaded) return; // Avoid running before cart is loaded
     if (lastSentTotal !== total) {
@@ -98,7 +99,13 @@ export default function CartPage() {
       updateCartTotal();
     }
   }, [total, lastSentTotal, isCartLoaded]);
-  
+
+useEffect(() => {
+	if (isCartLoaded && cartItems.length === 0) {
+	alert("Your cart is empty.");
+	}
+}, [cartItems, isCartLoaded]);
+
  
 
   return (
@@ -116,7 +123,10 @@ export default function CartPage() {
       <h1 className="text-3xl font-bold">Your Cart</h1>
 
       <div className="space-y-4">
-        {cartItems.map((item) => (
+      {cartItems.length === 0 ? (
+        <p>Your cart is empty.</p>
+      ) : (
+        cartItems.map((item) => (
           <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -148,7 +158,8 @@ export default function CartPage() {
               />
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
 
       <div className="bg-gray-50 p-4 rounded-xl space-y-2 shadow-inner">
@@ -165,12 +176,13 @@ export default function CartPage() {
           <span>${total.toFixed(2)}</span>
         </div>
       </div>
-
+	{cartItems.length > 0 && (
       <Link href="/checkout">
         <button className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition">
           Proceed to Checkout
         </button>
       </Link>
+      )}
     </div>
   );
 }

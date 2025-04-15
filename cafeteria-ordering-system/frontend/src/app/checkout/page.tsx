@@ -31,9 +31,16 @@ export default function CheckoutPage() {
     			'Content-Type': 'application/json'
     		}
     	});
-    	router.push("/tracking");
-    } catch (error) {
-    	console.error('Error adding new order:', error);
+		if(response.status === 200) {
+    		router.push("/tracking");
+    	} else {
+    		alert("unexpected response");
+    	}
+    } catch (error : any) {
+    	if(error.response.status === 400) {
+    		alert("Not enough items in cafeteria inventory to fulfill order. Please lower quantity.");
+    		router.push("/cart");
+    	}
     }
   };
 

@@ -152,48 +152,132 @@ app.get('/orderstatus', (req, res) => {
 app.post('/orderadd', (req, res) => {
 	const { delivery } = req.body;
 	console.log("Order add request received");
-	db.query('SELECT id FROM currentUser LIMIT 1', (err, resu) => {
+
+	db.query('SELECT id FROM currentUser LIMIT 1', (err, userRows) => {
 		if (err) {
-			console.error('Error reading current user ID.');
-			return res.status(500).send('Error reading current user ID.');
+			console.error('Error fetching current user:', err);
+			res.status(500).send('Server error');
+			return;
 		}
-		const customerID = resu[0].id;
+
+		if (!userRows.length) {
+			res.status(400).send('No current user found.');
+			return;
+		}
+
+		const customerID = userRows[0].id;
+
 		db.query(
 			'INSERT INTO Orders (deliveryAddress, status, customerID) VALUES (?, ?, ?)',
 			[delivery, 'Pending', customerID],
-			(err, result) => {
+			(err, orderResult) => {
 				if (err) {
-					console.error('Error inserting into Orders.');
-					return res.status(500).send('Error adding to Orders.');
+					console.error('Error inserting order:', err);
+					res.status(500).send('Server error');
+					return;
 				}
-				const orderID = result.insertId;
-				const copyQuery = `INSERT INTO TempCart (id, source, name, price, quantity, customization, customerID, foodID, orderID) SELECT id, source, name, price, quantity, customization, customerid, foodID, ? FROM Cart WHERE customerid = ?`;
 
-				db.query('UPDATE currentUser SET currentOrderID = ?', [orderID], (err, currentOrderResult) => {
-					if(err) {
-						console.error('Error setting current order ID:', err);
-					}
-					console.log("Set currentUser currentOrderID successfully.");
-				})
-				db.query(copyQuery, [orderID, customerID], (err, copyResult) => {
-					if (err) {
-						console.error('Error copying items to TempCart:', err);
-						return res.status(500).send('Error creating TempCart for order.');
-					}
-					db.query('DELETE FROM Cart WHERE customerID = ?', [customerID], (err, deleteresult) => {
-						if(err) {
-							console.error('Error deleting current cart:', err);
-							return res.status(500).send('Error deleting current cart.');
+				const orderID = orderResult.insertId;
+
+				db.query(
+					'SELECT foodID, quantity FROM Cart WHERE customerID = ? AND source = ?',
+					[customerID, 'cafeteria'],
+					(err, cartItems) => {
+						if (err) {
+							console.error('Error fetching cart items:', err);
+							res.status(500).send('Server error');
+							return;
 						}
-						console.log("Cleared current cart.");
-					})
-					console.log('Order added and items copied to TempCart successfully.');
-					res.status(200).send('Order placed and cart items stored.');
-				});
+
+						if (cartItems.length === 0) {
+							console.log("Cart is empty.");
+							res.status(400).send('Cart is empty.');
+							return;
+						}
+
+						let hasInsufficientInventory = false;
+						let checksRemaining = cartItems.length;
+
+						cartItems.forEach((item, index) => {
+							console.log(`Checking inventory for foodID ${item.foodID} (item ${index + 1} of ${cartItems.length})`);
+
+							db.query(
+								'SELECT quantity FROM CafeteriaMenu WHERE id = ?',
+								[item.foodID],
+								(err, inventoryRows) => {
+									if (err) {
+										console.error(`Error checking inventory for foodID ${item.foodID}:`, err);
+										res.status(500).send('Server error');
+										return;
+									}
+
+									const available = inventoryRows[0]?.quantity || 0;
+
+									if (available < item.quantity) {
+										console.log(`Not enough inventory for foodID ${item.foodID}: needed ${item.quantity}, available ${available}`);
+										hasInsufficientInventory = true;
+									}
+
+									checksRemaining--;
+
+									if (checksRemaining === 0) {
+										if (hasInsufficientInventory) {
+											console.log("Inventory insufficient for one or more items.");
+											res.status(400).send('Not enough inventory for one or more items.');
+											return;
+										}
+
+										db.query(
+											'UPDATE currentUser SET currentOrderID = ?',
+											[orderID],
+											(err) => {
+												if (err) {
+													console.error('Error updating currentUser:', err);
+													res.status(500).send('Server error');
+													return;
+												}
+
+												const copyQuery = `
+													INSERT INTO TempCart (id, source, name, price, quantity, customization, customerID, foodID, orderID)
+													SELECT id, source, name, price, quantity, customization, customerID, foodID, ?
+													FROM Cart WHERE customerID = ?
+												`;
+
+												db.query(copyQuery, [orderID, customerID], (err) => {
+													if (err) {
+														console.error('Error copying cart to TempCart:', err);
+														res.status(500).send('Server error');
+														return;
+													}
+
+													db.query('DELETE FROM Cart WHERE customerID = ?', [customerID], (err) => {
+														if (err) {
+															console.error('Error clearing cart:', err);
+															res.status(500).send('Server error');
+															return;
+														}
+
+														console.log("Order placed successfully.");
+														res.status(200).send('Order placed and cart items stored.');
+													});
+												});
+											}
+										);
+									}
+								}
+							);
+						});
+					}
+				);
 			}
 		);
 	});
 });
+
+
+
+
+
 
 // View all orders
 app.get('/orderoverallview', (req, res) => {
@@ -273,7 +357,7 @@ app.post('/allmenusearch', (req, res) => {
 	const { name } = req.body;
 	console.log("received allmenusearch");
 	// Query table for any partial matches
-	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE ? UNION SELECT * FROM CafeteriaMenu WHERE name LIKE ?", [`%${name}%`,`%${name}%`], (err, results) => {
+	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE ? UNION SELECT * FROM CafeteriaMenu WHERE name LIKE ? AND quantity > 0", [`%${name}%`,`%${name}%`], (err, results) => {
 		if(err) {
 			console.error('Error querying all menu.');
 			return res.status(500).send('Error querying all menu.');
@@ -290,7 +374,7 @@ app.post('/restaurantmenusearch', (req, res) => {
 	console.log("Restaurant Menu Search received with: " + req.body);
 
 	// Query table for any partial matches
-	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE '%?%'", [name], (err, results) => {
+	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE ?", [`%${name}%`], (err, results) => {
 		if(err) {
 			console.error('Error querying restaurant menu.');
 			return res.status(500).send('Error querying restaurant menu.');
@@ -422,7 +506,7 @@ app.post('/cartcustomupdate', (req, res) => {
 app.post('/cartdelete', (req, res) => {
 	console.log("Received cart delete:", req.body);
 	const { id, source } = req.body;
-	db.query('DELETE FROM Cart WHERE id = (?) AND source = (?)', [id, source], (err, results) => {
+	db.query('DELETE FROM Cart WHERE foodID = (?) AND source = (?)', [id, source], (err, results) => {
 		if(err) {
 			console.error('Error deleting from cart.');
 			return res.status(500).send('Error deleting from cart.');
@@ -453,7 +537,7 @@ app.post('/cafmenusearch', (req, res) => {
 	console.log("Cafeteria Menu Search received with: " + req.body);
 
 	// Query table for any partial matches
-	db.query("SELECT * FROM CafeteriaMenu WHERE name LIKE '%?%'", [name], (err, results) => {
+	db.query("SELECT * FROM CafeteriaMenu WHERE name LIKE ? AND quantity > 0", [`%${name}%`], (err, results) => {
 		if(err) {
 			console.error('Error querying cafeteria menu.');
 			return res.status(500).send('Error querying cafeteria menu.');
@@ -466,7 +550,7 @@ app.post('/cafmenusearch', (req, res) => {
 app.get('/cafmenuread', (req, res) => {
 	console.log("Received Cafeteria Menu read:", req.query);
 
-	db.query("SELECT * FROM CafeteriaMenu", (err, result) => {
+	db.query("SELECT * FROM CafeteriaMenu WHERE quantity > 0", (err, result) => {
 		if (err) {
 			console.error('Error reading cafeteria menu:', err);
 			return res.status(500).send('Error reading cafeteria menu.');
