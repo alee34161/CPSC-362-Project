@@ -41,6 +41,9 @@ export default function CheckoutPage() {
     		alert("Not enough items in cafeteria inventory to fulfill order. Please lower quantity.");
     		router.push("/cart");
     	}
+      else {
+      alert("An error occurred. Please try again.");
+      }
     }
   };
 
@@ -68,32 +71,34 @@ export default function CheckoutPage() {
             required
           />
           <input
-          	type="text"
-          	name="city"
-          	placeholder="City"
-          	value={formData.city}
-          	onChange={handleChange}
-          	className="border p-2 rounded-md"
-          	required
-          	/>
+            type="text"
+            name="city"
+            placeholder="City"
+            value={formData.city}
+            onChange={handleChange}
+            className="border p-2 rounded-md"
+            required
+          />
           <input
-			type="text"
-        	name="state"
-          	placeholder="State"
-          	value={formData.state}
-          	onChange={handleChange}
-          	className="border p-2 rounded-md"
-          	required
-          	/>
+            type="text"
+            name="state"
+            placeholder="State"
+            value={formData.state}
+            onChange={handleChange}
+            className="border p-2 rounded-md"
+            required
+          />
           <input
-          	type="text"
-          	name="zipcode"
-          	placeholder="Zip Code"
-          	value={formData.zipcode}
-          	onChange={handleChange}
-          	className="border p-2 rounded-md"
-          	required
-          	/>
+            type="text"
+            name="zipcode"
+            placeholder="Zip Code"
+            value={formData.zipcode}
+            onChange={handleChange}
+            className="border p-2 rounded-md"
+            pattern="\d{5}"
+            title="Zip Code must be 5 digits"
+            required
+          />
           <input
             type="text"
             name="cardNumber"
@@ -101,6 +106,8 @@ export default function CheckoutPage() {
             value={formData.cardNumber}
             onChange={handleChange}
             className="border p-2 rounded-md"
+            pattern="\d{16}"
+            title="Card number must be 16 digits"
             required
           />
           <input
@@ -110,6 +117,8 @@ export default function CheckoutPage() {
             value={formData.expiryDate}
             onChange={handleChange}
             className="border p-2 rounded-md"
+            pattern="^(0[1-9]|1[0-2])\/\d{2}$"
+            title="Expiry date must be in MM/YY format"
             required
           />
           <input
@@ -119,17 +128,19 @@ export default function CheckoutPage() {
             value={formData.cvv}
             onChange={handleChange}
             className="border p-2 rounded-md"
+            pattern="\d{3}"
+            title="CVV must be 3 digits"
             required
           />
           <input
-			type="text"
-			name="delivery"
-			placeholder="Delivery Floor and Room"
-			value={formData.delivery}
-			onChange={handleChange}
-			className="border p-2 rounded-md"
-			required
-			/>
+            type="text"
+            name="delivery"
+            placeholder="Delivery Floor and Room"
+            value={formData.delivery}
+            onChange={handleChange}
+            className="border p-2 rounded-md"
+            required
+          />
           <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded-md">
             Place Order
           </button>
