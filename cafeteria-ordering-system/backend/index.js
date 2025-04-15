@@ -42,7 +42,7 @@ db.connect((err) => {
 
 	// Creates the user information table if it isn't already made for authentication and account info.
 	// Note: username is the same thing as email
-    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
+    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, loyaltyPoints INT unsigned DEFAULT 0, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))", function(err, result) { if (err) throw err; });
     console.log("Created userInformation table");
 	    
 	// Automatically makes an admin account where username is Root@Root and password is admin ONLY IF there is no admin account
@@ -50,7 +50,7 @@ db.connect((err) => {
 	db.query("UPDATE userInformation SET username = 'Root@Root', password = 'admin' WHERE username IS NULL");
 
 	// Creates currentUser Table if it isn't already made and empties it completely. Used to track current user for account info
-    db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
+    db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, loyaltyPoints INT unsigned, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
 	db.query('DELETE FROM currentUser');
 	console.log("Created new currentUser table");
 
@@ -115,7 +115,7 @@ db.connect((err) => {
 	console.log("Created new Cart table.");
 
 	// Implement Orders table
-	db.query("CREATE TABLE IF NOT EXISTS Orders (id INT unsigned AUTO_INCREMENT, deliveryAddress varchar(255), status varchar(255), customerID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerID) REFERENCES userInformation(id))")
+	db.query("CREATE TABLE IF NOT EXISTS Orders (id INT unsigned AUTO_INCREMENT, pointsEarned INT unsigned, deliveryAddress varchar(255), status varchar(255), customerID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerID) REFERENCES userInformation(id))")
 	console.log("Created new Orders table.");
 	
 	// Implement TempCart table for checkout
@@ -153,126 +153,72 @@ app.post('/orderadd', (req, res) => {
 	const { delivery } = req.body;
 	console.log("Order add request received");
 
-	db.query('SELECT id FROM currentUser LIMIT 1', (err, userRows) => {
-		if (err) {
-			console.error('Error fetching current user:', err);
-			res.status(500).send('Server error');
-			return;
+	db.query('SELECT * FROM currentUser', (err, currentUserResult) => {
+		if(err) {
+			console.error('Error reading current user:', err);
+			res.status(500).send('Error reading current user.');
 		}
-
-		if (!userRows.length) {
-			res.status(400).send('No current user found.');
-			return;
-		}
-
-		const customerID = userRows[0].id;
-
-		db.query(
-			'INSERT INTO Orders (deliveryAddress, status, customerID) VALUES (?, ?, ?)',
-			[delivery, 'Pending', customerID],
-			(err, orderResult) => {
-				if (err) {
-					console.error('Error inserting order:', err);
-					res.status(500).send('Server error');
-					return;
+		const userData = currentUserResult[0];
+		db.query('SELECT * FROM CafeteriaMenu', (err, cafmenures) => {
+			if(err) {
+				console.error('Error reading cafeteria menu:', err);
+				res.status(500).send('Error reading cafeteria menu.');
+			}
+			const cafData = cafmenures;
+			db.query('SELECT foodID, quantity FROM Cart WHERE customerID = ? AND source = ?', [userData.id, 'cafeteria'], (err, foodCheck) => {
+				if(err) {
+					console.error('Error reading cafeteria cart items:', err);
+					res.status(500).send('Error reading cafeteria cart items.');
+				}
+				var insufficient = false;
+			
+				for(let i = 0; i < foodCheck.length; i++) {
+					for(let j = 0; j < cafData.length; j++) {
+						if(foodCheck[i].foodID == cafData[j].id && foodCheck[i].quantity > cafData[j].quantity) {
+							insufficient = true;
+							res.status(400).send('Not enough items in cafeteria inventory.');
+							return;
+						}
+					}
+					if(insufficient) {
+						return;
+					}
 				}
 
-				const orderID = orderResult.insertId;
-
-				db.query(
-					'SELECT foodID, quantity FROM Cart WHERE customerID = ? AND source = ?',
-					[customerID, 'cafeteria'],
-					(err, cartItems) => {
-						if (err) {
-							console.error('Error fetching cart items:', err);
-							res.status(500).send('Server error');
-							return;
-						}
-
-						if (cartItems.length === 0) {
-							console.log("Cart is empty.");
-							res.status(400).send('Cart is empty.');
-							return;
-						}
-
-						let hasInsufficientInventory = false;
-						let checksRemaining = cartItems.length;
-
-						cartItems.forEach((item, index) => {
-							console.log(`Checking inventory for foodID ${item.foodID} (item ${index + 1} of ${cartItems.length})`);
-
-							db.query(
-								'SELECT quantity FROM CafeteriaMenu WHERE id = ?',
-								[item.foodID],
-								(err, inventoryRows) => {
-									if (err) {
-										console.error(`Error checking inventory for foodID ${item.foodID}:`, err);
-										res.status(500).send('Server error');
-										return;
-									}
-
-									const available = inventoryRows[0]?.quantity || 0;
-
-									if (available < item.quantity) {
-										console.log(`Not enough inventory for foodID ${item.foodID}: needed ${item.quantity}, available ${available}`);
-										hasInsufficientInventory = true;
-									}
-
-									checksRemaining--;
-
-									if (checksRemaining === 0) {
-										if (hasInsufficientInventory) {
-											console.log("Inventory insufficient for one or more items.");
-											res.status(400).send('Not enough inventory for one or more items.');
-											return;
-										}
-
-										db.query(
-											'UPDATE currentUser SET currentOrderID = ?',
-											[orderID],
-											(err) => {
-												if (err) {
-													console.error('Error updating currentUser:', err);
-													res.status(500).send('Server error');
-													return;
-												}
-
-												const copyQuery = `
-													INSERT INTO TempCart (id, source, name, price, quantity, customization, customerID, foodID, orderID)
-													SELECT id, source, name, price, quantity, customization, customerID, foodID, ?
-													FROM Cart WHERE customerID = ?
-												`;
-
-												db.query(copyQuery, [orderID, customerID], (err) => {
-													if (err) {
-														console.error('Error copying cart to TempCart:', err);
-														res.status(500).send('Server error');
-														return;
-													}
-
-													db.query('DELETE FROM Cart WHERE customerID = ?', [customerID], (err) => {
-														if (err) {
-															console.error('Error clearing cart:', err);
-															res.status(500).send('Server error');
-															return;
-														}
-
-														console.log("Order placed successfully.");
-														res.status(200).send('Order placed and cart items stored.');
-													});
-												});
-											}
-										);
-									}
-								}
-							);
-						});
+				db.query('INSERT INTO Orders (deliveryAddress, status, customerID, pointsEarned) VALUES (?, ?, ?, ?)', [delivery, 'Pending', userData.id, userData.cartTotal], (err, orderResult) => {
+					if(err) {
+						console.error('Error inserting into Orders:', err);
+						res.status(500).send('Error inserting into Orders.');
 					}
-				);
-			}
-		);
-	});
-});
+
+					const orderID = orderResult.insertId;
+
+					db.query('UPDATE currentUser SET currentOrderID = ?', [orderID], (err, curupdate) => {
+						if(err) {
+							console.error('Error updating current order id in currentUser:', err);
+							res.status(500).send('Error updating current order.');
+						}
+						db.query('INSERT INTO TempCart (id, source, name, price, quantity, customization, customerID, foodID, orderID) SELECT id, source, name, price, quantity, customization, customerID, foodID, ? FROM Cart WHERE customerID = ?', [orderID, userData.id], (err) => {
+							if(err) {
+								console.error('Error adding into TempCart:', err);
+								res.status(500).send('Error adding into TempCart.');
+							}
+							db.query('DELETE FROM Cart WHERE customerID = ?', [userData.id], (err) => {
+								if(err) {
+									console.error('Error deleting from cart:', err);
+									res.status(500).send('Error deleting from cart.');
+								}
+								console.log('Order placed completely successfully.');
+								res.status(200).send('Order placed and cart items stored.');
+							})
+						})
+					})
+				})
+				
+			})
+		})
+	})
+})
 
 
 

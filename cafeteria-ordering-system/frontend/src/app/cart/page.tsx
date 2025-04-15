@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
-
+import { useRouter } from 'next/navigation';
 type CartItem = {
   id: number;
   name: string;
@@ -18,6 +18,8 @@ export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [lastSentTotal, setLastSentTotal] = useState<number | null>(null);
   const [isCartLoaded, setIsCartLoaded] = useState(false);
+  const router = useRouter();
+  
 
   useEffect(() => {
   	const fetchCartData = async () => {
@@ -106,7 +108,21 @@ useEffect(() => {
 	}
 }, [cartItems, isCartLoaded]);
 
- 
+
+const handleTotal = async () => {
+	try {
+		const response = await axios.post('http://localhost:8080/updatetotal', {
+			cartTotal: total
+		}, {
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		router.push('/checkout');
+	} catch (error) {
+		console.error('Error updating cart total.');
+	}
+}
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
@@ -130,7 +146,7 @@ useEffect(() => {
           <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md" />
+                {/*<Image src={item.image} alt={item.name} width={64} height={64} className="rounded-md" />*/}
                 <div>
                   <p className="font-medium">{item.name}</p>
                   <div className="flex items-center gap-2 mt-1">
@@ -151,7 +167,7 @@ useEffect(() => {
               <label className="text-sm block mb-1 text-gray-500">Special Request</label>
               <input
                 type="text"
-                value={item.customization}
+                value={item.customization ?? 'ex: No onions, no pickles...'}
                 onChange={(e) => updateNote(item.id, e.target.value)}
                 placeholder="ex: No onions, no pickles..."
                 className="w-full p-2 border rounded text-sm"
@@ -177,11 +193,11 @@ useEffect(() => {
         </div>
       </div>
 	{cartItems.length > 0 && (
-      <Link href="/checkout">
-        <button className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition">
+
+        <button className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition" onClick={handleTotal}>
           Proceed to Checkout
         </button>
-      </Link>
+
       )}
     </div>
   );
