@@ -1,0 +1,404 @@
+/*!*********************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[13].oneOf[10].use[3]!./src/app/dashboard/styles/styles.css ***!
+  \*********************************************************************************************************************************************************************************************************************************************************************************/
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+a {
+    text-decoration: none;
+    color: rgb(0, 0, 0);
+}
+
+a:visited {
+    text-decoration: none;
+}
+
+/* Navbar styling */
+header {
+    background-color: #ffffff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Logo styling */
+.logo h1 {
+    font-size: 30px;
+    font-weight: 500;
+    color: orange;
+    letter-spacing: -0.5px;
+}
+
+/* Search container styling */
+.search-container {
+    display: flex;
+    flex: 1;
+    max-width: 500px;
+    margin: 0 2rem;
+    position: relative;
+}
+
+.search-container input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: all 0.5s ease;
+}
+
+.search-container input:focus {
+    outline: none;
+    border-color: orange;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.search-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.search-button:hover {
+    color: orange;
+}
+
+/* Search result container styling */
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+}
+
+/* Style each search result item */
+.search-item {
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+}
+
+.search-item:last-child {
+    border-bottom: none;
+}
+
+/* Hover effect on result items */
+.search-item:hover {
+    background-color: #f4f4f4;
+}
+
+/* Style the 'No results' message */
+.search-item.no-results {
+    text-align: center;
+    color: #777;
+}
+
+/* Navigation menu styling */
+.nav-menu ul {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.nav-menu li a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #4b5563;
+    font-size: 0.85rem;
+    transition: color 0.3s ease;
+}
+
+.nav-menu li a:hover {
+    color: orange;
+}
+
+/* Hamburger menu styling */
+.hamburger-menu {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+}
+
+.bar {
+    width: 100%;
+    height: 3px;
+    background-color: #4b5563;
+    border-radius: 10px;
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hamburger menu animation */
+.hamburger-menu.active .bar:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+}
+
+.hamburger-menu.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-menu.active .bar:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 1rem;
+    }
+
+    .search-container {
+        margin: 0 1rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .navbar-container {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .logo {
+        flex: 1;
+    }
+
+    .search-container {
+        order: 3;
+        flex: 0 0 100%;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .nav-menu {
+        display: none;
+    }
+
+    .hamburger-menu {
+        display: flex;
+    }
+
+    /* Show navigation menu when active class is added (would be toggled with JavaScript) */
+    .nav-menu.active {
+        display: block;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: white;
+        padding: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-menu.active ul {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .nav-menu.active li a {
+        flex-direction: row;
+        gap: 0.5rem;
+    }
+
+    .nav-menu.active i {
+        margin-bottom: 0;
+    }
+}
+
+/* Add a simple animation for the navbar */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+header {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Main content styling */
+.categories {
+    padding-top: 32px;
+    padding-bottom: 16px;
+}
+
+.categories h3 {
+    font-size: 30px;
+    color: #1f2937;
+    margin-bottom: 32px;
+}
+
+.products {
+    padding: 32px 0px;
+}
+
+.products h3 {
+    font-size: 30px;
+    color: #1f2937;
+    margin-bottom: 32px;
+}
+
+.categories-container {
+    max-width: 1200px;
+    margin: 0px auto;
+    padding: 0px 32px;
+    justify-items: center;
+}
+
+.products-container {
+    max-width: 1200px;
+    margin: 0px auto;
+    padding: 0px 32px;
+}
+
+.placeholder-categories {
+    display: flex;
+    gap: 64px;
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.placeholder-products {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.placeholder-product {
+    height: 200px;
+    background-color: #e5e7eb;
+    border-radius: 8px;
+}
+
+/* Category item styling */
+.category-item {
+    text-align: center;
+    margin: 20px;
+}
+
+.category-item a {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+}
+
+.category-item i {
+    display: block;
+    margin: 0 auto;
+}
+
+.category-item p {
+    margin-top: 10px;
+    font-size: 1.2rem;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+}
+
+.categories-icon {
+    width:  120px;
+    height: 120px;
+}
+
+.categories-food {
+    width:  144px;
+    height: 144px;
+}
+
+.operations {
+    width: 24px;
+    height: 24px;
+}
+
+h3 {
+    text-align: center;
+}
+
+/* Styling for the product buttons container */
+.product-buttons {
+    display: flex;
+    justify-content: space-between; /* Space between the buttons */
+    margin-top: 10px; /* Add some space above the buttons */
+}
+
+/* Styling for individual buttons */
+.add-to-bag,
+.remove-from-bag {
+    padding: 5px 10px; /* Small padding for compact buttons */
+    font-size: 0.8rem; /* Smaller font size */
+    border: 1px solid #ccc; /* Light border */
+    border-radius: 5px; /* Rounded corners */
+    background-color: #f5f5f5; /* Light background */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+
+/* Hover effect for buttons */
+.add-to-bag:hover {
+    background-color: #4caf50;
+    color: white;
+}
+
+.remove-from-bag:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+.full-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+.full-link:hover {
+  background-color: #f0f0f0;
+}
+
