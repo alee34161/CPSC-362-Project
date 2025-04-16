@@ -64,7 +64,7 @@ export default function AdminMenuPage() {
   );
 }
 
-// ✨ Utility classes
+//  Utility classes
 const inputClass = "border p-2 w-full rounded mb-2";
 const buttonClass = "px-4 py-2 rounded mt-2";
 
