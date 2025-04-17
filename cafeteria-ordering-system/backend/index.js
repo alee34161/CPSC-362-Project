@@ -632,7 +632,7 @@ app.post('/login', (req, res) => {
         if (password === user.password) {
         	console.log("user and password recognized");
 
-        	req.session.user = {username: username, id: user.id, currentOrderID: user.currentOrderID, cartTotal: user.cartTotal, name: user.name, role: user.role, phone: user.phone, username: user.username};
+        	req.session.user = {username: username, id: user.id, currentOrderID: user.currentOrderID, cartTotal: user.cartTotal, name: user.name, phone: user.phone, username: user.username};
 			
         	// Send to correct landing page sorted by status
 			if(user.role === 'customer') {
