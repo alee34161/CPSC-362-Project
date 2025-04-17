@@ -27,7 +27,7 @@ const CafeteriaMenu: React.FC = () => {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-          }
+          }, withCredentials: true
         }
       );
       setResults(response.data);
@@ -41,7 +41,7 @@ const CafeteriaMenu: React.FC = () => {
 	useEffect(() => {
 		const fetchMenuData = async () => {
 			try {
-				const response = await fetch('http://localhost:8080/cafmenuread');
+				const response = await fetch('http://localhost:8080/cafmenuread', {method: 'GET', credentials: 'include'});
 				const data = await response.json();
 				setMenuItems(data);
 			} catch (error) {
@@ -69,7 +69,7 @@ const CafeteriaMenu: React.FC = () => {
 		    }, {
 		      headers: {
 		        'Content-Type': 'application/json'
-		      }
+		      }, withCredentials: true
 		    });
 		  } catch (error) {
 		    console.error("Error adding to cart.", error);
@@ -85,7 +85,7 @@ const CafeteriaMenu: React.FC = () => {
 			}, {
 				headers: {
 					'Content-Type': 'application/json'
-				}
+				}, withCredentials: true
 			});
 		} catch (error) {
 			console.error("Error removing from cart.", error);

@@ -14,7 +14,7 @@ export function UserForm() {
   const [error, setError] = useState("");
 
     useEffect(() => {
-      axios.get('http://localhost:8080/currentuserread')
+      axios.get('http://localhost:8080/currentuserread', {withCredentials: true})
       .then((response) => {
       	setFormData(response.data);
       	const results = response;

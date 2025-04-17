@@ -26,7 +26,7 @@ const Cafe: React.FC = () => {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
-          }
+          }, withCredentials: true
         }
       );
       setResults(response.data);
