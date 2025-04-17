@@ -29,7 +29,7 @@ export default function CheckoutPage() {
     	}, {
     		headers: {
     			'Content-Type': 'application/json'
-    		}
+    		}, withCredentials: true
     	});
 		if(response.status === 200) {
     		router.push("/tracking");

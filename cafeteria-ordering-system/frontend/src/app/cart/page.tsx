@@ -24,7 +24,7 @@ export default function CartPage() {
   useEffect(() => {
   	const fetchCartData = async () => {
   	  	try {
-  	  		const response = await fetch('http://localhost:8080/cartread');
+  	  		const response = await fetch('http://localhost:8080/cartread', {method: 'GET', credentials: 'include'});
   	  		const data = await response.json();
   	  		setCartItems(data);
   	  		setIsCartLoaded(true);
@@ -43,7 +43,7 @@ export default function CartPage() {
 			}, {
 			headers: {
 				'Content-Type': 'application/json'
-			}
+			}, withCredentials: true
 		});
 	} catch (error) {
 		console.error('Error updating cart:', error);
@@ -65,7 +65,7 @@ export default function CartPage() {
 		}, {
 			headers: {
 				'Content-Type': 'application/json'
-			}
+			}, withCredentials: true
 		});
 	} catch (error) {
 		console.error('Error updating customization in cart.', error);
@@ -90,7 +90,7 @@ export default function CartPage() {
           await axios.post(
             'http://localhost:8080/updatetotal',
             { cartTotal: total },
-            { headers: { 'Content-Type': 'application/json' } }
+            { headers: { 'Content-Type': 'application/json' }, withCredentials: true }
           );
           setLastSentTotal(total);
         } catch (error) {
@@ -116,7 +116,7 @@ const handleTotal = async () => {
 		}, {
 			headers: {
 				'Content-Type': 'application/json'
-			}
+			}, withCredentials: true
 		});
 		router.push('/checkout');
 	} catch (error) {
@@ -174,7 +174,7 @@ const handleTotal = async () => {
               <label className="text-sm block mb-1 text-gray-500">Special Request</label>
               <input
                 type="text"
-                value={item.customization ?? 'ex: No onions, no pickles...'}
+                value={item.customization ?? ''}
                 onChange={(e) => updateNote(item.id, e.target.value)}
                 placeholder="ex: No onions, no pickles..."
                 className="w-full p-2 border rounded text-sm"

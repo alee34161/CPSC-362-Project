@@ -1,0 +1,21 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/cart/page": "/cart",
+  "/checkout/page": "/checkout",
+  "/admin/page": "/admin",
+  "/cafeteriamenu/page": "/cafeteriamenu",
+  "/delivery/page": "/delivery",
+  "/documentation/page": "/documentation",
+  "/forgot-password/page": "/forgot-password",
+  "/dashboard/page": "/dashboard",
+  "/login/page": "/login",
+  "/page": "/",
+  "/meal-subscription/page": "/meal-subscription",
+  "/loyalty/page": "/loyalty",
+  "/restaurantmenu/page": "/restaurantmenu",
+  "/signup/page": "/signup",
+  "/tracking/page": "/tracking",
+  "/(userinfo)/user/page": "/user",
+  "/(userinfo)/edit-info/page": "/edit-info"
+}

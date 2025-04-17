@@ -24,7 +24,7 @@ export default function SignupPage() {
         username: formData.email, // Match API's expected field (username = email)
         password: formData.password,
         role: 'customer'
-      })
+      }, {withCredentials:true})
       .then((response) => {
         // If successful, show a success message
         alert("Account created for " + formData.email);

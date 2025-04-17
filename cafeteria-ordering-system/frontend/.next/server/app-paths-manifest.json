@@ -1,8 +1,21 @@
 {
   "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
   "/cart/page": "app/cart/page.js",
+  "/checkout/page": "app/checkout/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/cafeteriamenu/page": "app/cafeteriamenu/page.js",
+  "/delivery/page": "app/delivery/page.js",
+  "/documentation/page": "app/documentation/page.js",
+  "/forgot-password/page": "app/forgot-password/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/meal-subscription/page": "app/meal-subscription/page.js",
+  "/loyalty/page": "app/loyalty/page.js",
+  "/restaurantmenu/page": "app/restaurantmenu/page.js",
   "/signup/page": "app/signup/page.js",
-  "/cafeteriamenu/page": "app/cafeteriamenu/page.js"
+  "/tracking/page": "app/tracking/page.js",
+  "/(userinfo)/user/page": "app/(userinfo)/user/page.js",
+  "/(userinfo)/edit-info/page": "app/(userinfo)/edit-info/page.js"
 }
