@@ -31,7 +31,7 @@ export function EditInfoForm() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:8080/currentuserread")
+      .get("http://localhost:8080/currentuserread", {withCredentials: true})
       .then((response) => {
         setFormData({
           username: response.data.username || "",
@@ -71,7 +71,7 @@ export function EditInfoForm() {
     	}, {
     		headers: {
     			'Content-Type': 'application/json'
-    		}
+    		}, withCredentials: true
     	});
     } catch (error) {
     	console.error("Error updated pic.", error);
@@ -93,6 +93,8 @@ export function EditInfoForm() {
           name: formData.name,
           phone: formData.phone
           // profileImage: profileImage, // add if needed
+        }, {
+        	withCredentials: true
         }
       );
 

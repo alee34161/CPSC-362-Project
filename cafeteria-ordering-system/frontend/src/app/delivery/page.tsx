@@ -18,7 +18,7 @@ export default function DeliveryOrders() {
   useEffect(() => {
   	const fetchOrderData = async () => {
   		try {
-  			const response = await fetch('http://localhost:8080/orderoverallviewnotdelivered');
+  			const response = await fetch('http://localhost:8080/orderoverallviewnotdelivered', {method: 'GET', credentials: 'include'});
   			const data = await response.json();
   			setOrders(data);
   		} catch(error) {
@@ -39,7 +39,7 @@ export default function DeliveryOrders() {
   	}, {
   		headers: {
   			'Content-Type': 'application/json'
-  		}
+  		}, withCredentials: true
   	});
   } catch (error) {
   	console.error('Error updating status:', error);

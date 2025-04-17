@@ -19,7 +19,7 @@ export default function LoyaltyPage() {
   useEffect(() => {
     const fetchLoyaltyData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/loyalty');
+        const response = await axios.get('http://localhost:8080/loyalty', {withCredentials: true});
         const data = response.data;
 
         setPoints(data.points);

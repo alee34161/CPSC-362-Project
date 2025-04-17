@@ -24,7 +24,7 @@ export default function OrderTrackingPage() {
   useEffect(() => {
     const fetchOrderStatus = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/orderstatus');
+        const response = await axios.get('http://localhost:8080/orderstatus', {withCredentials: true});
         
         const newStatus = response.data[0].status;
 
@@ -53,7 +53,7 @@ export default function OrderTrackingPage() {
   useEffect(() => {
     const fetchCartData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/currentorderread');
+        const response = await axios.get('http://localhost:8080/currentorderread', {withCredentials: true});
         
         if (!response.data || !Array.isArray(response.data)) {
           throw new Error('Invalid cart data');

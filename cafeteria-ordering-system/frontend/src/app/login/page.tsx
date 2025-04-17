@@ -21,7 +21,7 @@ export default function LoginPage() {
       const response = await axios.post('http://localhost:8080/login', {
         username: formData.email,
         password: formData.password,
-      });
+      }, { withCredentials: true });
   
       if (response.status === 201) {
         alert("Login successful!");
