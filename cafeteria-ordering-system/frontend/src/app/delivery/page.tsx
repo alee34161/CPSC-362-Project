@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 interface Order {
@@ -14,6 +15,30 @@ const statusOptions = ['Pending', 'Preparing', 'Awaiting Pickup', 'Out for Deliv
 
 export default function DeliveryOrders() {
   const [orders, setOrders] = useState<Order[]>([]); // Dummy removed
+  const [isDelivery, setIsDelivery] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+  	const checkDelivery = async () => {
+  		try {
+  			const res = await axios.get('http://localhost:8080/currentuserread', {
+  				withCredentials: true
+  			});
+  			if(res.data && res.data.role === "delivery") {
+  				setIsDelivery(true);
+  			} else {
+  				router.replace('/');
+  			}
+  		} catch(err) {
+  			console.error('Error checking delivery driver:', err);
+  			router.replace('/');
+  		} finally {
+  			setLoading(false);
+  		}
+  	};
+  	checkDelivery();
+  }, [router]);
 
   useEffect(() => {
   	const fetchOrderData = async () => {
@@ -68,6 +93,11 @@ export default function DeliveryOrders() {
         return 'bg-blue-400';
     }
   };
+
+if(loading) {
+	return <p>Loading...</p>;
+}
+if(!isDelivery) return null;
 
   return (
     <div className="p-8">

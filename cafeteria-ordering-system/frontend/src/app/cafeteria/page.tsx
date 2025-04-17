@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import axios from 'axios';
 
 type MealItem = {
@@ -18,6 +19,30 @@ type MealOrder = {
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<MealOrder[]>([]);
+  const [isCafeteria, setIsCafeteria] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+  	const checkCafeteriaEmployee = async () => {
+  		try {
+  			const res = await axios.get('http://localhost:8080/currentuserread', {
+  				withCredentials: true
+  			});
+  			if(res.data && res.data.role === 'cafeteria') {
+  				setIsCafeteria(true);
+  			} else {
+  				router.replace('/');
+  			}
+  		} catch(err) {
+  			console.error('Error checking cafeteria employee:', err);
+  			router.replace('/');
+  		} finally {
+  			setLoading(false);
+  		}
+  	};
+  	checkCafeteriaEmployee();
+  }, [router]);
 
   useEffect(() => {
     const fetchOrderData = async () => {
@@ -76,6 +101,9 @@ export default function OrdersPage() {
 
     setOrders((prev) => prev.filter((order) => order.id !== id));
   };
+
+if(loading) return <p>Loading...</p>;
+if(!isCafeteria) return null;
 
   return (
     <div className="max-w-3xl mx-auto p-6 space-y-6">
