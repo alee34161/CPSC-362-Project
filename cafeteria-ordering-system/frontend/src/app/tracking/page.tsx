@@ -19,7 +19,7 @@ export default function OrderTrackingPage() {
   const [orderStatus, setOrderStatus] = useState<string>('Pending');
   const [lastStatus, setLastStatus] = useState<string>('');
   const [total, setTotal] = useState<number>(0);
-  const statusSteps = ['Pending', 'Preparing', 'Out for Delivery', 'Delivered'];
+  const statusSteps = ['Pending', 'Preparing', 'Awaiting Pickup', 'Out for Delivery', 'Delivered'];
   // Fetch order status and show toast if changed
   useEffect(() => {
     const fetchOrderStatus = async () => {
@@ -83,6 +83,8 @@ const getStatusColor = (status: string) => {
 		case 'Delivered':
 			return 'bg-green-500';
 		case 'Out for Delivery':
+			return 'bg-yellow-400';
+		case 'Awaiting Pickup':
 			return 'bg-yellow-400';
 		case 'Pending':
 			return 'bg-gray-400';
