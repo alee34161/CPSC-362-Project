@@ -34,6 +34,12 @@
       "namedRegex": "^/admin(?:/)?$"
     },
     {
+      "page": "/cafeteria",
+      "regex": "^/cafeteria(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cafeteria(?:/)?$"
+    },
+    {
       "page": "/cafeteriamenu",
       "regex": "^/cafeteriamenu(?:/)?$",
       "routeKeys": {},

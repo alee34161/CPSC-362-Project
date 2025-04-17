@@ -156,7 +156,8 @@ db.connect((err) => {
 // Order status read function
 app.get('/orderstatus', (req, res) => {
 	const customerID = req.session.user.id;
-	db.query('SELECT status FROM Orders WHERE customerid = ?', [customerID], (err, result) => {
+	const orderID = req.session.user.currentOrderID;
+	db.query('SELECT status FROM Orders WHERE customerid = ? AND id = ?', [customerID, orderID], (err, result) => {
 		if(err) {
 			console.error('Error reading order status.');
 			return res.status(500).send('Error reading order status.');
@@ -241,6 +242,19 @@ app.get('/ordercustomerview', (req, res) => {
 	})
 })
 
+// View only cafeteria items associated with order
+app.get('/ordercafitemslist', (req, res) => {
+  const { ordID } = req.query;
+  db.query('SELECT * FROM TempCart WHERE orderID = ? AND source = ?', [ordID, 'cafeteria'], (err, results) => {
+    if (err) {
+      console.error('Error reading TempCart:', err);
+      return res.status(500).send('Error reading from Temp Cart');
+    }
+    res.send(results);
+  });
+});
+
+
 
 // View all orders
 app.get('/orderoverallview', (req, res) => {
@@ -269,7 +283,7 @@ app.get('/orderoverallviewnotdelivered', (req, res) => {
 // View specific order
 app.get('/orderspecificview', (req, res) => {
 	const { orderID } = req.body;
-	db.query('SELECT * 	FROM TempCart 	WHERE customerid = (?)', [req.session.user.id], (err, result) => {
+	db.query('SELECT * 	FROM TempCart 	WHERE customerid = (?) AND orderID = ?', [req.session.user.id, req.session.user.currentOrderID], (err, result) => {
 		if(err) {
 			console.error('Error reading order items.');
 			res.status(500).send('Error reading order items.');
@@ -463,7 +477,7 @@ app.post('/cartcustomupdate', (req, res) => {
 	});
 });
 
-// Cart Delete function. Might be unnecessary?
+// Cart Delete function.
 app.post('/cartdelete', (req, res) => {
 	console.log("Received cart delete:", req.body);
 	const { id, source } = req.body;
@@ -476,6 +490,20 @@ app.post('/cartdelete', (req, res) => {
 		console.log('Cart item deleted successfully.');
 	});
 });
+
+// Delete a specific cart item.
+app.post('/cartitemdelete', (req, res) => {
+	console.log("Received specific cart delete:", req.body);
+	const { id } = req.body;
+	db.query('DELETE FROM Cart WHERE id = ?', [id], (err, result) => {
+		if(err) {
+			console.error('Error deleting specific item from cart.');
+			return res.status(500).send('Error deleting specific item from cart.');
+		}
+		console.log('Cart item deleted successfully.');
+		res.status(200).send('Cart item deleted successfully.');
+	})
+})
 
 
 // Cafeteria menu add function, meant for admin to add new items

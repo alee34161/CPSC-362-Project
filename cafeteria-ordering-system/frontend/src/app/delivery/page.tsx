@@ -10,7 +10,7 @@ interface Order {
   status: string;
 }
 
-const statusOptions = ['Pending', 'Preparing', 'Out for Delivery', 'Delivered'];
+const statusOptions = ['Pending', 'Preparing', 'Awaiting Pickup', 'Out for Delivery', 'Delivered'];
 
 export default function DeliveryOrders() {
   const [orders, setOrders] = useState<Order[]>([]); // Dummy removed
@@ -58,6 +58,8 @@ export default function DeliveryOrders() {
         return 'bg-green-500';
       case 'Out for Delivery':
         return 'bg-yellow-400';
+      case 'Awaiting Pickup':
+      	return 'bg-yellow-400';
       case 'Pending':
         return 'bg-gray-400';
       case 'Preparing':
@@ -80,7 +82,7 @@ export default function DeliveryOrders() {
           >
             <h2 className="text-xl font-semibold mb-2">Order #{order.id}</h2>
             <p><span className="font-medium">Customer ID:</span> {order.customerID}</p>
-            <p><span className="font-medium">Address:</span> {order.deliveryAddress}</p>
+            <p><span className="font-medium">Floor and Room #:</span> {order.deliveryAddress}</p>
             <div className="mt-4 flex items-center gap-4">
               <span
                 className={`text-white text-sm px-3 py-1 rounded-full ${getStatusColor(order.status)}`}

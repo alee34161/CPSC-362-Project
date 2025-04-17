@@ -124,6 +124,17 @@ const handleTotal = async () => {
 	}
 }
 
+const handleDeleteFromCart = async (item: any) => {
+	try {
+		const response = await axios.post('http://localhost:8080/cartitemdelete', {
+			id: item.id
+		}, {withCredentials: true});
+	} catch(error) {
+		console.error('Error removing specific item from cart.', error);
+	}
+	setCartItems((prevItems) => prevItems.filter((cartItem) => cartItem.id !== item.id));
+}
+
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-8">
 		<div className="flex justify-end">
@@ -164,7 +175,7 @@ const handleTotal = async () => {
               <div className="flex flex-col items-end">
                 <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
                 <button className="text-sm text-red-600 hover:underline mt-1"
-                // unconnected delete button
+                onClick = {() => handleDeleteFromCart(item)}
                 >
                   Delete
                 </button>
