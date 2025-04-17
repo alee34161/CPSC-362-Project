@@ -28,10 +28,15 @@ export default function AdminMenuPage() {
   const [usernameToDelete, setUsernameToDelete] = useState("");
 
   // Inputs for menu editing
-  const [menuItemIdOrName, setMenuItemIdOrName] = useState("");
-  const [newItemName, setNewItemName] = useState("");
-  const [newItemPrice, setNewItemPrice] = useState("");
-  const [newItemQty, setNewItemQty] = useState(0);
+  const [addItemName, setAddItemName] = useState("");
+  const [addItemPrice, setAddItemPrice] = useState("");
+  const [addItemQty, setAddItemQty] = useState(0);
+
+  const [updateItemName, setUpdateItemName] = useState("");
+  const [updateItemPrice, setUpdateItemPrice] = useState("");
+  const [updateItemQty, setUpdateItemQty] = useState(0);
+
+  const [deleteItemName, setDeleteItemName] = useState("");
 
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<MenuItem[]>([]);
@@ -62,10 +67,10 @@ export default function AdminMenuPage() {
   // Handle pre-filling menu item inputs if an item is selected
   useEffect(() => {
     if (selectedItem) {
-      setMenuItemIdOrName(selectedItem.name);
-      setNewItemName(selectedItem.name);
-      setNewItemPrice(selectedItem.price.toString());
-      setNewItemQty(selectedItem.quantity);
+      setUpdateItemName(selectedItem.name);
+      setUpdateItemPrice(selectedItem.price.toString());
+      setUpdateItemQty(selectedItem.quantity);
+      setDeleteItemName(selectedItem.name); // Add this to populate Delete section
     }
   }, [selectedItem]);
 
@@ -102,6 +107,8 @@ export default function AdminMenuPage() {
         password: newPassword
       }, { withCredentials: true });
       alert("User info updated.");
+      // Clear all form fields after submission
+      clearAllFields();
     } catch (err) {
       console.error("Error updating user info:", err);
     }
@@ -115,6 +122,8 @@ export default function AdminMenuPage() {
         role: newRole
       }, { withCredentials: true });
       alert("User role updated.");
+      // Clear all form fields after submission
+      clearAllFields();
     } catch (err) {
       console.error("Error updating role:", err);
     }
@@ -127,9 +136,77 @@ export default function AdminMenuPage() {
         username: usernameToDelete
       }, { withCredentials: true });
       alert("User deleted.");
+      // Clear all form fields after submission
+      clearAllFields();
     } catch (err) {
       console.error("Error deleting user:", err);
     }
+  };
+
+  // Handle adding a menu item
+  const handleAddMenuItem = async () => {
+    try {
+      await axios.post("http://localhost:8080/cafmenuadd", {
+        name: addItemName,
+        price: addItemPrice,
+        quantity: addItemQty,
+      }, { withCredentials: true });
+      alert("Menu item added.");
+      // Clear all form fields after submission
+      clearAllFields();
+    } catch (err) {
+      console.error("Error adding item:", err);
+    }
+  };
+
+  // Handle updating a menu item
+  const handleUpdateMenuItem = async () => {
+    try {
+      await axios.post("http://localhost:8080/cafmenuupdate", {
+        name: updateItemName,
+        price: updateItemPrice,
+        quantity: updateItemQty,
+      }, { withCredentials: true });
+      alert("Menu item updated.");
+      // Clear all form fields after submission
+      clearAllFields();
+    } catch (err) {
+      console.error("Error updating item:", err);
+    }
+  };
+
+  // Handle deleting a menu item
+  const handleDeleteMenuItem = async () => {
+    try {
+      await axios.post("http://localhost:8080/cafmenudelete", {
+        name: deleteItemName
+      }, { withCredentials: true });
+      alert("Menu item deleted.");
+      // Clear all form fields after submission
+      clearAllFields();
+    } catch (err) {
+      console.error("Error deleting item:", err);
+    }
+  };
+
+  // Clear all text fields across all sections
+  const clearAllFields = () => {
+    setUserIdentifier("");
+    setNewName("");
+    setNewPassword("");
+    setUsernameForRole("");
+    setNewRole("customer");
+    setUsernameToDelete("");
+    setAddItemName("");
+    setAddItemPrice("");
+    setAddItemQty(0);
+    setUpdateItemName("");
+    setUpdateItemPrice("");
+    setUpdateItemQty(0);
+    setDeleteItemName("");
+    setSearchQuery("");
+    setSearchResults([]);
+    setSelectedItem(null);
   };
 
   // Show loading text or admin content based on loading and isAdmin state
@@ -212,123 +289,82 @@ export default function AdminMenuPage() {
             )}
           </div>
 
-		{/* Add Menu Item */}
-		          <div className="bg-white p-4 rounded shadow">
-		            <h2 className="text-xl font-semibold mb-2">Add Menu Item</h2>
-		            <input
-		              type="text"
-		              placeholder="Item Name"
-		              value=''
-		              onChange={e => setMenuItemIdOrName(e.target.value)}
-		              className="input"
-		            />
-		            <input
-		              type="text"
-		              placeholder="Price"
-		              value=''
-		              onChange={e => setNewItemPrice(e.target.value)}
-		              className="input"
-		            />
-		            <input
-		              type="number"
-		              placeholder="Quantity"
-		              value=''
-		              onChange={e => setNewItemQty(Number(e.target.value))}
-		              className="input"
-		            />
-		            <button
-		              onClick={async () => {
-		                try {
-		                  await axios.post("http://localhost:8080/cafmenuadd", {
-		                    name: menuItemIdOrName,
-		                    price: newItemPrice,
-		                    quantity: newItemQty,
-		                  }, { withCredentials: true });
-		                  alert("Menu item added.");
-		                  // Reset fields
-		                  setMenuItemIdOrName("");
-		                  setNewItemPrice("");
-		                  setNewItemQty(0);
-		                } catch (err) {
-		                  console.error("Error adding item:", err);
-		                }
-		              }}
-		              className="button-blue"
-		            >
-		              Add Item
-		            </button>
-		          </div>
-    
-          {/* Update Existing Menu Item */}
+          {/* Add Menu Item */}
           <div className="bg-white p-4 rounded shadow">
-            <h2 className="text-xl font-semibold mb-2">Update Existing Menu Item</h2>
+            <h2 className="text-xl font-semibold mb-2">Add Menu Item</h2>
             <input
               type="text"
               placeholder="Item Name"
-              value={menuItemIdOrName}
-              onChange={e => setMenuItemIdOrName(e.target.value)}
+              value={addItemName}
+              onChange={e => setAddItemName(e.target.value)}
+              className="input"
+            />
+            <input
+              type="text"
+              placeholder="Price"
+              value={addItemPrice}
+              onChange={e => setAddItemPrice(e.target.value)}
+              className="input"
+            />
+            <input
+              type="number"
+              placeholder="Quantity"
+              value={addItemQty}
+              onChange={e => setAddItemQty(Number(e.target.value))}
+              className="input"
+            />
+            <button
+              onClick={handleAddMenuItem}
+              className="button-blue"
+            >
+              Add Item
+            </button>
+          </div>
+
+          {/* Update Menu Item */}
+          <div className="bg-white p-4 rounded shadow">
+            <h2 className="text-xl font-semibold mb-2">Update Menu Item</h2>
+            <input
+              type="text"
+              placeholder="Item Name"
+              value={updateItemName}
+              onChange={e => setUpdateItemName(e.target.value)}
               className="input"
             />
             <input
               type="text"
               placeholder="New Price"
-              value={newItemPrice}
-              onChange={e => setNewItemPrice(e.target.value)}
+              value={updateItemPrice}
+              onChange={e => setUpdateItemPrice(e.target.value)}
               className="input"
             />
             <input
               type="number"
               placeholder="New Quantity"
-              value={newItemQty}
-              onChange={e => setNewItemQty(Number(e.target.value))}
+              value={updateItemQty}
+              onChange={e => setUpdateItemQty(Number(e.target.value))}
               className="input"
             />
             <button
-              onClick={async () => {
-                try {
-                  await axios.post("http://localhost:8080/cafmenuupdate", {
-                    name: menuItemIdOrName,
-                    price: newItemPrice,
-                    quantity: newItemQty,
-                  }, { withCredentials: true });
-                  alert("Menu item updated.");
-                  // Reset fields
-                  setMenuItemIdOrName("");
-                  setNewItemPrice("");
-                  setNewItemQty(0);
-                } catch (err) {
-                  console.error("Error updating item:", err);
-                }
-              }}
+              onClick={handleUpdateMenuItem}
               className="button-blue"
             >
               Update Item
             </button>
           </div>
-    
+
           {/* Delete Menu Item */}
           <div className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-semibold mb-2">Delete Menu Item</h2>
             <input
               type="text"
               placeholder="Item Name"
-              value={menuItemIdOrName}
-              onChange={e => setMenuItemIdOrName(e.target.value)}
+              value={deleteItemName}
+              onChange={e => setDeleteItemName(e.target.value)}
               className="input"
             />
             <button
-              onClick={async () => {
-                try {
-                  await axios.post("http://localhost:8080/cafmenudelete", {
-                    name: menuItemIdOrName
-                  }, { withCredentials: true });
-                  alert("Menu item deleted.");
-                  // Reset field
-                  setMenuItemIdOrName("");
-                } catch (err) {
-                  console.error("Error deleting item:", err);
-                }
-              }}
+              onClick={handleDeleteMenuItem}
               className="button-red"
             >
               Delete Item
