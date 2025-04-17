@@ -58,7 +58,7 @@ export default function DeliveryOrders() {
         });
         const data = await response.json();
         // Create a map of customerID -> customerName for easy lookup
-        const customerMap = new Map(data.map((customer: Customer) => [customer.id, customer.name]));
+        const customerMap = new Map<number, string>(data.map((customer: Customer) => [customer.id, customer.name]));
         setCustomers(customerMap);
       } catch (error) {
         console.error('Error fetching customer data:', error);
