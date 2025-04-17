@@ -34,7 +34,7 @@ const sessionStore = new MySQLStore({
 
 app.use(session({
 	key: 'cafeteria_session',
-	secret: 'secret',
+	secret: 'dsnafu32',
 	store: sessionStore,
 	resave: false,
 	saveUninitialized: false,
@@ -632,7 +632,7 @@ app.post('/login', (req, res) => {
         if (password === user.password) {
         	console.log("user and password recognized");
 
-        	req.session.user = {username: username, id: user.id, currentOrderID: user.currentOrderID, cartTotal: user.cartTotal, name: user.name, role: user.role};
+        	req.session.user = {username: username, id: user.id, currentOrderID: user.currentOrderID, cartTotal: user.cartTotal, name: user.name, role: user.role, phone: user.phone, username: user.username};
 			
         	// Send to correct landing page sorted by status
 			if(user.role === 'customer') {
@@ -687,6 +687,17 @@ app.get('/currentuserread', (req, res) => {
 	});
 });
 
+// All customers read function, meant for delivery drivers to be able to identify ids with names
+app.get('/customers', (req, res) => {
+	db.query('SELECT * FROM userInformation WHERE role = ?', ['customer'], (err, results) => {
+		if(err) {
+			console.error('Error reading userInformation:', err);
+			return res.status(500).send('Error reading userInformation.');
+		}
+		return res.json(results);
+	})
+})
+
 // Current user profile pic update function
 app.post('/currentuserpicupdate', (req, res) => {
 	console.log("Received current user profile pic update:", req.body);
@@ -708,6 +719,9 @@ app.post('/currentuserupdate', (req, res) => {
   console.log("Received current user update:", req.body);
   const { username, password, name, phone } = req.body;
 
+	req.session.user.name = name;
+	req.session.user.phone = phone;
+	req.session.user.username = username;
     const id = req.session.user.id;
 
 	db.query("UPDATE userInformation SET username = ?, password = ?, name = ?, phone = ? WHERE id = ?", [username, password, name, phone, id], (err, result) => {
