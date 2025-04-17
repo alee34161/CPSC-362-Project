@@ -163,7 +163,9 @@ const handleTotal = async () => {
               </div>
               <div className="flex flex-col items-end">
                 <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
-                <button className="text-sm text-red-600 hover:underline mt-1">
+                <button className="text-sm text-red-600 hover:underline mt-1"
+                // unconnected delete button
+                >
                   Delete
                 </button>
               </div>
