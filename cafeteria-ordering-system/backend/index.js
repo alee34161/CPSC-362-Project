@@ -1,4 +1,5 @@
 const express = require('express');
+const session = require('express-session');
 const bodyParser = require('body-parser');
 const mysql = require('mysql2');
 const cors = require('cors');
@@ -48,6 +49,13 @@ db.connect((err) => {
 	// Automatically makes an admin account where username is Root@Root and password is admin ONLY IF there is no admin account
 	db.query("INSERT INTO userInformation(role) SELECT ('admin') WHERE NOT EXISTS (SELECT * FROM userInformation)");
 	db.query("UPDATE userInformation SET username = 'Root@Root', password = 'admin' WHERE username IS NULL");
+
+	// Automatically makes cafeteria employee/delivery driver accounts for testing purposes.
+	// cafeteria@employee and delivery@employee
+	// password for both is 'test'
+	db.query("INSERT INTO userInformation (username, password, role) SELECT * FROM (SELECT 'cafeteria@employee', 'test', 'cafeteria') AS tmp WHERE NOT EXISTS (SELECT 1 FROM userInformation WHERE role = 'cafeteria') LIMIT 1;");
+	db.query("INSERT INTO userInformation (username, password, role) SELECT * FROM (SELECT 'delivery@employee', 'test', 'delivery') AS tmp WHERE NOT EXISTS (SELECT 1 FROM userInformation WHERE role = 'delivery') LIMIT 1;");
+
 
 	// Creates currentUser Table if it isn't already made and empties it completely. Used to track current user for account info
     db.query('CREATE TABLE IF NOT EXISTS currentUser (id INT unsigned, loyaltyPoints INT unsigned, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255))', function(err, result) { if (err) throw err; });
@@ -233,6 +241,18 @@ app.get('/orderoverallview', (req, res) => {
 			res.status(500).send('Error reading Orders.');
 		}
 		console.log('Overall Orders read successfully.');
+		res.send(results);
+	})
+})
+
+// View all undelivered orders
+app.get('/orderoverallviewnotdelivered', (req, res) => {
+	db.query('SELECT * FROM Orders WHERE status != ?', ['Delivered'], (err, results) => {
+		if(err) {
+			console.error('Error reading Orders.');
+			res.status(500).send('Error reading Orders.');
+		}
+		console.log('Overall Orders not delivered read successfully.');
 		res.send(results);
 	})
 })

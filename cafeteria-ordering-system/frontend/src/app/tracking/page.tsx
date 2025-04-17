@@ -19,7 +19,7 @@ export default function OrderTrackingPage() {
   const [orderStatus, setOrderStatus] = useState<string>('Pending');
   const [lastStatus, setLastStatus] = useState<string>('');
   const [total, setTotal] = useState<number>(0);
-  const statusSteps = ['Pending', 'Preparing', 'Out for Delivery', 'Completed'];
+  const statusSteps = ['Pending', 'Preparing', 'Out for Delivery', 'Delivered'];
   // Fetch order status and show toast if changed
   useEffect(() => {
     const fetchOrderStatus = async () => {
@@ -78,6 +78,21 @@ export default function OrderTrackingPage() {
     fetchCartData();
   }, []);
 
+const getStatusColor = (status: string) => {
+	switch (status) {
+		case 'Delivered':
+			return 'bg-green-500';
+		case 'Out for Delivery':
+			return 'bg-yellow-400';
+		case 'Pending':
+			return 'bg-gray-400';
+		case 'Preparing':
+			return 'bg-purple-400';
+		default:
+			return 'bg-blue-400';
+	}
+};
+
   return (
     <div className="max-w-4xl mx-auto p-4">
       {/* Toast container */}
@@ -126,7 +141,7 @@ export default function OrderTrackingPage() {
       <div className="bg-white p-4 rounded shadow">
         <h2 className="text-lg font-semibold mb-2">Current Status</h2>
         <div className="p-2 bg-blue-100 rounded">
-          <p className="font-medium">{orderStatus}</p>
+          <p className={`text-white text-sm px-3 py-1 rounded-full ${getStatusColor(orderStatus)}`}>{orderStatus}</p>
         </div>
       </div>
     </div>
