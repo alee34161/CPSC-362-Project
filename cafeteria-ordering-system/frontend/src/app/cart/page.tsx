@@ -161,7 +161,12 @@ const handleTotal = async () => {
                   </div>
                 </div>
               </div>
-              <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+              <div className="flex flex-col items-end">
+                <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
+                <button className="text-sm text-red-600 hover:underline mt-1">
+                  Delete
+                </button>
+              </div>
             </div>
             <div>
               <label className="text-sm block mb-1 text-gray-500">Special Request</label>
