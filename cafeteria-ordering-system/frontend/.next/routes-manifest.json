@@ -28,10 +28,52 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/cafeteria",
+      "regex": "^/cafeteria(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cafeteria(?:/)?$"
+    },
+    {
+      "page": "/cafeteriamenu",
+      "regex": "^/cafeteriamenu(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cafeteriamenu(?:/)?$"
+    },
+    {
+      "page": "/cart",
+      "regex": "^/cart(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/cart(?:/)?$"
+    },
+    {
+      "page": "/checkout",
+      "regex": "^/checkout(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/checkout(?:/)?$"
+    },
+    {
       "page": "/dashboard",
       "regex": "^/dashboard(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/dashboard(?:/)?$"
+    },
+    {
+      "page": "/delivery",
+      "regex": "^/delivery(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/delivery(?:/)?$"
+    },
+    {
+      "page": "/documentation",
+      "regex": "^/documentation(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/documentation(?:/)?$"
     },
     {
       "page": "/edit-info",
@@ -58,10 +100,34 @@
       "namedRegex": "^/login(?:/)?$"
     },
     {
+      "page": "/loyalty",
+      "regex": "^/loyalty(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/loyalty(?:/)?$"
+    },
+    {
+      "page": "/meal-subscription",
+      "regex": "^/meal\\-subscription(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/meal\\-subscription(?:/)?$"
+    },
+    {
+      "page": "/restaurantmenu",
+      "regex": "^/restaurantmenu(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/restaurantmenu(?:/)?$"
+    },
+    {
       "page": "/signup",
       "regex": "^/signup(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/signup(?:/)?$"
+    },
+    {
+      "page": "/tracking",
+      "regex": "^/tracking(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/tracking(?:/)?$"
     },
     {
       "page": "/user",
