@@ -1,60 +1,81 @@
 // app/documentation/page.tsx
-"use client";
+import { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
-export default function DocumentationPage() {
+const faqItems = [
+  { category: 'Ordering', questions: [
+    "How do I place an order?",
+    "Can I customize items in my order?",
+    "How do I view my cart?",
+    "Can I cancel or change my order after placing it?",
+    "How do I check my order status or tracking?",
+  ]},
+  { category: 'Payment', questions: [
+    "What payment methods are accepted?",
+    "When am I charged for my order?",
+    "Is my payment information secure?",
+  ]},
+  { category: 'Loyalty Rewards', questions: [
+    "How do I earn loyalty points?",
+    "How many points do I get per order?",
+    "Where can I see my current points?",
+    "What can I redeem my points for?",
+    "How do I redeem my loyalty reward?",
+    "Do points expire?",
+  ]},
+  { category: 'Account', questions: [
+    "How do I sign up or log in?",
+    "What if I forget my password?",
+    "How do I update my phone number, location, or profile info?",
+  ]},
+  { category: 'Delivery', questions: [
+    "How long does delivery take?",
+    "Where does the cafeteria deliver to?",
+    "Can I choose a delivery time?",
+  ]},
+  { category: 'Technical Help', questions: [
+    "The app isn't working — what should I do?",
+    "I didn’t get my confirmation email.",
+    "How do I contact support?",
+  ]},
+  { category: 'Mobile Access', questions: [
+    "Is there a mobile app?",
+    "Can I order from my phone or tablet?",
+  ]},
+];
+
+export default function FAQPage() {
+  const [openQuestion, setOpenQuestion] = useState<string | null>(null);
+
+  const toggleQuestion = (question: string) => {
+    setOpenQuestion(openQuestion === question ? null : question);
+  };
+
   return (
-    <div className="p-8 max-w-4xl mx-auto text-lg leading-relaxed">
-      <h1 className="text-5xl font-extrabold mb-10 text-center">📘 CSUF Cafeteria System Documentation</h1>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">📖 Help & FAQ</h1>
 
-      {/* Getting Started */}
-      <section className="mb-10">
-        <h2 className="text-3xl font-semibold mb-4">🔑 Getting Started</h2>
-        <p>Welcome to the CSUF Cafeteria System! To begin using the platform:</p>
-        <ul className="list-disc pl-6 mt-2 space-y-2">
-          <li>Create an account or log in with your CSUF credentials.</li>
-          <li>Your role is automatically assigned based on your credentials.</li>
-          <li>Navigate using the primary navigation menu at the top.</li>
-        </ul>
-      </section>
-
-      {/* Menu Navigation */}
-      <section className="mb-10">
-        <h2 className="text-3xl font-semibold mb-4">🍽️ Menu Navigation</h2>
-        <p>Our system provides access to both campus cafeteria options and local restaurant partners:</p>
-        <ul className="list-disc pl-6 mt-2 space-y-2">
-          <li><strong>Toggle View:</strong> Switch between "Cafeteria" and "Local Restaurants" using the selector at the top of the menu page.</li>
-        </ul>
-      </section>
-
-      {/* Employee Features */}
-      <section className="mb-10">
-        <h2 className="text-3xl font-semibold mb-4">👩‍🍳 Employee Features</h2>
-        <p>Employees have access to special tools for order handling:</p>
-        <ul className="list-disc pl-6 mt-2 space-y-2">
-          <li>Access the employee page for order management.</li>
-          <li>Cafeteria staff: Manage cafeteria-specific operations.</li>
-          <li>Delivery personnel: Access delivery management interface.</li>
-        </ul>
-      </section>
-
-      {/* Help / FAQ */}
-      <section className="mb-10">
-        <h2 className="text-3xl font-semibold mb-4">❓ Frequently Asked Questions</h2>
-        <ul className="list-disc pl-6 space-y-2">
-          <li><strong>Q:</strong> I forgot my password. What do I do?<br /><strong>A:</strong> Use the "Forgot Password" link on the login page.</li>
-        </ul>
-      </section>
-
-      {/* Contact */}
-      <section>
-        <h2 className="text-3xl font-semibold mb-4">💬 Need More Help?</h2>
-        <p>
-          Reach out through the "Help" link in the footer, or email us directly at <strong>support@cafecsuf.com</strong>.
-        </p>
-        <p className="mt-2">
-          For urgent assistance, call our support line at (555) 123-4567 during operating hours (7:00 AM - 9:00 PM).
-        </p>
-      </section>
+      {faqItems.map((section) => (
+        <div key={section.category} className="mb-8">
+          <h2 className="text-xl font-semibold text-blue-700 mb-2">{section.category}</h2>
+          <div className="space-y-2">
+            {section.questions.map((q) => (
+              <div key={q} className="border rounded-lg p-4 bg-white shadow">
+                <button
+                  onClick={() => toggleQuestion(q)}
+                  className="flex justify-between items-center w-full text-left font-medium text-gray-800"
+                >
+                  {q}
+                  {openQuestion === q ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                </button>
+                {openQuestion === q && (
+                  <p className="mt-2 text-sm text-gray-600 italic">[Your answer here]</p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
