@@ -332,6 +332,21 @@ header {
     margin-top: 10px;
     font-size: 1.2rem;
 }
+/* size of category icons */
+.category-icon {
+    width: 250px;
+    height: 250px;
+    margin-bottom: 10px;
+    object-fit: contain;
+}
+
+.product-image {
+    width: 360px; /* Adjust the width as needed */
+    height: 250px; /* Maintain aspect ratio */
+    margin-bottom: 10px; /* Add spacing below the image */
+    border-radius: 8px; /* Optional: Add rounded corners */
+    object-fit: cover; /* Ensure the image fits within the dimensions */
+}
 
 .icon {
     width: 24px;

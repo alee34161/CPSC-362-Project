@@ -80,58 +80,80 @@ db.connect((err) => {
 	console.log("Created CafeteriaMenu");
     db.query("CREATE TABLE IF NOT EXISTS RestaurantMenu (id INT unsigned AUTO_INCREMENT, source varchar(255) DEFAULT 'restaurant', name varchar(255), price decimal(10,2), restaurant varchar(255), PRIMARY KEY (id))");
 	console.log("Created RestaurantMenu");
-	db.query("DELETE FROM RestaurantMenu");
-
-	// Creates default values for Restaurant Menu ONLY IF it is empty
-	db.query("SELECT * FROM CafeteriaMenu", (err, results) => {
-		if(err) {
-			console.error("Failed to check CafeteriaMenu table.");
-			return;
-		}
-		if(results.length == 0) {
-			fs.readFile(cafMenu, 'utf8', (err, myJSON) => {
-				if(err) {
-					console.log("Error reading default file cafeteria menu.", err);
-				}
-				try {
-					const cafData = JSON.parse(myJSON);
-					cafData.forEach(item => {
-						db.query("INSERT INTO CafeteriaMenu (id, name, price, quantity) VALUES (?,?,?,?)", [item.id, item.name, item.price, item.quantity], (err, result) => {
-							if(err) {
-								console.error('Error inserting cafeteria menu data:', err);
-								return;
-							}
-						})
-					})
-					console.log('Cafeteria default menu items added successfully');
-				} catch (err) {
-					console.log('Error parsing CafeteriaMenu file.');
-					console.error('Reason:', err);
-				}
-			});
-		}
-	});
+	
+	// Populate CafeteriaMenu table
+fs.readFile(cafMenu, 'utf8', (err, myJSON) => {
+    if (err) {
+        console.log("Error reading cafeteria menu JSON file:", err);
+        return;
+    }
+    try {
+        const cafData = JSON.parse(myJSON);
+        cafData.forEach(item => {
+            db.query(
+                `INSERT INTO CafeteriaMenu (id, source, name, price, quantity, restaurant, category, image)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                 ON DUPLICATE KEY UPDATE
+                 source = VALUES(source),
+                 name = VALUES(name),
+                 price = VALUES(price),
+                 quantity = VALUES(quantity),
+                 restaurant = VALUES(restaurant),
+                 category = VALUES(category),
+                 image = VALUES(image)`,
+                [item.id, 'cafeteria', item.name, item.price, item.quantity, item.restaurant, item.category, item.image],
+                (err, result) => {
+                    if (err) {
+                        console.error('Error inserting/updating cafeteria menu data:', err);
+                        return;
+                    }
+                }
+            );
+        });
+        console.log('Cafeteria menu items added/updated successfully.');
+    } catch (err) {
+        console.log('Error parsing CafeteriaMenu JSON file.');
+        console.error('Reason:', err);
+    }
+});
 	
 	// Creates default values for Restaurant Menu
-	fs.readFile(restMenu, 'utf8', (err, myJSON) => {
-		if(err) {
-			console.log("Error reading restaurant menu.", err);
-		}
-	try {
-		const restData = JSON.parse(myJSON);
-		restData.forEach(item => {
-			db.query("INSERT INTO RestaurantMenu (id, name, price, restaurant) VALUES (?,?,?,?)", [item.id, item.name, item.price, item.restaurant], (err, result) => {
-				if(err) {
-					console.error('Error inserting restaurant menu data:', err);
-					return;
-				}
-			})
-		})
-		console.log('Restaurant menu items added successfully.');
-	} catch (err) {
-		console.log('Error parsing RestaurantMenu file.');
-		console.error('Reason:', err);
-	}
+fs.readFile(restMenu, 'utf8', (err, myJSON) => {
+    if (err) {
+        console.log("Error reading restaurant menu.", err);
+        return;
+    }
+    try {
+        const restData = JSON.parse(myJSON);
+
+        // Loop through each item in the JSON file
+        restData.forEach(item => {
+            // Upsert logic: Insert or update the row based on the `id`
+            db.query(
+                `INSERT INTO RestaurantMenu (id, source, name, price, restaurant, category, image)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)
+                 ON DUPLICATE KEY UPDATE
+                 source = VALUES(source),
+                 name = VALUES(name),
+                 price = VALUES(price),
+                 restaurant = VALUES(restaurant),
+                 category = VALUES(category),
+                 image = VALUES(image)`,
+                [item.id, 'restaurant', item.name, item.price, item.restaurant, item.category, item.image],
+                (err, result) => {
+                    if (err) {
+                        console.error('Error inserting/updating restaurant menu data:', err);
+                        return;
+                    }
+                }
+            );
+        });
+
+        console.log('Restaurant menu items added/updated successfully.');
+    } catch (err) {
+        console.log('Error parsing RestaurantMenu file.');
+        console.error('Reason:', err);
+    }
 });
 
 	// Implement cart table
@@ -339,16 +361,28 @@ app.post('/updatetotal', (req, res) => {
 
 // Search function for all menus, meant to be used for the dashboard search bar.
 app.post('/allmenusearch', (req, res) => {
-	const { name } = req.body;
-	console.log("received allmenusearch");
-	// Query table for any partial matches
-	db.query("SELECT * FROM RestaurantMenu WHERE name LIKE ? UNION SELECT * FROM CafeteriaMenu WHERE name LIKE ? AND quantity > 0", [`%${name}%`,`%${name}%`], (err, results) => {
-		if(err) {
-			console.error('Error querying all menu.');
-			return res.status(500).send('Error querying all menu.');
-		}
-		res.send(results);
-	});
+    const { name } = req.body;
+
+    if (!name || name.trim() === '') {
+        return res.status(400).send('Search term is required.');
+    }
+
+    console.log("received allmenusearch with:", name);
+
+    db.query(
+        `SELECT id, name, price, 'restaurant' AS source FROM RestaurantMenu WHERE name LIKE ? 
+         UNION 
+         SELECT id, name, price, 'cafeteria' AS source FROM CafeteriaMenu WHERE name LIKE ?`,
+        [`%${name}%`, `%${name}%`],
+        (err, results) => {
+            if (err) {
+                console.error('Error querying all menu:', err);
+                return res.status(500).send('Error querying all menu.');
+            }
+            console.log("Query results:", results);
+            res.send(results);
+        }
+    );
 });
 
 
@@ -370,15 +404,15 @@ app.post('/restaurantmenusearch', (req, res) => {
 
 // Restaurant menu read function, meant for the customer to be able to see menu items.
 app.get('/restaurantmenuread', (req, res) => {
-	console.log("Received restaurant Menu read:", req.query);
-
-	db.query("SELECT * FROM RestaurantMenu", (err, result) => {
-		if (err) {
-			console.error('Error reading RestaurantMenu:', err);
-			return res.status(500).send('Error reading RestaurantMenu.');
-		}
-		return res.json(result);
-		})
+    const query = 'SELECT id, name, price, restaurant, category, image FROM RestaurantMenu';
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching menu data:', err);
+            res.status(500).send('Error fetching menu data');
+        } else {
+            res.json(results);
+        }
+    });
 });
 	
 // Restaurant menu update function, meant for admin to update menu items in case local restaurant is out of stock
@@ -542,11 +576,11 @@ app.post('/cafmenusearch', (req, res) => {
 app.get('/cafmenuread', (req, res) => {
 	console.log("Received Cafeteria Menu read:", req.query);
 
-	db.query("SELECT * FROM CafeteriaMenu WHERE quantity > 0", (err, result) => {
-		if (err) {
-			console.error('Error reading cafeteria menu:', err);
-			return res.status(500).send('Error reading cafeteria menu.');
-		}
+	db.query("SELECT id, name, price, restaurant, category, image FROM CafeteriaMenu", (err, result) => {
+        if (err) {
+            console.error('Error reading cafeteria menu:', err);
+            return res.status(500).send('Error reading cafeteria menu.');
+        }
 		return res.json(result);
 	});
 });
