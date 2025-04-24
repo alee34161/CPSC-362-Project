@@ -13,7 +13,16 @@
     }
   ],
   "headers": [],
-  "dynamicRoutes": [],
+  "dynamicRoutes": [
+    {
+      "page": "/customer-orders/[id]",
+      "regex": "^/customer\\-orders/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/customer\\-orders/(?<nxtPid>[^/]+?)(?:/)?$"
+    }
+  ],
   "staticRoutes": [
     {
       "page": "/",
@@ -56,6 +65,12 @@
       "regex": "^/checkout(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/checkout(?:/)?$"
+    },
+    {
+      "page": "/customer-orders",
+      "regex": "^/customer\\-orders(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/customer\\-orders(?:/)?$"
     },
     {
       "page": "/dashboard",
