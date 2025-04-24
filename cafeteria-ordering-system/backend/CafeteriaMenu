@@ -1,7 +1,122 @@
 [{
 	"id": 1,
-	"name": "Generic Cafeteria Item Placeholder",
-	"price": 123.45,
-	"quantity": 20
+	"name": "Eggs and Potatoes",
+	"price": 11.35,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "breakfast",
+	"image": "/eggspotato.png"
+}, {
+	"id": 2,
+	"name": "Egg Sandwich",
+	"price": 5.35,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "breakfast",
+	"image": "/eggsandwich.png"
+}, {
+	"id": 3,
+	"name": "Waffles",
+	"price": 3.80,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "breakfast",
+	"image": "/waffles.png"
+}, {
+	"id": 4,
+	"name": "Salad",
+	"price": 11.35,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "lunch",
+	"image": "/salad2.jpg" 
+}, {
+	"id": 5,
+	"name": "Chicken Sandwich",
+	"price": 3.15,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "lunch",
+	"image": "/chickensandwich.jpg"
+}, {
+	"id": 6,
+	"name": "Homemade Fries",
+	"price": 5.29,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "lunch",
+	"image": "/homefries.jpg"
+}, {
+	"id": 7,
+	"name": "Hawiaian Beef BBQ",
+	"price": 13.99,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "dinner",
+	"image": "/bbqbeef.jpg" 
+}, {
+	"id": 8,
+	"name": "Hawiaian Chicken BBQ",
+	"price": 12.99,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "dinner",
+	"image": "/bbqchicken.jpg"
+}, {
+	"id": 9,
+	"name": "Lamb",
+	"price": 17.89,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "dinner",
+	"image": "/lamb.jpg"
+}, {
+	"id": 10,
+	"name": "Brownies",
+	"price": 4.39,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "dessert",
+	"image": "/brownies.jpg"
+}, {
+	"id": 11,
+	"name": "Yogurt Sandwich",
+	"price": 5.69,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "dessert",
+	"image": "/yogurtsandwich.jpeg"
+}, {
+	"id": 12,
+	"name": "Mochi",
+	"price": 3.69,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "dessert",
+	"image": "/mochi.jpg"
+}, {
+	"id": 13,
+	"name": "Fountain Drink",
+	"price": 3.69,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "drink",
+	"image": "/drink2.png"
+}, {
+	"id": 14,
+	"name": "Iced Tea",
+	"price": 3.69,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "drink",
+	"image": "/drink3.png"
+}, {
+	"id": 15,
+	"name": "Coffee",
+	"price": 2.69,
+	"quantity": 0,
+	"restaurant": "Cafe CSUF",
+	"category": "drink",
+	"image": "/coffee.png"
 }
 ]

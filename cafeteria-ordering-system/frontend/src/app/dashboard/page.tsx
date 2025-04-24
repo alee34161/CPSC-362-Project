@@ -157,18 +157,25 @@ const Cafe: React.FC = () => {
           </div>
         </section>
 
-        {/* Featured Meals Section */}
-        <section className="products">
-          <div className="products-container">
-            <h2>Featured Meals</h2>
-            <br />
-            <div className="placeholder-products">
-              <div className="placeholder-product"></div>
-              <div className="placeholder-product"></div>
-              <div className="placeholder-product"></div>
-            </div>
-          </div>
-        </section>
+    {/* Featured Meals Section */}
+    <section className="products">
+    <div className="products-container">
+    <h2>Featured Meals</h2>
+    <br />
+    <div className="placeholder-products">
+    <div className="placeholder-product">
+    <img src="/bbqchicken.jpg" alt="BBQ Chicken" className="product-image" />
+    </div>
+    <div className="placeholder-product">
+    <img src="/lamb.jpg" alt="Lamb" className="product-image" />
+    </div>
+    <div className="placeholder-product">
+    <img src="/mochi.jpg" alt="Mochi" className="product-image" />
+    </div>
+    </div>
+    </div>
+    </section>
+    
       </main>
 
       {/* Footer */}
