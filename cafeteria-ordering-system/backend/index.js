@@ -64,7 +64,7 @@ db.connect((err) => {
 
 	// Creates the user information table if it isn't already made for authentication and account info.
 	// Note: username is the same thing as email
-    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, loyaltyPoints INT unsigned DEFAULT 0, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))");
+    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, subscribed BOOL Default 0, pointDiscount BOOL DEFAULT 0, loyaltyPoints INT unsigned DEFAULT 0, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))");
     console.log("Created userInformation table");
 	    
 	// Automatically makes an admin account where username is root@employee and password is admin ONLY IF there is no admin account
@@ -76,46 +76,52 @@ db.connect((err) => {
 	db.query("INSERT INTO userInformation (username, password, role) SELECT 'delivery@employee', 'test', 'delivery' WHERE NOT EXISTS (SELECT 1 FROM userInformation WHERE role = 'delivery') LIMIT 1;");
 
 	// Creates CafeteriaMenu table. Admin needs to manually add in new items.
-    db.query("CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, source varchar(255) DEFAULT 'cafeteria', name varchar(255), price decimal(10,2), quantity INT, PRIMARY KEY (id))");
+    db.query("CREATE TABLE IF NOT EXISTS CafeteriaMenu (id INT unsigned AUTO_INCREMENT, source varchar(255) DEFAULT 'cafeteria', name varchar(255), price decimal(10,2), quantity INT, category varchar(255), image MEDIUMTEXT, PRIMARY KEY (id))");
 	console.log("Created CafeteriaMenu");
-    db.query("CREATE TABLE IF NOT EXISTS RestaurantMenu (id INT unsigned AUTO_INCREMENT, source varchar(255) DEFAULT 'restaurant', name varchar(255), price decimal(10,2), restaurant varchar(255), PRIMARY KEY (id))");
+    db.query("CREATE TABLE IF NOT EXISTS RestaurantMenu (id INT unsigned AUTO_INCREMENT, source varchar(255) DEFAULT 'restaurant', name varchar(255), price decimal(10,2), restaurant varchar(255), category varchar(255), image MEDIUMTEXT, PRIMARY KEY (id))");
 	console.log("Created RestaurantMenu");
-	
-	// Populate CafeteriaMenu table
-fs.readFile(cafMenu, 'utf8', (err, myJSON) => {
-    if (err) {
-        console.log("Error reading cafeteria menu JSON file:", err);
-        return;
-    }
-    try {
-        const cafData = JSON.parse(myJSON);
-        cafData.forEach(item => {
-            db.query(
-                `INSERT INTO CafeteriaMenu (id, source, name, price, quantity, restaurant, category, image)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                 ON DUPLICATE KEY UPDATE
-                 source = VALUES(source),
-                 name = VALUES(name),
-                 price = VALUES(price),
-                 quantity = VALUES(quantity),
-                 restaurant = VALUES(restaurant),
-                 category = VALUES(category),
-                 image = VALUES(image)`,
-                [item.id, 'cafeteria', item.name, item.price, item.quantity, item.restaurant, item.category, item.image],
-                (err, result) => {
-                    if (err) {
-                        console.error('Error inserting/updating cafeteria menu data:', err);
-                        return;
-                    }
-                }
-            );
-        });
-        console.log('Cafeteria menu items added/updated successfully.');
-    } catch (err) {
-        console.log('Error parsing CafeteriaMenu JSON file.');
-        console.error('Reason:', err);
-    }
-});
+
+	db.query("SELECT * FROM CafeteriaMenu", (err, results) => {
+		if(err) {
+			console.error("Failed to check CafeteriaMenu table.");
+			return;
+		}
+		if(results.length == 0) {
+			fs.readFile(cafMenu, 'utf8', (err, myJSON) => {
+			    if (err) {
+			        console.log("Error reading cafeteria menu JSON file:", err);
+			        return;
+			    }
+			    try {
+			        const cafData = JSON.parse(myJSON);
+			        cafData.forEach(item => {
+			            db.query(
+			                `INSERT INTO CafeteriaMenu (id, source, name, price, quantity, category, image)
+			                 VALUES (?, ?, ?, ?, ?, ?, ?)
+			                 ON DUPLICATE KEY UPDATE
+			                 source = VALUES(source),
+			                 name = VALUES(name),
+			                 price = VALUES(price),
+			                 quantity = VALUES(quantity),
+			                 category = VALUES(category),
+			                 image = VALUES(image)`,
+			                [item.id, 'cafeteria', item.name, item.price, item.quantity, item.category, item.image],
+			                (err, result) => {
+			                    if (err) {
+			                        console.error('Error inserting/updating cafeteria menu data:', err);
+			                        return;
+			                    }
+			                }
+			            );
+			        });
+			        console.log('Cafeteria menu items added/updated successfully.');
+			    } catch (err) {
+			        console.log('Error parsing CafeteriaMenu JSON file.');
+			        console.error('Reason:', err);
+			    }
+			});
+		}
+	})	
 	
 	// Creates default values for Restaurant Menu
 fs.readFile(restMenu, 'utf8', (err, myJSON) => {
@@ -191,63 +197,95 @@ app.get('/orderstatus', (req, res) => {
 
 // Order add function. Also sets up the TempCart entries necessary
 app.post('/orderadd', (req, res) => {
-	const { delivery } = req.body;
-	console.log("Order add request received");
+    const { delivery } = req.body;
+    console.log("Order add request received");
 
-	const userData = req.session.user;
-	db.query('SELECT * FROM CafeteriaMenu', (err, cafmenures) => {
-		if(err) {
-			console.error('Error reading cafeteria menu:', err);
-			res.status(500).send('Error reading cafeteria menu.');
-		}
-		const cafData = cafmenures;
-		db.query('SELECT foodID, quantity FROM Cart WHERE customerID = ? AND source = ?', [userData.id, 'cafeteria'], (err, foodCheck) => {
-			if(err) {
-				console.error('Error reading cafeteria cart items:', err);
-				res.status(500).send('Error reading cafeteria cart items.');
-			}
-			var insufficient = false;
+    const userData = req.session.user;
 
-			for(let i = 0; i < foodCheck.length; i++) {
-				for(let j = 0; j < cafData.length; j++) {
-					if(foodCheck[i].foodID == cafData[j].id && foodCheck[i].quantity > cafData[j].quantity) {
-						insufficient = true;
-						res.status(400).send('Not enough items in cafeteria inventory.');
-						return;
-					}
-				}
-				if(insufficient) {
-					return;
-				}
-			}
+    // Step 1: Retrieve Cafeteria Menu
+    db.query('SELECT * FROM CafeteriaMenu', (err, cafmenures) => {
+        if (err) {
+            console.error('Error reading cafeteria menu:', err);
+            return res.status(500).send('Error reading cafeteria menu.');
+        }
+        const cafData = cafmenures;
 
-			db.query('INSERT INTO Orders (deliveryAddress, status, customerID, pointsEarned) VALUES (?, ?, ?, ?)', [delivery, 'Pending', userData.id, userData.cartTotal], (err, orderResult) => {
-				if(err) {
-					console.error('Error inserting into Orders:', err);
-					res.status(500).send('Error inserting into Orders.');
-				}
+        // Step 2: Retrieve Cart Items for Cafeteria
+        db.query('SELECT foodID, quantity FROM Cart WHERE customerID = ? AND source = ?', [userData.id, 'cafeteria'], (err, foodCheck) => {
+            if (err) {
+                console.error('Error reading cafeteria cart items:', err);
+                return res.status(500).send('Error reading cafeteria cart items.');
+            }
 
-				const orderID = orderResult.insertId;
-				req.session.user.currentOrderID = orderID;
-				
-				db.query('INSERT INTO TempCart (id, source, name, price, quantity, customization, customerID, foodID, orderID) SELECT id, source, name, price, quantity, customization, customerID, foodID, ? FROM Cart WHERE customerID = ?', [orderID, userData.id], (err) => {
-					if(err) {
-						console.error('Error adding into TempCart:', err);
-						res.status(500).send('Error adding into TempCart.');
-					}
-					db.query('DELETE FROM Cart WHERE customerID = ?', [userData.id], (err) => {
-						if(err) {
-							console.error('Error deleting from cart:', err);
-							res.status(500).send('Error deleting from cart.');
-						}
-						console.log('Order placed completely successfully.');
-						res.status(200).send('Order placed and cart items stored.');
-					})
-				})
-			})
-		})
-	})
-})
+            // Step 3: Check if Cart Quantities Exceed Cafeteria Inventory
+            let insufficient = false;
+            for (let i = 0; i < foodCheck.length; i++) {
+                for (let j = 0; j < cafData.length; j++) {
+                    if (foodCheck[i].foodID === cafData[j].id) {
+                        if (foodCheck[i].quantity > cafData[j].quantity) {
+                            insufficient = true;
+                            break;
+                        }
+                    }
+                }
+                if (insufficient) break;
+            }
+
+            // If inventory is insufficient, return an error
+            if (insufficient) {
+                return res.status(400).send('Not enough items in cafeteria inventory.');
+            }
+
+            // Step 4: Update Cafeteria Menu Quantities for Cart Items
+            let inventoryUpdateCount = 0;
+            foodCheck.forEach((item) => {
+                db.query('UPDATE CafeteriaMenu SET quantity = quantity - ? WHERE id = ?', [item.quantity, item.foodID], (err) => {
+                    if (err) {
+                        console.error('Error updating inventory:', err);
+                        return res.status(500).send('Error updating inventory.');
+                    }
+
+                    inventoryUpdateCount++;
+                    // After all inventory updates, place the order and move items to TempCart
+                    if (inventoryUpdateCount === foodCheck.length) {
+                        // Step 5: Insert the Order into Orders Table
+                        db.query('INSERT INTO Orders (deliveryAddress, status, customerID, pointsEarned) VALUES (?, ?, ?, ?)', [delivery, 'Pending', userData.id, userData.cartTotal], (err, orderResult) => {
+                            if (err) {
+                                console.error('Error inserting into Orders:', err);
+                                return res.status(500).send('Error inserting into Orders.');
+                            }
+
+                            const orderID = orderResult.insertId;
+                            req.session.user.currentOrderID = orderID;
+
+                            // Step 6: Move Cart Items to TempCart Table
+                            db.query('INSERT INTO TempCart (id, source, name, price, quantity, customization, customerID, foodID, orderID) ' +
+                                'SELECT id, source, name, price, quantity, customization, customerID, foodID, ? ' +
+                                'FROM Cart WHERE customerID = ?', [orderID, userData.id], (err) => {
+                                    if (err) {
+                                        console.error('Error adding to TempCart:', err);
+                                        return res.status(500).send('Error adding to TempCart.');
+                                    }
+
+                                    // Step 7: Delete Items from Cart after Successfully Moving to TempCart
+                                    db.query('DELETE FROM Cart WHERE customerID = ?', [userData.id], (err) => {
+                                        if (err) {
+                                            console.error('Error deleting from Cart:', err);
+                                            return res.status(500).send('Error deleting from Cart.');
+                                        }
+
+                                        console.log('Order placed successfully.');
+                                        res.status(200).send('Order placed and cart items stored.');
+                                    });
+                                });
+                        });
+                    }
+                });
+            });
+        });
+    });
+});
+
 
 
 
@@ -372,7 +410,7 @@ app.post('/allmenusearch', (req, res) => {
     db.query(
         `SELECT id, name, price, 'restaurant' AS source FROM RestaurantMenu WHERE name LIKE ? 
          UNION 
-         SELECT id, name, price, 'cafeteria' AS source FROM CafeteriaMenu WHERE name LIKE ?`,
+         SELECT id, name, price, 'cafeteria' AS source FROM CafeteriaMenu WHERE name LIKE ? AND quantity > 0`,
         [`%${name}%`, `%${name}%`],
         (err, results) => {
             if (err) {
@@ -404,7 +442,7 @@ app.post('/restaurantmenusearch', (req, res) => {
 
 // Restaurant menu read function, meant for the customer to be able to see menu items.
 app.get('/restaurantmenuread', (req, res) => {
-    const query = 'SELECT id, name, price, restaurant, category, image FROM RestaurantMenu';
+    const query = 'SELECT * FROM RestaurantMenu';
     db.query(query, (err, results) => {
         if (err) {
             console.error('Error fetching menu data:', err);
@@ -545,9 +583,9 @@ app.post('/cafmenuadd', (req, res) => {
 if (!req.session.user || req.session.user.role !== 'admin') {
     return res.status(403).send("Forbidden: Admins only");
   }
-	const { name, price, quantity } = req.body;
+	const { name, price, quantity, category, image } = req.body;
 	console.log("Cafeteria Menu Add received with: " + name + " " + price + " " + quantity);
-	db.query('INSERT INTO CafeteriaMenu (name, price, quantity) VALUES (?,?,?)', [name, price, quantity], (err, results) => {
+	db.query('INSERT INTO CafeteriaMenu (name, price, quantity, category, image) VALUES (?,?,?)', [name, price, quantity, category, image], (err, results) => {
 		if (err) {
 			console.error('Error adding cafeteria menu item.');
 			return res.status(500).send('Error adding cafeteria menu item.');
@@ -563,7 +601,7 @@ app.post('/cafmenusearch', (req, res) => {
 	console.log("Cafeteria Menu Search received with: " + req.body);
 
 	// Query table for any partial matches
-	db.query("SELECT * FROM CafeteriaMenu WHERE name LIKE ? AND quantity > 0", [`%${name}%`], (err, results) => {
+	db.query("SELECT * FROM CafeteriaMenu WHERE name LIKE ?", [`%${name}%`], (err, results) => {
 		if(err) {
 			console.error('Error querying cafeteria menu.');
 			return res.status(500).send('Error querying cafeteria menu.');
@@ -576,7 +614,7 @@ app.post('/cafmenusearch', (req, res) => {
 app.get('/cafmenuread', (req, res) => {
 	console.log("Received Cafeteria Menu read:", req.query);
 
-	db.query("SELECT id, name, price, restaurant, category, image FROM CafeteriaMenu", (err, result) => {
+	db.query("SELECT * FROM CafeteriaMenu WHERE quantity > 0", (err, result) => {
         if (err) {
             console.error('Error reading cafeteria menu:', err);
             return res.status(500).send('Error reading cafeteria menu.');
@@ -695,9 +733,59 @@ app.post('/logout', (req, res) => {
 			return res.status(500).send('Error logging out');
 		}
 		res.clearCookie('cafeteria_session');
-		res.status(200).send('Logged out successfully');
+		return res.status(200).send('Logged out successfully');
 	});
 });
+
+app.post('/discount', (req, res) => {
+	console.log('Received discount call.');
+	db.query('SELECT * FROM userInformation WHERE id = ?', [req.session.user.id], (err, result) => {
+		const points = result[0].loyaltyPoints;
+		const discountStatus = result[0].discount;
+		if(points < 50) {
+			return res.status(500).send('Not enough points.');
+		} if(discountStatus == 1) {
+			return res.status(501).send('Discount already applied.');
+		} else {
+			db.query('UPDATE userInformation SET loyaltyPoints -= 50 AND discount = 1 WHERE id = ?', [req.session.user.id], (err, finresult) => {
+				if(err) {
+					console.error('Error updating userInformation points/discount.');
+					return;
+				}
+				return res.status(200).send('Discount applied successfully.');
+			})
+		}
+	})
+})
+
+
+app.post('/subscribe', (req, res) => {
+	console.log('Received subscribe call.');
+	db.query('SELECT subscribed FROM userInformation WHERE id = ?', [req.session.user.id], (err, result) => {
+		if(err) {
+			console.error('Error reading userInformation subscribed field.');
+			return res.status(404).send('Error reading subscribed from userInformation.');
+		}
+		const subscribed = result.subscribed;
+		if(subscribed == 0) {
+			db.query('UPDATE userInformation SET subscribed = 1 WHERE id = ?', [req.session.user.id], (err, finres) => {
+				if(err) {
+					console.error('Error updating userInformation.');
+					return res.status(404).send('Error updating userInformation.');
+				}
+				return res.status(200).send('subscribed updated successfully.');
+			})
+		} else {
+			db.query('UPDATE userInformation SET subscribed = 0 WHERE id = ?', [req.session.user.id], (err, finres) => {
+				if(err) {
+					console.error('Error updating userInformation.');
+					return res.status(404).send('Error updating userInformation.');
+				}
+				return res.status(200).send('subscribed updated successfully.');
+			})
+		}
+	})
+})
 
 
 // Current user read function, meant for the account info page to display the current user's information
