@@ -56,11 +56,22 @@ export function UserForm() {
               Edit Profile
             </button>
           </Link>
+          <Link href="/meal-subscription">
+            <button className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition duration-300">
+              Meal Subscription
+            </button>
+          </Link>
+        </div>
+        <div className="mt-8 flex justify-center space-x-4">
           <Link href="/dashboard">
             <button className="bg-gray-500 text-white py-2 px-6 rounded-md hover:bg-gray-600 transition duration-300">
               Home
             </button>
-          </Link>
+          </Link> 
+          {/* Unconnected Logout Button */}
+          <button className="bg-red-500 text-black py-2 px-6 rounded-md hover:bg-red-700 transition duration-300">
+            Logout
+          </button>
         </div>
       </div>
     </div>
