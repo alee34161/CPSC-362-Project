@@ -61,6 +61,11 @@ export function UserForm() {
               Home
             </button>
           </Link>
+          <Link href="/meal-subscription">
+              <button className="bg-green-500 text-white py-2 px-6 rounded-md hover:bg-green-600 transition duration-300">
+                Subscription Plan
+              </button>
+          </Link>
         </div>
       </div>
     </div>

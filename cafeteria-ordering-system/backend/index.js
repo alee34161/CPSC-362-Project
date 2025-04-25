@@ -167,7 +167,7 @@ fs.readFile(restMenu, 'utf8', (err, myJSON) => {
 	console.log("Created new Cart table.");
 
 	// Implement Orders table
-	db.query("CREATE TABLE IF NOT EXISTS Orders (id INT unsigned AUTO_INCREMENT, pointsEarned INT unsigned, deliveryAddress varchar(255), status varchar(255), customerID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerID) REFERENCES userInformation(id))");
+	db.query("CREATE TABLE IF NOT EXISTS Orders (id INT unsigned AUTO_INCREMENT, total decimal(10,2) Default 0.00, pointsEarned INT unsigned, deliveryAddress varchar(255), status varchar(255), customerID INT unsigned, PRIMARY KEY (id), FOREIGN KEY (customerID) REFERENCES userInformation(id))");
 	console.log("Created new Orders table.");
 	
 	// Implement TempCart table for checkout
@@ -201,6 +201,7 @@ app.post('/orderadd', (req, res) => {
     console.log("Order add request received");
 
     const userData = req.session.user;
+    console.log('USER DATA TOTAL: ' + userData.cartTotal.toFixed(2));
 
     // Step 1: Retrieve Cafeteria Menu
     db.query('SELECT * FROM CafeteriaMenu', (err, cafmenures) => {
@@ -235,9 +236,42 @@ app.post('/orderadd', (req, res) => {
             if (insufficient) {
                 return res.status(400).send('Not enough items in cafeteria inventory.');
             }
-
+			console.log('Done checking caf inventory.');
             // Step 4: Update Cafeteria Menu Quantities for Cart Items
             let inventoryUpdateCount = 0;
+            if(foodCheck.length === 0) {
+	           	const daPoints = userData.cartTotal.toFixed(2) / 10
+					console.log('daPoints: ' + daPoints);
+					db.query('INSERT INTO Orders (deliveryAddress, status, customerID, pointsEarned, total) VALUES (?, ?, ?, ?, ?)', [delivery, 'Pending', userData.id, daPoints, userData.cartTotal.toFixed(2)], (err, orderResult) => {
+						if (err) {
+							console.error('Error inserting into Orders:', err);
+							return res.status(500).send('Error inserting into Orders.');
+						}
+            	
+						console.log('Done making new Orders entry');
+						const orderID = orderResult.insertId;
+						req.session.user.currentOrderID = orderID;
+            	
+						db.query('INSERT INTO TempCart (id, source, name, price, quantity, customization, customerID, foodID, orderID) ' +
+						'SELECT id, source, name, price, quantity, customization, customerID, foodID, ? ' +
+						'FROM Cart WHERE customerID = ?', [orderID, userData.id], (err) => {
+							if (err) {
+								console.error('Error adding to TempCart:', err);
+								return res.status(500).send('Error adding to TempCart.');
+							}
+            	
+							db.query('DELETE FROM Cart WHERE customerID = ?', [userData.id], (err) => {
+							if (err) {
+								console.error('Error deleting from Cart:', err);
+								return res.status(500).send('Error deleting from Cart.');
+							}
+            	
+							console.log('Order placed successfully.');
+							return res.status(200).send('Order placed and cart items stored.');
+						});
+					});
+				});
+			}
             foodCheck.forEach((item) => {
                 db.query('UPDATE CafeteriaMenu SET quantity = quantity - ? WHERE id = ?', [item.quantity, item.foodID], (err) => {
                     if (err) {
@@ -249,12 +283,16 @@ app.post('/orderadd', (req, res) => {
                     // After all inventory updates, place the order and move items to TempCart
                     if (inventoryUpdateCount === foodCheck.length) {
                         // Step 5: Insert the Order into Orders Table
-                        db.query('INSERT INTO Orders (deliveryAddress, status, customerID, pointsEarned) VALUES (?, ?, ?, ?)', [delivery, 'Pending', userData.id, userData.cartTotal], (err, orderResult) => {
+                        console.log('Done updating caf inventory');
+                        const daPoints = userData.cartTotal.toFixed(2) / 10
+                        console.log('daPoints: ' + daPoints);
+                        db.query('INSERT INTO Orders (deliveryAddress, status, customerID, pointsEarned, total) VALUES (?, ?, ?, ?, ?)', [delivery, 'Pending', userData.id, daPoints, userData.cartTotal.toFixed(2)], (err, orderResult) => {
                             if (err) {
                                 console.error('Error inserting into Orders:', err);
                                 return res.status(500).send('Error inserting into Orders.');
                             }
 
+							console.log('Done making new Orders entry');
                             const orderID = orderResult.insertId;
                             req.session.user.currentOrderID = orderID;
 
@@ -302,6 +340,18 @@ app.get('/ordercustomerview', (req, res) => {
 	})
 })
 
+app.get('/orderview', (req, res) => {
+	const {orderID} = req.query;
+	console.log('Received orderview call.');
+	db.query('SELECT * FROM Orders WHERE id = ?', [orderID], (err, result) => {
+		if(err) {
+			console.error('Error reading from Orders.');
+			return res.status(500).send('Error reading from Orders.');
+		}
+		return res.send(result[0]);
+	})
+})
+
 // View only cafeteria items associated with order
 app.get('/ordercafitemslist', (req, res) => {
   const { ordID } = req.query;
@@ -342,8 +392,8 @@ app.get('/orderoverallviewnotdelivered', (req, res) => {
 
 // View specific order
 app.get('/orderspecificview', (req, res) => {
-	const { orderID } = req.body;
-	db.query('SELECT * 	FROM TempCart 	WHERE customerid = (?) AND orderID = ?', [req.session.user.id, req.session.user.currentOrderID], (err, result) => {
+	const { orderID } = req.query;
+	db.query('SELECT * FROM TempCart WHERE customerid = ? AND orderID = ?', [req.session.user.id, orderID, orderID], (err, result) => {
 		if(err) {
 			console.error('Error reading order items.');
 			res.status(500).send('Error reading order items.');
@@ -761,27 +811,29 @@ app.post('/discount', (req, res) => {
 
 app.post('/subscribe', (req, res) => {
 	console.log('Received subscribe call.');
-	db.query('SELECT subscribed FROM userInformation WHERE id = ?', [req.session.user.id], (err, result) => {
+	const userID = req.session.user.id;
+	console.log('Received the user ID');
+	db.query('SELECT * FROM userInformation WHERE id = ?', [userID], (err, result) => {
 		if(err) {
 			console.error('Error reading userInformation subscribed field.');
 			return res.status(404).send('Error reading subscribed from userInformation.');
 		}
-		const subscribed = result.subscribed;
+		const subscribed = result[0].subscribed;
 		if(subscribed == 0) {
-			db.query('UPDATE userInformation SET subscribed = 1 WHERE id = ?', [req.session.user.id], (err, finres) => {
+			db.query('UPDATE userInformation SET subscribed = 1 WHERE id = ?', [userID], (err, finres) => {
 				if(err) {
 					console.error('Error updating userInformation.');
 					return res.status(404).send('Error updating userInformation.');
 				}
-				return res.status(200).send('subscribed updated successfully.');
+				return res.status(201).send('subscribed updated successfully.');
 			})
 		} else {
-			db.query('UPDATE userInformation SET subscribed = 0 WHERE id = ?', [req.session.user.id], (err, finres) => {
+			db.query('UPDATE userInformation SET subscribed = 0 WHERE id = ?', [userID], (err, finres) => {
 				if(err) {
 					console.error('Error updating userInformation.');
 					return res.status(404).send('Error updating userInformation.');
 				}
-				return res.status(200).send('subscribed updated successfully.');
+				return res.status(202).send('subscribed updated successfully.');
 			})
 		}
 	})
