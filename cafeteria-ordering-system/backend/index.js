@@ -761,27 +761,29 @@ app.post('/discount', (req, res) => {
 
 app.post('/subscribe', (req, res) => {
 	console.log('Received subscribe call.');
-	db.query('SELECT subscribed FROM userInformation WHERE id = ?', [req.session.user.id], (err, result) => {
+	const userID = req.session.user.id;
+	console.log('Received the user ID');
+	db.query('SELECT * FROM userInformation WHERE id = ?', [userID], (err, result) => {
 		if(err) {
 			console.error('Error reading userInformation subscribed field.');
 			return res.status(404).send('Error reading subscribed from userInformation.');
 		}
-		const subscribed = result.subscribed;
+		const subscribed = result[0].subscribed;
 		if(subscribed == 0) {
-			db.query('UPDATE userInformation SET subscribed = 1 WHERE id = ?', [req.session.user.id], (err, finres) => {
+			db.query('UPDATE userInformation SET subscribed = 1 WHERE id = ?', [userID], (err, finres) => {
 				if(err) {
 					console.error('Error updating userInformation.');
 					return res.status(404).send('Error updating userInformation.');
 				}
-				return res.status(200).send('subscribed updated successfully.');
+				return res.status(201).send('subscribed updated successfully.');
 			})
 		} else {
-			db.query('UPDATE userInformation SET subscribed = 0 WHERE id = ?', [req.session.user.id], (err, finres) => {
+			db.query('UPDATE userInformation SET subscribed = 0 WHERE id = ?', [userID], (err, finres) => {
 				if(err) {
 					console.error('Error updating userInformation.');
 					return res.status(404).send('Error updating userInformation.');
 				}
-				return res.status(200).send('subscribed updated successfully.');
+				return res.status(202).send('subscribed updated successfully.');
 			})
 		}
 	})
