@@ -64,7 +64,7 @@ db.connect((err) => {
 
 	// Creates the user information table if it isn't already made for authentication and account info.
 	// Note: username is the same thing as email
-    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, subscribed BOOL Default 0, pointDiscount BOOL DEFAULT 0, loyaltyPoints INT unsigned DEFAULT 0, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))");
+    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, subscribed BOOL Default 0, pointDiscount BOOL DEFAULT 0, discountStatus BOOL DEFAULT 0, loyaltyPoints INT unsigned DEFAULT 0, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))");
     console.log("Created userInformation table");
 	    
 	// Automatically makes an admin account where username is root@employee and password is admin ONLY IF there is no admin account
