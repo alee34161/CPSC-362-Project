@@ -164,13 +164,19 @@ const Cafe: React.FC = () => {
     <br />
     <div className="placeholder-products">
     <div className="placeholder-product">
-    <img src="/bbqchicken.jpg" alt="BBQ Chicken" className="product-image" />
+    <a href="/cafeteriamenu">
+    <img src="/bbqchicken.jpg" alt="BBQ Chicken" className="product-image"/>
+    </a>
     </div>
     <div className="placeholder-product">
-    <img src="/lamb.jpg" alt="Lamb" className="product-image" />
+	<a href="/cafeteriamenu">
+    <img src="/lamb.jpg" alt="Lamb" className="product-image"/>
+    </a>
     </div>
     <div className="placeholder-product">
-    <img src="/mochi.jpg" alt="Mochi" className="product-image" />
+    <a href="/cafeteriamenu">
+    <img src="/mochi.jpg" alt="Mochi" className="product-image"/>
+    </a>
     </div>
     </div>
     </div>

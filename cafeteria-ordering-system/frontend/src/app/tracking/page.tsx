@@ -19,6 +19,7 @@ export default function OrderTrackingPage() {
   const [orderStatus, setOrderStatus] = useState<string>('Pending');
   const [lastStatus, setLastStatus] = useState<string>('');
   const [total, setTotal] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
   const statusSteps = ['Pending', 'Preparing', 'Awaiting Pickup', 'Out for Delivery', 'Delivered'];
   // Fetch order status and show toast if changed
   useEffect(() => {
@@ -62,16 +63,13 @@ export default function OrderTrackingPage() {
         const cartData = response.data;
         setCartItems(cartData);
 
-        // Calculate the total amount with tax
-        const subtotal = cartData.reduce(
-          (acc: number, item: CartItem) => acc + item.price * item.quantity,
-          0
-        );
-        const tax = subtotal * 0.1;
-        setTotal(subtotal + tax);
+		const totalResponse = await axios.get('http://localhost:8080/currentuserread', {withCredentials: true});
+		setTotal(totalResponse.data.cartTotal);
+        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching cart data:', error);
         toast.error('Failed to load order items');
+        setIsLoading(false);
       }
     };
 
@@ -131,8 +129,8 @@ const getStatusColor = (status: string) => {
             
             <div className="mt-4 pt-2 border-t">
               <div className="flex justify-between font-medium">
-                <span>Total (incl. tax)</span>
-                <span>${total.toFixed(2)}</span>
+                <span>Total (incl. tax and promotions)</span>
+                <span>{isLoading || total === null ? 'Loading...' : `$${total}`}</span>
               </div>
             </div>
           </div>

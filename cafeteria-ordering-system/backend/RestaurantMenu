@@ -70,7 +70,7 @@
 	"image": "/bigbreakfast.png"
 }, {
 	"id": 11,
-	"name": "McD Susage McMuffin",
+	"name": "McD Sausage McMuffin",
 	"price": 5.69,
 	"restaurant": "McDonalds",
 	"category": "breakfast",
