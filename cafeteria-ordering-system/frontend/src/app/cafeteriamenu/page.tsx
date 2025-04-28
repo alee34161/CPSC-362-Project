@@ -137,7 +137,7 @@ const CafeteriaMenu: React.FC = () => {
               <nav className="nav-menu">
                 <ul>
                 <li>
-                  <a href="/orderhistory" title="History">
+                  <a href="/customer-orders" title="History">
                   <img src={"/history.svg"} className="icon" alt="History" />
                   <span className="nav-text">History</span>
                   </a>
