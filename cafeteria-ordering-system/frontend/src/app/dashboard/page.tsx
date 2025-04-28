@@ -56,6 +56,18 @@ const Cafe: React.FC = () => {
             </a>
           </div>
 
+          {/* Order History Button */}
+          <nav className="nav-menu">
+            <ul>
+            <li>
+              <a href="/orderhistory" title="History">
+              <img src={"/history.svg"} className="icon" alt="History" />
+              <span className="nav-text">History</span>
+              </a>
+            </li>
+            </ul>
+          </nav>
+
           {/* Search Container */}
           <div className="search-container">
             <input

@@ -1,56 +1,56 @@
 [{
 	"id": 1,
 	"name": "Burrito",
-	"price": 11.35,
+	"price": 9.99,
 	"restaurant": "Chipotle",
 	"category": "dinner",
 	"image": "/burrito.jpg"
 }, {
 	"id": 2,
 	"name": "Burrito Bowl",
-	"price": 11.35,
+	"price": 10.49,
 	"restaurant": "Chipotle",
 	"category": "lunch",
 	"image": "/burritobowl.jpg"
 }, {
 	"id": 3,
 	"name": "Tacos",
-	"price": 3.80,
+	"price": 3.49,
 	"restaurant": "Chipotle",
 	"category": "dinner",
 	"image": "/tacos.jpg"
 }, {
 	"id": 4,
 	"name": "Salad",
-	"price": 11.35,
+	"price": 9.99,
 	"restaurant": "Chipotle",
 	"category": "lunch",
 	"image": "/salad.jpg" 
 }, {
 	"id": 5,
 	"name": "Fountain Drink",
-	"price": 3.15,
+	"price": 2.49,
 	"restaurant": "Chipotle",
 	"category": "drink",
 	"image": "/drink4.jpg"
 }, {
 	"id": 6,
 	"name": "Big Mac",
-	"price": 5.29,
+	"price": 4.99,
 	"restaurant": "McDonalds",
 	"category": "dinner",
 	"image": "/bigmac.jpg"
 }, {
 	"id": 7,
 	"name": "Chicken McNuggets",
-	"price": 2.99,
+	"price": 3.49,
 	"restaurant": "McDonalds",
 	"category": "lunch",
 	"image": "/nuggets.jpg" 
 }, {
 	"id": 8,
 	"name": "McFlurry",
-	"price": 4.39,
+	"price": 3.99,
 	"restaurant": "McDonalds",
 	"category": "dessert",
 	"image": "/mcflurry.png"
@@ -64,42 +64,42 @@
 }, {
 	"id": 10,
 	"name": "McD Big Breakfast",
-	"price": 8.69,
+	"price": 7.99,
 	"restaurant": "McDonalds",
 	"category": "breakfast",
 	"image": "/bigbreakfast.png"
 }, {
 	"id": 11,
 	"name": "McD Sausage McMuffin",
-	"price": 5.69,
+	"price": 4.99,
 	"restaurant": "McDonalds",
 	"category": "breakfast",
 	"image": "/mcmuffin.png"
 }, {
 	"id": 12,
-	"name": "McD Bacon Mcgriddle",
-	"price": 6.69,
+	"name": "McD Bacon McGriddle",
+	"price": 5.99,
 	"restaurant": "McDonalds",
 	"category": "breakfast",
 	"image": "/mcgriddle.png"
 }, {
 	"id": 13,
 	"name": "Churro",
-	"price": 1.69,
+	"price": 1.99,
 	"restaurant": "Chipotle",
 	"category": "dessert",
 	"image": "/churro.jpg"
 }, {
 	"id": 14,
 	"name": "McD Sundae",
-	"price": 8.69,
+	"price": 3.49,
 	"restaurant": "McDonalds",
 	"category": "dessert",
 	"image": "/sundae.png"
 }, {
 	"id": 15,
 	"name": "McD Iced Coffee",
-	"price": 3.69,
+	"price": 2.99,
 	"restaurant": "McDonalds",
 	"category": "drink",
 	"image": "/icedcoffee.png"

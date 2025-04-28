@@ -133,6 +133,18 @@ const CafeteriaMenu: React.FC = () => {
                         </a>
                     </div>
 
+              {/* Order History Button */}
+              <nav className="nav-menu">
+                <ul>
+                <li>
+                  <a href="/orderhistory" title="History">
+                  <img src={"/history.svg"} className="icon" alt="History" />
+                  <span className="nav-text">History</span>
+                  </a>
+                </li>
+                </ul>
+              </nav>
+
                     {/* Search Container */}
                     <div className="search-container">
                         <input
@@ -163,7 +175,7 @@ const CafeteriaMenu: React.FC = () => {
                             </ul>
                         )}
                     </div>
-
+                    
                     {/* Navigation Menu */}
                     <nav className="nav-menu">
                         <ul>
@@ -217,7 +229,6 @@ const CafeteriaMenu: React.FC = () => {
                                                 />
                                                 <h4>{item.name}</h4>
                                                 <p>${item.price}</p>
-                                                <p>{item.restaurant}</p>
                                             </div>
                                             <div className="product-buttons">
                                                 <button
