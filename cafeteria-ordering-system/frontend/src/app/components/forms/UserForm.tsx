@@ -24,8 +24,24 @@ export function UserForm() {
     });
     }, []);
 
+    const handleLogout = async() => {
+    	try {
+    		const response = await axios.post('http://localhost:8080/logout', {}, {withCredentials: true});
+    		router.push("/");
+    	}catch(error) {
+    		console.error('Error logging out.');
+    	}
+    }
+
   return (
     <div className="flex flex-col items-center bg-gray-100 dark:bg-gray-900 min-h-screen">
+    <button
+      onClick={handleLogout}
+      className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+    >
+      Logout
+    </button>
+    
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-lg mt-10">
         <div className="flex flex-col items-center mb-8">
           <img
