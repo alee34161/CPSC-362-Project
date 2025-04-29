@@ -37,9 +37,10 @@ app.use(session({
 	secret: 'dsnafu32',
 	store: sessionStore,
 	resave: false,
-	saveUninitialized: false,
+	saveUninitialized: true,
 	cookie: {
 		maxAge: 1000*60*60*24,
+		httpOnly: true
 	}
 }));
 
@@ -64,7 +65,7 @@ db.connect((err) => {
 
 	// Creates the user information table if it isn't already made for authentication and account info.
 	// Note: username is the same thing as email
-    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, subscribed BOOL Default 0, pointDiscount BOOL DEFAULT 0, loyaltyPoints INT unsigned DEFAULT 0, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))");
+    db.query("CREATE TABLE IF NOT EXISTS userInformation (id INT unsigned AUTO_INCREMENT, subscribed BOOL Default 0, pointDiscount BOOL DEFAULT 0, loyaltyPoints INT DEFAULT 0, currentOrderID INT unsigned, cartTotal decimal (10,2), profileImage MEDIUMTEXT, username varchar(255), password varchar(255), name varchar(255), role varchar(255), phone varchar(255), location varchar(255) DEFAULT 'Fullerton, CA', PRIMARY KEY (id))");
     console.log("Created userInformation table");
 	    
 	// Automatically makes an admin account where username is root@employee and password is admin ONLY IF there is no admin account
@@ -240,7 +241,7 @@ app.post('/orderadd', (req, res) => {
             // Step 4: Update Cafeteria Menu Quantities for Cart Items
             let inventoryUpdateCount = 0;
             if(foodCheck.length === 0) {
-	           	const daPoints = userData.cartTotal.toFixed(2) / 10
+	           	const daPoints = (userData.cartTotal.toFixed(2) / 10).toFixed(0);
 					console.log('daPoints: ' + daPoints);
 					db.query('INSERT INTO Orders (deliveryAddress, status, customerID, pointsEarned, total) VALUES (?, ?, ?, ?, ?)', [delivery, 'Pending', userData.id, daPoints, userData.cartTotal.toFixed(2)], (err, orderResult) => {
 						if (err) {
@@ -267,7 +268,14 @@ app.post('/orderadd', (req, res) => {
 							}
             	
 							console.log('Order placed successfully.');
-							return res.status(200).send('Order placed and cart items stored.');
+							
+							db.query('UPDATE userInformation SET loyaltyPoints = loyaltyPoints + ?, pointDiscount = 0 WHERE id = ?', [daPoints, userData.id], (err) => {
+								if(err) {
+									console.error('Error updating loyaltyPoints in userInformation:', err);
+									return res.status(500).send('Error updating loyaltyPoints.');
+								}
+								return res.status(200).send('Order placed and cart items stored.');
+							})
 						});
 					});
 				});
@@ -313,7 +321,13 @@ app.post('/orderadd', (req, res) => {
                                         }
 
                                         console.log('Order placed successfully.');
-                                        res.status(200).send('Order placed and cart items stored.');
+                                        db.query('UPDATE userInformation SET loyaltyPoints = loyaltyPoints + ?, pointDiscount = 0 WHERE id = ?', [daPoints, userData.id], (err) => {
+                                        	if(err) {
+                                        		console.error('Error updating userInformation: ', err);
+                                        		return res.status(500).send('Error updating userInformation.');
+                                        	}
+                                        	res.status(200).send('Order placed and cart items stored.');
+                                        })
                                     });
                                 });
                         });
@@ -732,6 +746,7 @@ app.post('/cafmenudelete', (req, res) => {
 	});
 });
 
+
 // Login function, meant for the user to be able to log into system and be sent to a page based on role
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
@@ -754,7 +769,7 @@ app.post('/login', (req, res) => {
         if (password === user.password) {
         	console.log("user and password recognized");
 
-        	req.session.user = {username: username, id: user.id, currentOrderID: user.currentOrderID, cartTotal: user.cartTotal, name: user.name, phone: user.phone, username: user.username};
+        	req.session.user = {username: username, id: user.id, currentOrderID: user.currentOrderID, cartTotal: user.cartTotal, name: user.name, phone: user.phone};
 			
         	// Send to correct landing page sorted by status
 			if(user.role === 'customer') {
@@ -789,25 +804,23 @@ app.post('/logout', (req, res) => {
 
 app.post('/discount', (req, res) => {
 	console.log('Received discount call.');
-	db.query('SELECT * FROM userInformation WHERE id = ?', [req.session.user.id], (err, result) => {
-		const points = result[0].loyaltyPoints;
-		const discountStatus = result[0].discount;
-		if(points < 50) {
-			return res.status(500).send('Not enough points.');
-		} if(discountStatus == 1) {
-			return res.status(501).send('Discount already applied.');
-		} else {
-			db.query('UPDATE userInformation SET loyaltyPoints -= 50 AND discount = 1 WHERE id = ?', [req.session.user.id], (err, finresult) => {
-				if(err) {
-					console.error('Error updating userInformation points/discount.');
-					return;
-				}
-				return res.status(200).send('Discount applied successfully.');
-			})
+	db.query('SELECT * FROM userInformation WHERE id = ?', [req.session.user.id], (err, userResult) => {
+		if(err) {
+			console.error('Error reading user information.');
+			return res.status(400).send('Error reading user information.');
 		}
+		if(userResult[0].pointDiscount === 1) {
+			return res.status(255).send('Already discounted.');
+		}
+		db.query('UPDATE userInformation SET loyaltyPoints = loyaltyPoints - 50, pointDiscount = 1 WHERE id = ?', [req.session.user.id], (err, result) => {
+			if(err) {
+				console.error('Error updating points/discount:', err);
+				return res.status(500).send('Error updating points/discount.');
+			}
+			return res.status(200).send('Discount applied successfully.');
+		})
 	})
 })
-
 
 app.post('/subscribe', (req, res) => {
 	console.log('Received subscribe call.');

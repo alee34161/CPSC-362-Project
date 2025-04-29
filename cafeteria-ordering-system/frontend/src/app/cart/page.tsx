@@ -93,6 +93,9 @@ export default function CartPage() {
   if(isDiscount === 1) {
   	total -= 5;
   }
+  if(total < 0) {
+  	total = 0;
+  }
   
   useEffect(() => {
     if (!isCartLoaded) return; // Avoid running before cart is loaded
