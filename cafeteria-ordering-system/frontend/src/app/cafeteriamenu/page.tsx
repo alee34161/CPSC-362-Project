@@ -142,6 +142,12 @@ const CafeteriaMenu: React.FC = () => {
                   <span className="nav-text">History</span>
                   </a>
                 </li>
+                <li>
+                   	<a href='/loyalty' title='Loyalty Points'>
+                   	<img src={'/loyalty.svg'} className='icon' alt='Loyalty Points' />
+                   	<span className="nav-text">Loyalty Points</span>
+                   	</a>
+                </li>
                 </ul>
               </nav>
 

@@ -5,10 +5,10 @@ import axios from 'axios';
 import Link from 'next/link';
 
 type LoyaltyEntry = {
-  orderId: number;
-  amountSpent: number;
+  id: number;
+  total: number;
   pointsEarned: number;
-  timestamp: string;
+  status: string;
 };
 
 export default function LoyaltyPage() {
@@ -16,14 +16,32 @@ export default function LoyaltyPage() {
   const [history, setHistory] = useState<LoyaltyEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const handleDiscount = async() => {
+  	try {
+  		const response = await axios.post('http://localhost:8080/discount', {}, {withCredentials: true});
+  		if(response.status === 200) {
+  			alert('🎉 $5 off reward redeemed!');
+  		} else if(response.status === 255) {
+  			alert('Discount already applied!');
+  		}
+  		const updated = await axios.get('http://localhost:8080/currentuserread', {withCredentials: true});
+  		const data = updated.data;
+  		setPoints(data.loyaltyPoints);
+  	} catch(error) {
+  		console.error('Error redeeming points.', error);
+  	}
+  };
+
   useEffect(() => {
     const fetchLoyaltyData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/loyalty', {withCredentials: true});
+        const response = await axios.get('http://localhost:8080/currentuserread', {withCredentials: true});
         const data = response.data;
+        const responso = await axios.get('http://localhost:8080/ordercustomerview', {withCredentials: true});
+        const orderdata = responso.data
 
-        setPoints(data.points);
-        setHistory(data.history);
+        setPoints(data.loyaltyPoints);
+        setHistory(orderdata);
         setLoading(false);
       } catch (error) {
         console.error('Failed to fetch loyalty data:', error);
@@ -66,7 +84,7 @@ export default function LoyaltyPage() {
                 <p className="text-green-700 font-semibold">You’re eligible for $5 off!</p>
                 <button
                   className="mt-1 bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded"
-                  onClick={() => alert('🎉 $5 off reward redeemed! (Feature coming soon)')}
+                  onClick={handleDiscount}
                 >
                   Redeem 50 Points
                 </button>
@@ -86,11 +104,11 @@ export default function LoyaltyPage() {
               <p className="text-gray-500">No point history available.</p>
             ) : (
               history.map((entry) => (
-                <div key={entry.orderId} className="border-b py-2 flex justify-between">
+                <div key={entry.id} className="border-b py-2 flex justify-between">
                   <div>
-                    <p className="font-medium">Order #{entry.orderId}</p>
+                    <p className="font-medium">Order #{entry.id}</p>
                     <p className="text-sm text-gray-500">
-                      {new Date(entry.timestamp).toLocaleString()} • ${entry.amountSpent.toFixed(2)} spent
+                      Status: {entry.status} • ${entry.total} spent
                     </p>
                   </div>
                   <div className="text-green-600 font-semibold">
