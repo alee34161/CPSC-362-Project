@@ -15,7 +15,7 @@ export default function PastOrdersPage() {
 
   useEffect(() => {
     // Dummy data fetch
-    axios.get('/api/orders') // Replace with real backend
+    axios.get('http://localhost:8080/ordercustomerview', {withCredentials: true}) // Replace with real backend
       .then(res => setOrders(res.data))
       .catch(err => console.error("Error fetching orders", err));
   }, []);
@@ -32,10 +32,9 @@ export default function PastOrdersPage() {
               <div className="flex justify-between">
                 <div>
                   <p><strong>Order ID:</strong> #{order.id}</p>
-                  <p><strong>Date:</strong> {order.date}</p>
                 </div>
                 <div className="text-right">
-                  <p><strong>Total:</strong> ${order.total.toFixed(2)}</p>
+                  <p><strong>Total:</strong> ${order.total}</p>
                   <Link href={`/customer-orders/${order.id}`}>
                     <button className="mt-2 bg-blue-500 text-white px-4 py-1 rounded-md">
                       View Details
@@ -47,6 +46,13 @@ export default function PastOrdersPage() {
           ))}
         </ul>
       )}
+      <button 
+        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+      ><a href = '/dashboard'>
+        Home
+        </a>
+      </button>
+      
     </div>
   );
 }

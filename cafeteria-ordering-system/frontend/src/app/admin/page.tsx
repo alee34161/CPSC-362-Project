@@ -9,6 +9,8 @@ interface MenuItem {
   name: string;
   price: number;
   quantity: number;
+  category: string;
+  image: File | null;
 }
 
 export default function AdminMenuPage() {
@@ -31,10 +33,14 @@ export default function AdminMenuPage() {
   const [addItemName, setAddItemName] = useState("");
   const [addItemPrice, setAddItemPrice] = useState("");
   const [addItemQty, setAddItemQty] = useState(0);
+  const [addItemCategory, setAddItemCategory] = useState("");
+  const [addItemImage, setAddItemImage] = useState<File | null>(null);
 
   const [updateItemName, setUpdateItemName] = useState("");
   const [updateItemPrice, setUpdateItemPrice] = useState("");
   const [updateItemQty, setUpdateItemQty] = useState(0);
+  const [updateItemCategory, setUpdateItemCategory] = useState("");
+  const [updateItemImage, setUpdateItemImage] = useState<File | null>(null);
 
   const [deleteItemName, setDeleteItemName] = useState("");
 
@@ -46,9 +52,7 @@ export default function AdminMenuPage() {
   useEffect(() => {
     const checkAdmin = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/currentuserread", {
-          withCredentials: true,
-        });
+        const res = await axios.get("http://localhost:8080/currentuserread", { withCredentials: true });
         if (res.data && res.data.role === "admin") {
           setIsAdmin(true);
         } else {
@@ -65,14 +69,20 @@ export default function AdminMenuPage() {
   }, [router]);
 
   // Handle pre-filling menu item inputs if an item is selected
-  useEffect(() => {
-    if (selectedItem) {
-      setUpdateItemName(selectedItem.name);
-      setUpdateItemPrice(selectedItem.price.toString());
-      setUpdateItemQty(selectedItem.quantity);
-      setDeleteItemName(selectedItem.name); // Add this to populate Delete section
-    }
-  }, [selectedItem]);
+// Handle pre-filling menu item inputs if an item is selected
+useEffect(() => {
+  if (selectedItem) {
+    setUpdateItemName(selectedItem.name); // Fill in name
+    setUpdateItemPrice(selectedItem.price.toString()); // Fill in price
+    setUpdateItemQty(selectedItem.quantity); // Fill in quantity
+    setUpdateItemCategory(selectedItem.category || ""); // Set the category
+
+    // For image handling: if there is an image (URL or Base64 string), set it to the state
+    setUpdateItemImage(selectedItem.image || null); // If no image, set null
+    setDeleteItemName(selectedItem.name); // Pre-fill Delete section
+  }
+}, [selectedItem]);
+
 
   // Fetch search results based on the search query
   useEffect(() => {
@@ -83,10 +93,7 @@ export default function AdminMenuPage() {
 
     const fetchResults = async () => {
       try {
-        const res = await axios.post("http://localhost:8080/cafmenusearch", {
-          name: searchQuery,
-        }, { withCredentials: true });
-
+        const res = await axios.post("http://localhost:8080/cafmenusearch", { name: searchQuery }, { withCredentials: true });
         setSearchResults(res.data);
       } catch (err) {
         console.error("Search failed", err);
@@ -94,17 +101,16 @@ export default function AdminMenuPage() {
     };
 
     const debounce = setTimeout(fetchResults, 300); // optional debounce
-
     return () => clearTimeout(debounce);
   }, [searchQuery]);
 
-  // Handle updating user information
+   // Handle updating user information
   const handleUpdateUserInfo = async () => {
     try {
       await axios.post("http://localhost:8080/updateUser", {
         username: userIdentifier,
         name: newName,
-        password: newPassword
+        password: newPassword,
       }, { withCredentials: true });
       alert("User info updated.");
       // Clear all form fields after submission
@@ -114,12 +120,12 @@ export default function AdminMenuPage() {
     }
   };
 
-  // Handle updating user role
+   // Handle updating user role
   const handleUpdateRole = async () => {
     try {
       await axios.post("http://localhost:8080/updateRole", {
         username: usernameForRole,
-        role: newRole
+        role: newRole,
       }, { withCredentials: true });
       alert("User role updated.");
       // Clear all form fields after submission
@@ -133,7 +139,7 @@ export default function AdminMenuPage() {
   const handleDeleteUser = async () => {
     try {
       await axios.post("http://localhost:8080/deleteUser", {
-        username: usernameToDelete
+        username: usernameToDelete,
       }, { withCredentials: true });
       alert("User deleted.");
       // Clear all form fields after submission
@@ -144,42 +150,118 @@ export default function AdminMenuPage() {
   };
 
   // Handle adding a menu item
-  const handleAddMenuItem = async () => {
-    try {
+const handleAddMenuItem = async () => {
+    // Start by preparing the image Base64 string
+    let imageBase64 = null;
+    
+    // If an image is selected, use FileReader to convert it to Base64
+    if (addItemImage) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        imageBase64 = reader.result as string;  // this will hold the Base64 string of the image
+  
+        // Now you can proceed with the rest of the data, including the image as Base64
+        try {
+          await axios.post("http://localhost:8080/cafmenuadd", {
+            name: addItemName,
+            price: addItemPrice,
+            quantity: addItemQty,
+            category: addItemCategory,
+            image: imageBase64, // Send the Base64 string of the image
+          }, {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json", // Send as JSON
+            },
+          });
+  
+          alert("Menu item added.");
+          clearAllFields(); // Clear the form after submission
+        } catch (err) {
+          console.error("Error adding item:", err);
+        }
+      };
+      reader.readAsDataURL(addItemImage); // Convert the image to Base64
+    } else {
+      // If no image selected, just send the other form data
       await axios.post("http://localhost:8080/cafmenuadd", {
         name: addItemName,
         price: addItemPrice,
         quantity: addItemQty,
-      }, { withCredentials: true });
+        category: addItemCategory,
+        image: null, // No image selected
+      }, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json", // Send as JSON
+        },
+      });
+  
       alert("Menu item added.");
-      // Clear all form fields after submission
-      clearAllFields();
-    } catch (err) {
-      console.error("Error adding item:", err);
+      clearAllFields(); // Clear the form after submission
     }
   };
+  
 
   // Handle updating a menu item
-  const handleUpdateMenuItem = async () => {
-    try {
+const handleUpdateMenuItem = async () => {
+    // Start by preparing the image Base64 string for the update
+    let imageBase64 = null;
+    
+    // If an image is selected, use FileReader to convert it to Base64
+    if (updateItemImage) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        imageBase64 = reader.result as string; // this will hold the Base64 string of the image
+  
+        // Now send the updated data with the Base64 image
+        try {
+          await axios.post("http://localhost:8080/cafmenuupdate", {
+            name: updateItemName,
+            price: updateItemPrice,
+            quantity: updateItemQty,
+            category: updateItemCategory,
+            image: imageBase64, // Send the Base64 string of the image
+          }, {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json", // Send as JSON
+            },
+          });
+  
+          alert("Menu item updated.");
+          clearAllFields(); // Clear the form after submission
+        } catch (err) {
+          console.error("Error updating item:", err);
+        }
+      };
+      reader.readAsDataURL(updateItemImage); // Convert the image to Base64
+    } else {
+      // If no new image selected, just send the other updated data without the image
       await axios.post("http://localhost:8080/cafmenuupdate", {
         name: updateItemName,
         price: updateItemPrice,
         quantity: updateItemQty,
-      }, { withCredentials: true });
+        category: updateItemCategory,
+        image: null, // No image selected
+      }, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json", // Send as JSON
+        },
+      });
+  
       alert("Menu item updated.");
-      // Clear all form fields after submission
-      clearAllFields();
-    } catch (err) {
-      console.error("Error updating item:", err);
+      clearAllFields(); // Clear the form after submission
     }
   };
+  
 
   // Handle deleting a menu item
   const handleDeleteMenuItem = async () => {
     try {
       await axios.post("http://localhost:8080/cafmenudelete", {
-        name: deleteItemName
+        name: deleteItemName,
       }, { withCredentials: true });
       alert("Menu item deleted.");
       // Clear all form fields after submission
@@ -197,19 +279,26 @@ export default function AdminMenuPage() {
     setUsernameForRole("");
     setNewRole("customer");
     setUsernameToDelete("");
+
     setAddItemName("");
     setAddItemPrice("");
     setAddItemQty(0);
+    setAddItemCategory("");
+    setAddItemImage(null);
+
     setUpdateItemName("");
     setUpdateItemPrice("");
     setUpdateItemQty(0);
+    setUpdateItemCategory("");
+    setUpdateItemImage(null);
+
     setDeleteItemName("");
     setSearchQuery("");
     setSearchResults([]);
     setSelectedItem(null);
   };
 
-  // Show loading text or admin content based on loading and isAdmin state
+   // Show loading text or admin content based on loading and isAdmin state
   if (loading) return <p>Loading...</p>;
   if (!isAdmin) return null;
 
@@ -222,8 +311,8 @@ export default function AdminMenuPage() {
         <button onClick={() => setTab("menu")} className="bg-green-500 text-white px-4 py-2 rounded">Edit Cafeteria Menu</button>
       </div>
 
-      {/* Render User Management */}
-      {tab === "user" && (
+       {/* Render User Management */}
+       {tab === "user" && (
         <div className="space-y-6">
           {/* Update User Info */}
           <div className="bg-white p-4 rounded shadow">
@@ -289,86 +378,57 @@ export default function AdminMenuPage() {
             )}
           </div>
 
-          {/* Add Menu Item */}
+          {/* Add Menu Item Section */}
           <div className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-semibold mb-2">Add Menu Item</h2>
-            <input
-              type="text"
-              placeholder="Item Name"
-              value={addItemName}
-              onChange={e => setAddItemName(e.target.value)}
+            <input type="text" placeholder="New Item Name" value={addItemName} onChange={e => setAddItemName(e.target.value)} className="input" />
+            <input type="text" placeholder="Price" value={addItemPrice} onChange={e => setAddItemPrice(e.target.value)} className="input" />
+            <input type="number" placeholder="Quantity" value={addItemQty} onChange={e => setAddItemQty(Number(e.target.value))} className="input" />
+            {/* Replace the category input with a dropdown */}
+            <select 
+              value={addItemCategory} 
+              onChange={e => setAddItemCategory(e.target.value)} 
               className="input"
-            />
-            <input
-              type="text"
-              placeholder="Price"
-              value={addItemPrice}
-              onChange={e => setAddItemPrice(e.target.value)}
-              className="input"
-            />
-            <input
-              type="number"
-              placeholder="Quantity"
-              value={addItemQty}
-              onChange={e => setAddItemQty(Number(e.target.value))}
-              className="input"
-            />
-            <button
-              onClick={handleAddMenuItem}
-              className="button-blue"
             >
-              Add Item
-            </button>
+              <option value="">Select Category</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="lunch">Lunch</option>
+              <option value="dinner">Dinner</option>
+              <option value="dessert">Dessert</option>
+              <option value="drink">Drink</option>
+            </select>
+            <input type="file" accept="image/*" onChange={e => { if (e.target.files) setAddItemImage(e.target.files[0]); }} className="input" />
+            <button onClick={handleAddMenuItem} className="button-blue">Add Item</button>
           </div>
 
-          {/* Update Menu Item */}
+          {/* Update Menu Item Section */}
           <div className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-semibold mb-2">Update Menu Item</h2>
-            <input
-              type="text"
-              placeholder="Item Name"
-              value={updateItemName}
-              onChange={e => setUpdateItemName(e.target.value)}
+            <input type="text" placeholder="Item Name" value={updateItemName} onChange={e => setUpdateItemName(e.target.value)} className="input" />
+            <input type="text" placeholder="New Price" value={updateItemPrice} onChange={e => setUpdateItemPrice(e.target.value)} className="input" />
+            <input type="number" placeholder="New Quantity" value={updateItemQty} onChange={e => setUpdateItemQty(Number(e.target.value))} className="input" />
+            {/* Replace the category input with a dropdown */}
+            <select 
+              value={addItemCategory} 
+              onChange={e => setAddItemCategory(e.target.value)} 
               className="input"
-            />
-            <input
-              type="text"
-              placeholder="New Price"
-              value={updateItemPrice}
-              onChange={e => setUpdateItemPrice(e.target.value)}
-              className="input"
-            />
-            <input
-              type="number"
-              placeholder="New Quantity"
-              value={updateItemQty}
-              onChange={e => setUpdateItemQty(Number(e.target.value))}
-              className="input"
-            />
-            <button
-              onClick={handleUpdateMenuItem}
-              className="button-blue"
             >
-              Update Item
-            </button>
+              <option value="">Select Category</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="lunch">Lunch</option>
+              <option value="dinner">Dinner</option>
+              <option value="dessert">Dessert</option>
+              <option value="drink">Drink</option>
+            </select>
+            <input type="file" accept="image/*" onChange={e => { if (e.target.files) setUpdateItemImage(e.target.files[0]); }} className="input" />
+            <button onClick={handleUpdateMenuItem} className="button-blue">Update Item</button>
           </div>
 
-          {/* Delete Menu Item */}
+          {/* Delete Menu Item Section */}
           <div className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-semibold mb-2">Delete Menu Item</h2>
-            <input
-              type="text"
-              placeholder="Item Name"
-              value={deleteItemName}
-              onChange={e => setDeleteItemName(e.target.value)}
-              className="input"
-            />
-            <button
-              onClick={handleDeleteMenuItem}
-              className="button-red"
-            >
-              Delete Item
-            </button>
+            <input type="text" placeholder="Item Name" value={deleteItemName} onChange={e => setDeleteItemName(e.target.value)} className="input" />
+            <button onClick={handleDeleteMenuItem} className="button-red">Delete Item</button>
           </div>
         </div>
       )}

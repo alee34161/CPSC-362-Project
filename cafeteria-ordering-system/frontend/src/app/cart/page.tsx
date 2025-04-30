@@ -18,8 +18,9 @@ export default function CartPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [lastSentTotal, setLastSentTotal] = useState<number | null>(null);
   const [isCartLoaded, setIsCartLoaded] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(0);
+  const [isDiscount, setIsDiscount] = useState(0);
   const router = useRouter();
-  
 
   useEffect(() => {
   	const fetchCartData = async () => {
@@ -28,6 +29,11 @@ export default function CartPage() {
   	  		const data = await response.json();
   	  		setCartItems(data);
   	  		setIsCartLoaded(true);
+
+  	  		const subStatus = await fetch('http://localhost:8080/currentuserread', {method: 'GET', credentials: 'include'});
+  	  		const subData = await subStatus.json();
+  	  		setIsSubscribed(subData.subscribed);
+  	  		setIsDiscount(subData.pointDiscount);
   	  	} catch (error) {
   	  		console.error('Error fetching cart items:', error);
   	  	}
@@ -80,7 +86,16 @@ export default function CartPage() {
 
   const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const tax = subtotal * 0.1;
-  const total = subtotal + tax;  
+  let total = subtotal + tax;
+  if(isSubscribed === 1) {
+  	total -= total * 0.15;
+  }
+  if(isDiscount === 1) {
+  	total -= 5;
+  }
+  if(total < 0) {
+  	total = 0;
+  }
   
   useEffect(() => {
     if (!isCartLoaded) return; // Avoid running before cart is loaded
@@ -205,10 +220,25 @@ const handleDeleteFromCart = async (item: any) => {
           <span>Tax (10%)</span>
           <span>${tax.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between font-bold text-lg">
-          <span>Total</span>
-          <span>${total.toFixed(2)}</span>
-        </div>
+        {isSubscribed === 1 && (
+            <div className="flex justify-between text-sm text-green-600">
+              <span>Subscription Discount (15%)</span>
+              <span>-${(subtotal * 0.15).toFixed(2)}</span>
+            </div>
+          )}
+        
+          {isDiscount === 1 && (
+            <div className="flex justify-between text-sm text-green-600">
+              <span>Point Discount</span>
+              <span>-${5.00}</span>
+            </div>
+          )}
+        
+          {/* Final Total After Discount and Subscription */}
+          <div className="flex justify-between font-bold text-lg">
+            <span>Total</span>
+            <span>${total.toFixed(2)}</span>
+          </div>
       </div>
 	{cartItems.length > 0 && (
 

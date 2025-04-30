@@ -56,6 +56,24 @@ const Cafe: React.FC = () => {
             </a>
           </div>
 
+          {/* Order History Button */}
+          <nav className="nav-menu">
+            <ul>
+            <li>
+              <a href="/customer-orders" title="History">
+              <img src={"/history.svg"} className="icon" alt="History" />
+              <span className="nav-text">History</span>
+              </a>
+            </li>
+            <li>
+            	<a href='/loyalty' title='Loyalty Points'>
+            	<img src={'/loyalty.svg'} className='icon' alt='Loyalty Points' />
+            	<span className="nav-text">Loyalty Points</span>
+            	</a>
+            </li>
+            </ul>
+          </nav>
+
           {/* Search Container */}
           <div className="search-container">
             <input
@@ -157,18 +175,31 @@ const Cafe: React.FC = () => {
           </div>
         </section>
 
-        {/* Featured Meals Section */}
-        <section className="products">
-          <div className="products-container">
-            <h2>Featured Meals</h2>
-            <br />
-            <div className="placeholder-products">
-              <div className="placeholder-product"></div>
-              <div className="placeholder-product"></div>
-              <div className="placeholder-product"></div>
-            </div>
-          </div>
-        </section>
+    {/* Featured Meals Section */}
+    <section className="products">
+    <div className="products-container">
+    <h2>Featured Meals</h2>
+    <br />
+    <div className="placeholder-products">
+    <div className="placeholder-product">
+    <a href="/cafeteriamenu">
+    <img src="/bbqchicken.jpg" alt="BBQ Chicken" className="product-image"/>
+    </a>
+    </div>
+    <div className="placeholder-product">
+	<a href="/cafeteriamenu">
+    <img src="/lamb.jpg" alt="Lamb" className="product-image"/>
+    </a>
+    </div>
+    <div className="placeholder-product">
+    <a href="/cafeteriamenu">
+    <img src="/mochi.jpg" alt="Mochi" className="product-image"/>
+    </a>
+    </div>
+    </div>
+    </div>
+    </section>
+    
       </main>
 
       {/* Footer */}
