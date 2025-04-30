@@ -644,14 +644,15 @@ app.post('/cartitemdelete', (req, res) => {
 
 // Cafeteria menu add function, meant for admin to add new items
 app.post('/cafmenuadd', (req, res) => {
-if (!req.session.user || req.session.user.role !== 'admin') {
-    return res.status(403).send("Forbidden: Admins only");
-  }
 	const { name, price, quantity, category, image } = req.body;
+	if(image != null) {
+	} else {
+		image = 'no image detected';
+	}
 	console.log("Cafeteria Menu Add received with: " + name + " " + price + " " + quantity);
-	db.query('INSERT INTO CafeteriaMenu (name, price, quantity, category, image) VALUES (?,?,?)', [name, price, quantity, category, image], (err, results) => {
+	db.query('INSERT INTO CafeteriaMenu (name, price, quantity, category, image) VALUES (?,?,?,?,?)', [name, price, quantity, category, image], (err, results) => {
 		if (err) {
-			console.error('Error adding cafeteria menu item.');
+			console.error('Error adding cafeteria menu item.', err);
 			return res.status(500).send('Error adding cafeteria menu item.');
 		}
 		res.status(200).send('Cafeteria Menu Item added successfully.');
@@ -689,7 +690,7 @@ app.get('/cafmenuread', (req, res) => {
 	
 // Cafeteria menu update function, meant for admin to update menu items
 app.post('/cafmenuupdate', (req, res) => {
-  const { name, price, quantity } = req.body;
+  const { name, price, quantity, category, image } = req.body;
   console.log('cafmenuupdate received.');
 
   if (!name) {
@@ -707,6 +708,14 @@ app.post('/cafmenuupdate', (req, res) => {
   if (quantity != null) {
     fields.push('quantity = ?');
     values.push(quantity);
+  }
+  if (category != null) {
+    fields.push('category = ?');
+    values.push(category);
+  }
+  if (image != null) {
+    fields.push('image = ?');
+    values.push(image);
   }
 
   if (fields.length === 0) {
