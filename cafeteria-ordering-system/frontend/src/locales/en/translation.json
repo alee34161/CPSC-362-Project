@@ -1,0 +1,30 @@
+{
+    "welcome": "Welcome to the Cafeteria Ordering System",
+    "loginPrompt": "Click below to log in",
+    "goToLogin": "Go to Login",
+    "login": {
+        "title": "Login",
+        "emailPlaceholder": "Email",
+        "passwordPlaceholder": "Password",
+        "button": "Login",
+        "forgotPassword": "Forgot Password?",
+        "noAccount": "Don't have an account?",
+        "signUp": "Sign Up",
+        "backHome": "← Back to Home",
+        "error": "Invalid Credentials. Please try again.",
+        "success": "Login successful!"
+    },
+      "cafe": {
+        "title": "Cafe CSUF",
+        "searchPlaceholder": "Search for something...",
+        "loading": "Loading...",
+        "noResults": "No results found",
+        "cart": "Cart",
+        "account": "Account",
+        "welcome": "Welcome!",
+        "cafeteria": "Our Cafeteria",
+        "restaurants": "Local Restaurants",
+        "featuredMeals": "Featured Meals"
+    }
+  }
+  

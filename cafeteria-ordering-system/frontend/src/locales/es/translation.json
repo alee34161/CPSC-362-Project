@@ -1,0 +1,30 @@
+{
+    "welcome": "Bienvenido al sistema de pedidos de la cafetería",
+    "loginPrompt": "Haz clic abajo para iniciar sesión",
+    "goToLogin": "Ir a Iniciar Sesión",
+    "login": {
+        "title": "Iniciar sesión",
+        "emailPlaceholder": "Correo electrónico",
+        "passwordPlaceholder": "Contraseña",
+        "button": "Iniciar sesión",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "noAccount": "¿No tienes una cuenta?",
+        "signUp": "Regístrate",
+        "backHome": "← Volver al inicio",
+        "error": "Credenciales inválidas. Inténtalo de nuevo.",
+        "success": "¡Inicio de sesión exitoso!"
+    },
+    "cafe": {
+        "title": "Cafetería CSUF",
+        "searchPlaceholder": "Busca algo...",
+        "loading": "Cargando...",
+        "noResults": "No se encontraron resultados",
+        "cart": "Carrito",
+        "account": "Cuenta",
+        "welcome": "¡Bienvenido!",
+        "cafeteria": "Nuestra Cafetería",
+        "restaurants": "Restaurantes Locales",
+        "featuredMeals": "Comidas Destacadas"
+    }
+
+  }
