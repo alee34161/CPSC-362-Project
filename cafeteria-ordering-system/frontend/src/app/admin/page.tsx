@@ -78,7 +78,7 @@ useEffect(() => {
     setUpdateItemCategory(selectedItem.category || ""); // Set the category
 
     // For image handling: if there is an image (URL or Base64 string), set it to the state
-    setUpdateItemImage(selectedItem.image || null); // If no image, set null
+    setUpdateItemImage(null); // If no image, set null
     setDeleteItemName(selectedItem.name); // Pre-fill Delete section
   }
 }, [selectedItem]);
