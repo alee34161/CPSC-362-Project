@@ -10,6 +10,7 @@ interface MenuItem {
   price: number;
   quantity: number;
   category: string;
+  image: File | null;
 }
 
 export default function AdminMenuPage() {
@@ -68,15 +69,20 @@ export default function AdminMenuPage() {
   }, [router]);
 
   // Handle pre-filling menu item inputs if an item is selected
-  useEffect(() => {
-    if (selectedItem) {
-      setUpdateItemName(selectedItem.name);
-      setUpdateItemPrice(selectedItem.price.toString());
-      setUpdateItemQty(selectedItem.quantity);
-      setUpdateItemCategory(selectedItem.category || "");
-      setDeleteItemName(selectedItem.name); // Add this to populate Delete section
-    }
-  }, [selectedItem]);
+// Handle pre-filling menu item inputs if an item is selected
+useEffect(() => {
+  if (selectedItem) {
+    setUpdateItemName(selectedItem.name); // Fill in name
+    setUpdateItemPrice(selectedItem.price.toString()); // Fill in price
+    setUpdateItemQty(selectedItem.quantity); // Fill in quantity
+    setUpdateItemCategory(selectedItem.category || ""); // Set the category
+
+    // For image handling: if there is an image (URL or Base64 string), set it to the state
+    setUpdateItemImage(selectedItem.image || null); // If no image, set null
+    setDeleteItemName(selectedItem.name); // Pre-fill Delete section
+  }
+}, [selectedItem]);
+
 
   // Fetch search results based on the search query
   useEffect(() => {
@@ -144,38 +150,112 @@ export default function AdminMenuPage() {
   };
 
   // Handle adding a menu item
-  const handleAddMenuItem = async () => {
-    try {
+const handleAddMenuItem = async () => {
+    // Start by preparing the image Base64 string
+    let imageBase64 = null;
+    
+    // If an image is selected, use FileReader to convert it to Base64
+    if (addItemImage) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        imageBase64 = reader.result as string;  // this will hold the Base64 string of the image
+  
+        // Now you can proceed with the rest of the data, including the image as Base64
+        try {
+          await axios.post("http://localhost:8080/cafmenuadd", {
+            name: addItemName,
+            price: addItemPrice,
+            quantity: addItemQty,
+            category: addItemCategory,
+            image: imageBase64, // Send the Base64 string of the image
+          }, {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json", // Send as JSON
+            },
+          });
+  
+          alert("Menu item added.");
+          clearAllFields(); // Clear the form after submission
+        } catch (err) {
+          console.error("Error adding item:", err);
+        }
+      };
+      reader.readAsDataURL(addItemImage); // Convert the image to Base64
+    } else {
+      // If no image selected, just send the other form data
       await axios.post("http://localhost:8080/cafmenuadd", {
         name: addItemName,
         price: addItemPrice,
         quantity: addItemQty,
         category: addItemCategory,
-      }, { withCredentials: true });
+        image: null, // No image selected
+      }, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json", // Send as JSON
+        },
+      });
+  
       alert("Menu item added.");
-      // Clear all form fields after submission
-      clearAllFields();
-    } catch (err) {
-      console.error("Error adding item:", err);
+      clearAllFields(); // Clear the form after submission
     }
   };
+  
 
   // Handle updating a menu item
-  const handleUpdateMenuItem = async () => {
-    try {
+const handleUpdateMenuItem = async () => {
+    // Start by preparing the image Base64 string for the update
+    let imageBase64 = null;
+    
+    // If an image is selected, use FileReader to convert it to Base64
+    if (updateItemImage) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        imageBase64 = reader.result as string; // this will hold the Base64 string of the image
+  
+        // Now send the updated data with the Base64 image
+        try {
+          await axios.post("http://localhost:8080/cafmenuupdate", {
+            name: updateItemName,
+            price: updateItemPrice,
+            quantity: updateItemQty,
+            category: updateItemCategory,
+            image: imageBase64, // Send the Base64 string of the image
+          }, {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json", // Send as JSON
+            },
+          });
+  
+          alert("Menu item updated.");
+          clearAllFields(); // Clear the form after submission
+        } catch (err) {
+          console.error("Error updating item:", err);
+        }
+      };
+      reader.readAsDataURL(updateItemImage); // Convert the image to Base64
+    } else {
+      // If no new image selected, just send the other updated data without the image
       await axios.post("http://localhost:8080/cafmenuupdate", {
         name: updateItemName,
         price: updateItemPrice,
         quantity: updateItemQty,
         category: updateItemCategory,
-      }, { withCredentials: true });
+        image: null, // No image selected
+      }, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json", // Send as JSON
+        },
+      });
+  
       alert("Menu item updated.");
-      // Clear all form fields after submission
-      clearAllFields();
-    } catch (err) {
-      console.error("Error updating item:", err);
+      clearAllFields(); // Clear the form after submission
     }
   };
+  
 
   // Handle deleting a menu item
   const handleDeleteMenuItem = async () => {
@@ -301,10 +381,22 @@ export default function AdminMenuPage() {
           {/* Add Menu Item Section */}
           <div className="bg-white p-4 rounded shadow">
             <h2 className="text-xl font-semibold mb-2">Add Menu Item</h2>
-            <input type="text" placeholder="Item Name" value={addItemName} onChange={e => setAddItemName(e.target.value)} className="input" />
+            <input type="text" placeholder="New Item Name" value={addItemName} onChange={e => setAddItemName(e.target.value)} className="input" />
             <input type="text" placeholder="Price" value={addItemPrice} onChange={e => setAddItemPrice(e.target.value)} className="input" />
             <input type="number" placeholder="Quantity" value={addItemQty} onChange={e => setAddItemQty(Number(e.target.value))} className="input" />
-            <input type="text" placeholder="Category" value={addItemCategory} onChange={e => setAddItemCategory(e.target.value)} className="input" />
+            {/* Replace the category input with a dropdown */}
+            <select 
+              value={addItemCategory} 
+              onChange={e => setAddItemCategory(e.target.value)} 
+              className="input"
+            >
+              <option value="">Select Category</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="lunch">Lunch</option>
+              <option value="dinner">Dinner</option>
+              <option value="dessert">Dessert</option>
+              <option value="drink">Drink</option>
+            </select>
             <input type="file" accept="image/*" onChange={e => { if (e.target.files) setAddItemImage(e.target.files[0]); }} className="input" />
             <button onClick={handleAddMenuItem} className="button-blue">Add Item</button>
           </div>
@@ -315,7 +407,19 @@ export default function AdminMenuPage() {
             <input type="text" placeholder="Item Name" value={updateItemName} onChange={e => setUpdateItemName(e.target.value)} className="input" />
             <input type="text" placeholder="New Price" value={updateItemPrice} onChange={e => setUpdateItemPrice(e.target.value)} className="input" />
             <input type="number" placeholder="New Quantity" value={updateItemQty} onChange={e => setUpdateItemQty(Number(e.target.value))} className="input" />
-            <input type="text" placeholder="New Category" value={updateItemCategory} onChange={e => setUpdateItemCategory(e.target.value)} className="input" />
+            {/* Replace the category input with a dropdown */}
+            <select 
+              value={addItemCategory} 
+              onChange={e => setAddItemCategory(e.target.value)} 
+              className="input"
+            >
+              <option value="">Select Category</option>
+              <option value="breakfast">Breakfast</option>
+              <option value="lunch">Lunch</option>
+              <option value="dinner">Dinner</option>
+              <option value="dessert">Dessert</option>
+              <option value="drink">Drink</option>
+            </select>
             <input type="file" accept="image/*" onChange={e => { if (e.target.files) setUpdateItemImage(e.target.files[0]); }} className="input" />
             <button onClick={handleUpdateMenuItem} className="button-blue">Update Item</button>
           </div>
