@@ -13,16 +13,11 @@ const faqItems = [
     { q: "Can I cancel or change my order after placing it?", a: "You cannot cancel or change an order once it is being prepared." },
     { q: "How do I check my order status or tracking?", a: "Go to the tracking page to see live updates on your order." },
   ]},
-  { category: 'Payment', questions: [
-    { q: "What payment methods are accepted?", a: "Currently, we accept all major credit/debit cards." },
-    { q: "When am I charged for my order?", a: "You are charged immediately after placing your order." },
-    { q: "Is my payment information secure?", a: "Yes, we use secure encryption to protect your payment data." },
-  ]},
   { category: 'Loyalty Rewards', questions: [
     { q: "How do I earn loyalty points?", a: "You earn points every time you place an order through the system." },
     { q: "How many points do I get per order?", a: "You earn 10 points per $1 spent." },
     { q: "Where can I see my current points?", a: "Go to the loyalty rewards page to view your current balance." },
-    { q: "What can I redeem my points for?", a: "Points can be redeemed for discounts, free meals, and more." },
+    { q: "What can I redeem my points for?", a: "Points can be redeemed for discounts." },
     { q: "How do I redeem my loyalty reward?", a: "You can redeem them at checkout when your balance is enough." },
   ]},
   { category: 'Account', questions: [
@@ -32,7 +27,7 @@ const faqItems = [
   ]},
   { category: 'Delivery', questions: [
     { q: "How long does delivery take?", a: "Delivery time may vary based on availability and location. Please check with the cafeteria staff for more info." },
-    { q: "Where do you deliver?", a: "Currently, deliveries are limited to nearby areas around the cafeteria or campus. Exact locations may vary." },
+    { q: "Where do you deliver?", a: "Currently, deliveries are limited to floors and rooms of the company building. Exact locations may vary." },
     { q: "Can I choose a delivery time?", a: "Delivery time selection is not available at the moment, but future updates may include this feature." }
   ]},
 ];
@@ -55,7 +50,7 @@ export default function FAQPage() {
           onClick={() => router.push('/dashboard')}
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
         >
-          ← Back to Dashboard
+          ← Back to Menu
         </button>
       </div>
 
