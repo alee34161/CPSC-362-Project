@@ -978,9 +978,6 @@ app.post('/register', (req, res) => {
 
 // Update user function, meant for the admin to update user information as needed, whether resetting passwords or whatnot
 app.post('/updateUser', (req, res) => {
-if (!req.session.user || req.session.user.role !== 'admin') {
-    return res.status(403).send("Forbidden: Admins only");
-  }
 	console.log("Received update user data:", req.body);
 	const { username, password, name } = req.body;
 
@@ -999,9 +996,6 @@ if (!req.session.user || req.session.user.role !== 'admin') {
 
 // Update admin function, meant for the current admin to promote/demote other users to and from admin role
 app.post('/updateRole', (req, res) => {
-if (!req.session.user || req.session.user.role !== 'admin') {
-    return res.status(403).send("Forbidden: Admins only");
-  }
 	console.log("Received update role data:", req.body);
 	const { username, role } = req.body;
 
@@ -1020,9 +1014,6 @@ if (!req.session.user || req.session.user.role !== 'admin') {
 
 // Delete user function, meant to allow the admin to delete any users.
 app.post('/deleteUser', (req, res) => {
-if (!req.session.user || req.session.user.role !== 'admin') {
-    return res.status(403).send("Forbidden: Admins only");
-  }
 	console.log("Received delete user data:", req.body);
 	const { username } = req.body;
 
