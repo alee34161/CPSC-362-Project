@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import './styles/styles.css';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 const Cafe: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { t, i18n } = useTranslation();
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -62,13 +64,13 @@ const Cafe: React.FC = () => {
             <li>
               <a href="/customer-orders" title="History">
               <img src={"/history.svg"} className="icon" alt="History" />
-              <span className="nav-text">History</span>
+              <span className="nav-text">{t('home.history')}</span>
               </a>
             </li>
             <li>
             	<a href='/loyalty' title='Loyalty Points'>
             	<img src={'/loyalty.svg'} className='icon' alt='Loyalty Points' />
-            	<span className="nav-text">Loyalty Points</span>
+            	<span className="nav-text">{t('home.loyalty')}</span>
             	</a>
             </li>
             </ul>
@@ -78,7 +80,7 @@ const Cafe: React.FC = () => {
           <div className="search-container">
             <input
               type="search"
-              placeholder="Search for something..."
+              placeholder={t('home.searchPlaceholder')}
               value={searchTerm}
               onChange={handleSearchChange}
             />
@@ -89,7 +91,7 @@ const Cafe: React.FC = () => {
             {searchTerm && (
               <ul className="search-results">
                 {isLoading ? (
-                  <li className="search-item">Loading...</li>
+                  <li className="search-item">{t('home.loading')}</li>
                 ) : results.length > 0 ? (
                   results.map((result, index) => (
                     <li className="search-item" key={index}>
@@ -102,7 +104,7 @@ const Cafe: React.FC = () => {
                     
                   ))
                 ) : (
-                  <li className="search-item">No results found</li>
+                  <li className="search-item">{t('home.noResults')}</li>
                 )}
               </ul>
             )}
@@ -114,13 +116,13 @@ const Cafe: React.FC = () => {
               <li>
                 <a href="/cart" title="Cart">
                   <img src={"/cart.svg"} className="icon" alt="Cart" />
-                  <span className="nav-text">Cart</span>
+                  <span className="nav-text">{t('home.cart')}</span>
                 </a>
               </li>
               <li>
                 <a href="/user" title="Account">
                   <img src="/account.svg" className="icon" alt="Account" />
-                  <span className="nav-text">Account</span>
+                  <span className="nav-text">{t('home.account')}</span>
                 </a>
               </li>
             </ul>
@@ -140,7 +142,7 @@ const Cafe: React.FC = () => {
         {/* Categories Section */}
         <section className="categories">
           <div className="categories-container">
-            <h3>Welcome!</h3>
+            <h3>{t('home.welcome')}</h3>
             <br />
             <div className="placeholder-categories">
               <nav className="nav-menu">
@@ -153,7 +155,7 @@ const Cafe: React.FC = () => {
                           className="categories-icon"
                           alt="Our Cafeteria"
                         />
-                        <p>Our Cafeteria</p>
+                        <p>{t('home.ourCafeteria')}</p>
                       </a>
                     </div>
                   </li>
@@ -165,7 +167,7 @@ const Cafe: React.FC = () => {
                           className="categories-icon"
                           alt="Local Restaurants"
                         />
-                        <p>Local Restaurants</p>
+                        <p>{t('home.localRestaurants')}</p>
                       </a>
                     </div>
                   </li>
@@ -178,7 +180,7 @@ const Cafe: React.FC = () => {
     {/* Featured Meals Section */}
     <section className="products">
     <div className="products-container">
-    <h2>Featured Meals</h2>
+    <h2>{t('home.featuredMeals')}</h2>
     <br />
     <div className="placeholder-products">
     <div className="placeholder-product">

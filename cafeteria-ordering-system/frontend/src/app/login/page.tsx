@@ -4,8 +4,10 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 
 export default function LoginPage() {
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -24,19 +26,19 @@ export default function LoginPage() {
       }, { withCredentials: true });
   
       if (response.status === 201) {
-        alert("Login successful!");
+        alert(t('login.success'));
         router.push("/dashboard"); // Redirect after login
       } else if (response.status === 202) {
-      	alert("Login successful!");
+      	alert(t('login.success'));
       	router.push("/cafeteria");
       } else if (response.status === 203) {
-      	alert("Login successful!");
+      	alert(t('login.success'));
       	router.push("/delivery");
       } else if (response.status === 204) {
-      	alert("Login successful!");
+      	alert(t('login.success'));
       	router.push("/admin");
       } else if (response.status === 400 || response.status === 401) {
-        setError("Invalid login credentials");
+        setError(t('login.invalid'));
       }
     } catch (err) {
       console.error("Error during login:", err); // Log the error object to the console
@@ -54,13 +56,13 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 shadow-lg rounded-md w-96">
-        <h1 className="text-2xl font-bold text-center mb-4">Login</h1>
+        <h1 className="text-2xl font-bold text-center mb-4">{t('login.title')}</h1>
         {error && <p className="text-red-500 text-center">{error}</p>}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder={t('login.email')}
             value={formData.email}
             onChange={handleChange}
             className="border p-2 w-full rounded-md"
@@ -69,7 +71,7 @@ export default function LoginPage() {
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder={t('login.password')}
             value={formData.password}
             onChange={handleChange}
             className="border p-2 w-full rounded-md"
@@ -81,18 +83,18 @@ export default function LoginPage() {
         </form>
         <div className="text-center mt-4">
           <Link href="/forgot-password">
-            <p className="text-blue-500 cursor-pointer">Forgot Password?</p>
+            <p className="text-blue-500 cursor-pointer">{t('login.forgotPassword')}</p>
           </Link>
-          <p className="mt-2">Don't have an account?</p>
+          <p className="mt-2">{t('login.noAccount')}</p>
           <Link href="/signup">
-            <p className="text-blue-500 cursor-pointer">Sign Up</p>
+            <p className="text-blue-500 cursor-pointer">{t('login.signup')}</p>
           </Link>
           {/* ✅ Back to Home Button */}
           <button
             onClick={() => router.push("/")}
             className="mt-4 text-gray-600 hover:text-gray-800"
           >
-            ← Back to Home
+            {t('login.backHome')}
           </button>
         </div>
       </div>
