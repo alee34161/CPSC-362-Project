@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle
 } from "@/components/ui/card";
+import { useTranslation } from 'react-i18next';
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { useRouter } from "next/navigation";
@@ -15,6 +16,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 export function EditInfoForm() {
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",
@@ -99,10 +101,10 @@ export function EditInfoForm() {
       );
 
       if (response.status === 500) {
-        alert("Username already in use or server error");
+        alert(t('editInfo.alertFail'));
         router.push("/dashboard");
       } else if (response.status === 200) {
-        alert("Update successful!");
+        alert(t('editInfo.alertSuccess'));
         router.push("/user");
       }
     } catch (err) {
@@ -114,7 +116,7 @@ export function EditInfoForm() {
           }`
         );
       } else {
-        setError("Something went wrong. Please try again.");
+        setError(t('editInfo.errorGeneric'));
       }
     }
   };
@@ -124,8 +126,8 @@ export function EditInfoForm() {
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 w-full max-w-lg mt-10">
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-3xl font-bold">Edit Info</CardTitle>
-            <CardDescription>Update your details and profile picture</CardDescription>
+            <CardTitle className="text-3xl font-bold">{t('editInfo.title')}</CardTitle>
+            <CardDescription>{t('editInfo.description')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Profile Picture Editor */}
@@ -150,13 +152,13 @@ export function EditInfoForm() {
                     onClick={handleSaveImage}
                     className="bg-green-500 text-white py-1 px-4 rounded hover:bg-green-600"
                   >
-                    Save
+                    {t('editInfo.save')}
                   </button>
                   <button
                     onClick={handleCancelImage}
                     className="bg-red-500 text-white py-1 px-4 rounded hover:bg-red-600"
                   >
-                    Cancel
+                    {t('editInfo.cancel')}
                   </button>
                 </div>
               )}
@@ -165,7 +167,7 @@ export function EditInfoForm() {
             {/* Text Fields */}
             <form onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">{t('editInfo.name')}</Label>
                 <Input
                   id="name"
                   name="name"
@@ -176,7 +178,7 @@ export function EditInfoForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="username">Email</Label>
+                <Label htmlFor="username">{t('editInfo.username')}</Label>
                 <Input
                   id="username"
                   name="username"
@@ -187,7 +189,7 @@ export function EditInfoForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">{t('editInfo.password')}</Label>
                 <Input
                   id="password"
                   name="password"
@@ -198,7 +200,7 @@ export function EditInfoForm() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone number</Label>
+                <Label htmlFor="phone">{t('editInfo.phone')}</Label>
                 <Input
                   id="phone"
                   name="phone"
@@ -213,7 +215,7 @@ export function EditInfoForm() {
                   type="submit"
                   className="bg-blue-500 text-white py-2 px-6 rounded-md hover:bg-blue-600 transition duration-300"
                 >
-                  Confirm
+                  {t('editInfo.confirm')}
                 </button>
               </CardFooter>
             </form>
