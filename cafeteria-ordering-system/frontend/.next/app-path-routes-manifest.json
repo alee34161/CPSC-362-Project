@@ -10,15 +10,15 @@
   "/dashboard/page": "/dashboard",
   "/delivery/page": "/delivery",
   "/customer-orders/page": "/customer-orders",
-  "/forgot-password/page": "/forgot-password",
-  "/documentation/page": "/documentation",
   "/loyalty/page": "/loyalty",
   "/login/page": "/login",
+  "/forgot-password/page": "/forgot-password",
+  "/documentation/page": "/documentation",
   "/meal-subscription/page": "/meal-subscription",
+  "/restaurantmenu/page": "/restaurantmenu",
   "/page": "/",
   "/signup/page": "/signup",
   "/tracking/page": "/tracking",
-  "/restaurantmenu/page": "/restaurantmenu",
-  "/(userinfo)/edit-info/page": "/edit-info",
-  "/(userinfo)/user/page": "/user"
+  "/(userinfo)/user/page": "/user",
+  "/(userinfo)/edit-info/page": "/edit-info"
 }

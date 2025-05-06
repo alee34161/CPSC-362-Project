@@ -10,15 +10,15 @@
   "/dashboard/page": "app/dashboard/page.js",
   "/delivery/page": "app/delivery/page.js",
   "/customer-orders/page": "app/customer-orders/page.js",
-  "/forgot-password/page": "app/forgot-password/page.js",
-  "/documentation/page": "app/documentation/page.js",
   "/loyalty/page": "app/loyalty/page.js",
   "/login/page": "app/login/page.js",
+  "/forgot-password/page": "app/forgot-password/page.js",
+  "/documentation/page": "app/documentation/page.js",
   "/meal-subscription/page": "app/meal-subscription/page.js",
+  "/restaurantmenu/page": "app/restaurantmenu/page.js",
   "/page": "app/page.js",
   "/signup/page": "app/signup/page.js",
   "/tracking/page": "app/tracking/page.js",
-  "/restaurantmenu/page": "app/restaurantmenu/page.js",
-  "/(userinfo)/edit-info/page": "app/(userinfo)/edit-info/page.js",
-  "/(userinfo)/user/page": "app/(userinfo)/user/page.js"
+  "/(userinfo)/user/page": "app/(userinfo)/user/page.js",
+  "/(userinfo)/edit-info/page": "app/(userinfo)/edit-info/page.js"
 }

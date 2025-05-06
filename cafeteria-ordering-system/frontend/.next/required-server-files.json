@@ -97,9 +97,7 @@
       }
     },
     "outputFileTracingRoot": "/home/andrew-lee/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend",
-    "allowedDevOrigins": [],
     "experimental": {
-      "allowedDevOrigins": [],
       "nodeMiddleware": false,
       "cacheLife": {
         "default": {
@@ -148,6 +146,7 @@
       "linkNoTouchStart": false,
       "caseSensitiveRoutes": false,
       "clientSegmentCache": false,
+      "dynamicOnHover": false,
       "preloadEntriesOnStart": true,
       "clientRouterFilter": true,
       "clientRouterFilterRedirects": false,
@@ -175,9 +174,6 @@
       "swcTraceProfiling": false,
       "forceSwcTransforms": false,
       "largePageDataBytes": 128000,
-      "turbo": {
-        "root": "/home/andrew-lee/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend"
-      },
       "typedRoutes": false,
       "typedEnv": false,
       "parallelServerCompiles": false,
@@ -188,6 +184,7 @@
       "optimizeServerReact": true,
       "useEarlyImport": false,
       "viewTransition": false,
+      "routerBFCache": false,
       "staleTimes": {
         "dynamic": 0,
         "static": 300
@@ -278,9 +275,12 @@
       "trustHostHeader": false,
       "isExperimentalCompile": false
     },
-    "htmlLimitedBots": "Mediapartners-Google|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview",
+    "htmlLimitedBots": "Mediapartners-Google|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti",
     "bundlePagesRouterDependencies": false,
-    "configFileName": "next.config.ts"
+    "configFileName": "next.config.ts",
+    "turbopack": {
+      "root": "/home/andrew-lee/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend"
+    }
   },
   "appDir": "/home/andrew-lee/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend",
   "relativeAppDir": "",
