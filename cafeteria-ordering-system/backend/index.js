@@ -980,9 +980,20 @@ app.post('/register', (req, res) => {
 app.post('/updateUser', (req, res) => {
 	console.log("Received update user data:", req.body);
 	const { username, password, name } = req.body;
+	const fields = [];
+	const values = [];
+	if (password != null && password != '') {
+		fields.push('password = ?');
+		values.push(password);
+	}
+	if(name != null && name != '') {
+		fields.push('name = ?');
+		values.push(name);
+	}
+	values.push(username);
 
 	db.query(
-		'UPDATE userInformation SET password = (?), name = (?) WHERE username = (?)', [password, name, username],
+		`UPDATE userInformation SET ${fields.join(', ')} WHERE username = ?`, values,
 		(err, result) => {
 			if(err) {
 				console.error('Error updating user:', err);
