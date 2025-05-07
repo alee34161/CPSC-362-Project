@@ -3,11 +3,14 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../dashboard/styles/styles.css';
 import { useTranslation } from 'react-i18next';
-
+import '../../i18n';
 
 const CafeteriaMenu: React.FC = () => {
     
     const { t, i18n } = useTranslation();
+    if (!i18n.isInitialized) {
+        i18n.changeLanguage('en');
+        }
     const [menuItems, setMenuItems] = useState<any[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState<any[]>([]);
@@ -143,7 +146,7 @@ const CafeteriaMenu: React.FC = () => {
                 <li>
                   <a href="/customer-orders" title="History">
                   <img src={"/history.svg"} className="icon" alt="History" />
-                  <span className="nav-text">"HISTORY"</span>
+                  <span className="nav-text">{t('cafeteria.history')}</span>
                   </a>
                 </li>
                 <li>

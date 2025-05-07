@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 
 interface Order {
   id: number;
@@ -12,6 +14,10 @@ interface Order {
 
 export default function PastOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const { t, i18n } = useTranslation();
+  if (!i18n.isInitialized) {
+    i18n.changeLanguage('en');
+  }
 
   useEffect(() => {
     // Dummy data fetch
@@ -22,22 +28,22 @@ export default function PastOrdersPage() {
 
   return (
     <div className="p-8 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">Past Orders</h1>
+      <h1 className="text-3xl font-bold mb-4">	{t('pastOrders.title')}</h1>
       {orders.length === 0 ? (
-        <p className="text-gray-500">You have no past orders.</p>
+        <p className="text-gray-500">{t('pastOrders.noOrders')}</p>
       ) : (
         <ul className="space-y-4">
           {orders.map((order) => (
             <li key={order.id} className="border p-4 rounded-md shadow-sm">
               <div className="flex justify-between">
                 <div>
-                  <p><strong>Order ID:</strong> #{order.id}</p>
+                  <p><strong>	{t('pastOrders.orderId')}</strong> #{order.id}</p>
                 </div>
                 <div className="text-right">
-                  <p><strong>Total:</strong> ${order.total}</p>
+                  <p><strong>{t('pastOrders.total')}</strong> ${order.total}</p>
                   <Link href={`/customer-orders/${order.id}`}>
                     <button className="mt-2 bg-blue-500 text-white px-4 py-1 rounded-md">
-                      View Details
+                      {t('pastOrders.viewDetails')}
                     </button>
                   </Link>
                 </div>
@@ -49,7 +55,7 @@ export default function PastOrdersPage() {
       <button 
         className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
       ><a href = '/dashboard'>
-        Home
+        {t('pastOrders.home')}
         </a>
       </button>
       

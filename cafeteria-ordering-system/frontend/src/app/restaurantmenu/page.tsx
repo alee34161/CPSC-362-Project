@@ -2,6 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../dashboard/styles/styles.css';
+import '../../i18n';
+import { useTranslation } from 'react-i18next';
+
 
 const RestaurantMenu: React.FC = () => {
     const [menuItems, setMenuItems] = useState<any[]>([]);
@@ -79,6 +82,11 @@ const RestaurantMenu: React.FC = () => {
         console.log(`Items for category ${category}:`, filteredItems); // Debug: Grouping by category
         return filteredItems;
     };
+    const { t, i18n } = useTranslation();
+
+    if (!i18n.isInitialized) {
+      i18n.changeLanguage('en');
+    }
 
     useEffect(() => {
             const delay = setTimeout(() => {
@@ -140,13 +148,13 @@ const RestaurantMenu: React.FC = () => {
                 <li>
                   <a href="/customer-orders" title="History">
                   <img src={"/history.svg"} className="icon" alt="History" />
-                  <span className="nav-text">History</span>
+                  <span className="nav-text">{t('restaurantMenu.history')}</span>
                   </a>
                 </li>
                 <li>
                    	<a href='/loyalty' title='Loyalty Points'>
                    	<img src={'/loyalty.svg'} className='icon' alt='Loyalty Points' />
-                   	<span className="nav-text">Loyalty Points</span>
+                   	<span className="nav-text">{t('restaurantMenu.loyalty')}</span>
                    	</a>
                 </li>
                 </ul>
@@ -156,7 +164,7 @@ const RestaurantMenu: React.FC = () => {
                     <div className="search-container">
                                 <input
                                   type="search"
-                                  placeholder="Search for something..."
+                                  placeholder={t('restaurantMenu.searchPlaceholder')}
                                   value={searchTerm}
                                   onChange={handleSearchChange}
                                 />
@@ -167,7 +175,7 @@ const RestaurantMenu: React.FC = () => {
                                 {searchTerm && (
                                   <ul className="search-results">
                                     {isLoading ? (
-                                      <li className="search-item">Loading...</li>
+                                      <li className="search-item">{t('restaurantMenu.loading')}</li>
                                     ) : results.length > 0 ? (
                                       results.map((result, index) => (
                                         <li className="search-item" key={index}>
@@ -177,7 +185,7 @@ const RestaurantMenu: React.FC = () => {
                                                             </li>
                                       ))
                                     ) : (
-                                      <li className="search-item">No results found</li>
+                                      <li className="search-item">{t('restaurantMenu.noResults')}</li>
                                     )}
                                   </ul>
                                 )}
@@ -189,13 +197,13 @@ const RestaurantMenu: React.FC = () => {
                             <li>
                                 <a href="/cart" title="Cart">
                                     <img src="/cart.svg" className="icon" alt="Cart" />
-                                    <span className="nav-text">Cart</span>
+                                    <span className="nav-text">{t('restaurantMenu.cart')}</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="/user" title="Account">
                                     <img src="/account.svg" className="icon" alt="Account" />
-                                    <span className="nav-text">Account</span>
+                                    <span className="nav-text">{t('restaurantMenu.account')}</span>
                                 </a>
                             </li>
                         </ul>
@@ -214,7 +222,7 @@ const RestaurantMenu: React.FC = () => {
             <main>
                 {/* Products Section */}
                 <section className="products">
-                    <h3>Restaurant Menu</h3>
+                    <h3>{t('restaurantMenu.title')}</h3>
                     {['breakfast', 'lunch', 'dinner', 'dessert', 'drink'].map((category) => (
                         <div className="products-container" key={category}>
                             {/* Display the SVG icon for the category */}
@@ -243,13 +251,13 @@ const RestaurantMenu: React.FC = () => {
                                         className="add-to-bag"
                                         onClick={() => handleAddToCart(item)}
                                     >
-                                        Add
+                                        {t('restaurantMenu.add')}
                                     </button>
                                     <button
                                     className="remove-from-bag"
                                     onClick={() => handleRemoveFromCart(item)}
                                  >
-                                    Remove
+                                    {t('restaurantMenu.remove')}
                                  </button>
                                 </div>
                             </div>

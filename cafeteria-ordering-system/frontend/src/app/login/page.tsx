@@ -5,9 +5,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import '../../i18n';
+
+
 
 export default function LoginPage() {
   const { t, i18n } = useTranslation();
+  if (!i18n.isInitialized) {
+  i18n.changeLanguage('en');
+  }
+
   const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
 
 type CartItem = {
   id: number;
@@ -15,6 +17,10 @@ type CartItem = {
 };
 
 export default function OrderTrackingPage() {
+  const { t, i18n } = useTranslation();
+  if (!i18n.isInitialized) {
+    i18n.changeLanguage('en');
+  }
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [orderStatus, setOrderStatus] = useState<string>('Pending');
   const [lastStatus, setLastStatus] = useState<string>('');
@@ -99,18 +105,18 @@ const getStatusColor = (status: string) => {
       <Toaster position="top-right" />
       
       <div className="flex justify-between mb-4">
-        <h1 className="text-2xl font-bold">Order Tracking</h1>
+        <h1 className="text-2xl font-bold">{t('tracking.title')}</h1>
         <Link href="/dashboard" className="text-blue-600 hover:underline">
-          Back to Menu
+          {t('tracking.backToMenu')}
         </Link>
       </div>
       
       {/* Order Items - Now placed at the top */}
       <div className="bg-white p-4 rounded shadow mb-4">
-        <h2 className="text-lg font-semibold mb-2">Order Items</h2>
+        <h2 className="text-lg font-semibold mb-2">{t('tracking.orderItems')}</h2>
         
         {cartItems.length === 0 ? (
-          <p>Loading order items...</p>
+          <p>{t('tracking.loadingItems')}</p>
         ) : (
           <div>
             {cartItems.map((item) => (
@@ -119,7 +125,7 @@ const getStatusColor = (status: string) => {
                   <div>
                     <p className="font-medium">{item.name}</p>
                     <p className="text-sm text-gray-500">
-                      Qty: {item.quantity} {item.customization && `• ${item.customization}`}
+                      {t('tracking.qty')} {item.quantity} {item.customization && `• ${item.customization}`}
                     </p>
                   </div>
                   <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
@@ -129,7 +135,7 @@ const getStatusColor = (status: string) => {
             
             <div className="mt-4 pt-2 border-t">
               <div className="flex justify-between font-medium">
-                <span>Total (incl. tax and promotions)</span>
+                <span>{t('tracking.totalLabel')}</span>
                 <span>{isLoading || total === null ? 'Loading...' : `$${total}`}</span>
               </div>
             </div>
@@ -139,7 +145,7 @@ const getStatusColor = (status: string) => {
       
       {/* Simple status display - Now placed at the bottom */}
       <div className="bg-white p-4 rounded shadow">
-        <h2 className="text-lg font-semibold mb-2">Current Status</h2>
+        <h2 className="text-lg font-semibold mb-2">{t('tracking.statusTitle')}</h2>
         <div className="p-2 bg-blue-100 rounded">
           <p className={`text-white text-sm px-3 py-1 rounded-full ${getStatusColor(orderStatus)}`}>{orderStatus}</p>
         </div>

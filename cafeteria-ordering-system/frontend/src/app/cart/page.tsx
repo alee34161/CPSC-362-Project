@@ -5,6 +5,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
+import '../../i18n';
+
+
 type CartItem = {
   id: number;
   name: string;
@@ -15,6 +19,10 @@ type CartItem = {
 };
 
 export default function CartPage() {
+  const { t, i18n } = useTranslation();
+  if (!i18n.isInitialized) {
+    i18n.changeLanguage('en');
+  }
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [lastSentTotal, setLastSentTotal] = useState<number | null>(null);
   const [isCartLoaded, setIsCartLoaded] = useState(false);
@@ -157,16 +165,16 @@ const handleDeleteFromCart = async (item: any) => {
 		    href="/dashboard"
 		    className="text-sm font-medium text-blue-600 hover:underline"
 		  >
- 		   Back to Menu
+ 		   {t('cart.backToMenu')}
 		  </a>
 		</div>
 
     
-      <h1 className="text-3xl font-bold">Your Cart</h1>
+      <h1 className="text-3xl font-bold">	{t('cart.title')}</h1>
 
       <div className="space-y-4">
       {cartItems.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <p>{t('cart.empty')}</p>
       ) : (
         cartItems.map((item) => (
           <div key={item.id} className="bg-white p-4 rounded-xl shadow-sm space-y-3">
@@ -176,7 +184,7 @@ const handleDeleteFromCart = async (item: any) => {
                 <div>
                   <p className="font-medium">{item.name}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <label className="text-sm text-gray-500">Qty:</label>
+                    <label className="text-sm text-gray-500">{t('cart.qty')}</label>
                     <input
                       type="number"
                       min={1}
@@ -192,17 +200,17 @@ const handleDeleteFromCart = async (item: any) => {
                 <button className="text-sm text-red-600 hover:underline mt-1"
                 onClick = {() => handleDeleteFromCart(item)}
                 >
-                  Delete
+                  {t('cart.delete')}
                 </button>
               </div>
             </div>
             <div>
-              <label className="text-sm block mb-1 text-gray-500">Special Request</label>
+              <label className="text-sm block mb-1 text-gray-500">{t('cart.specialRequest')}</label>
               <input
                 type="text"
                 value={item.customization ?? ''}
                 onChange={(e) => updateNote(item.id, e.target.value)}
-                placeholder="ex: No onions, no pickles..."
+                placeholder={t('cart.placeholder')}
                 className="w-full p-2 border rounded text-sm"
               />
             </div>
@@ -213,37 +221,37 @@ const handleDeleteFromCart = async (item: any) => {
 
       <div className="bg-gray-50 p-4 rounded-xl space-y-2 shadow-inner">
         <div className="flex justify-between text-sm">
-          <span>Subtotal</span>
+          <span>{t('cart.subtotal')}</span>
           <span>${subtotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span>Tax (10%)</span>
+          <span>{t('cart.tax')}</span>
           <span>${tax.toFixed(2)}</span>
         </div>
         {isSubscribed === 1 && (
             <div className="flex justify-between text-sm text-green-600">
-              <span>Subscription Discount (15%)</span>
+              <span>{t('cart.subscriptionDiscount')}</span>
               <span>-${(subtotal * 0.15).toFixed(2)}</span>
             </div>
           )}
         
           {isDiscount === 1 && (
             <div className="flex justify-between text-sm text-green-600">
-              <span>Point Discount</span>
+              <span>{t('cart.pointDiscount')}</span>
               <span>-${5.00}</span>
             </div>
           )}
         
           {/* Final Total After Discount and Subscription */}
           <div className="flex justify-between font-bold text-lg">
-            <span>Total</span>
+            <span>{t('cart.total')}</span>
             <span>${total.toFixed(2)}</span>
           </div>
       </div>
 	{cartItems.length > 0 && (
 
         <button className="w-full bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition" onClick={handleTotal}>
-          Proceed to Checkout
+          {t('cart.checkout')}
         </button>
 
       )}
