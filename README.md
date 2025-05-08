@@ -57,7 +57,7 @@ Main code is in the index.js file.
 
 ### HOW TO RUN BACKEND:
 
-	On Linux the command is "node index.js" in the backend directory.
+	On Linux the command is "node server.js" in the backend directory.
 \
 	**To test with frontend, refer to HOW TO RUN FRONTEND section above.**
 
