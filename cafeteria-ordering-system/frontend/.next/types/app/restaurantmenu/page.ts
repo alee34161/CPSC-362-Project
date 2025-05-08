@@ -1,4 +1,4 @@
-// File: /home/kevin/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend/src/app/restaurantmenu/page.tsx
+// File: /home/andrew-lee/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend/src/app/restaurantmenu/page.tsx
 import * as entry from '../../../../src/app/restaurantmenu/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
