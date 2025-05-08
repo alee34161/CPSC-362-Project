@@ -20,7 +20,7 @@ Run these commands:\
 	sudo apt update          // update lists\
 	sudo apt install npm     // install node manager\
 	npm install              // install react/node dependencies\
- 		Note: make sure to run npm install in the /frontend and /backend directories as well
+ 		Note: make sure to run npm install in the /frontend and /backend directories as well\
 	sudo apt install mysql-server      // install mysql
 
 
