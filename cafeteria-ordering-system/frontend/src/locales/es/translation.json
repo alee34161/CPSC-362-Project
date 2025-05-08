@@ -120,7 +120,111 @@
     "ourCafeteria": "Nuestra Cafetería",
     "localRestaurants": "Restaurantes Locales",
     "featuredMeals": "Comidas Destacadas"
+  },  "signup": {
+    "title": "Registrarse",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "createAccount": "Crear cuenta",
+    "backToHome": "← Volver al inicio",
+    "passwordMismatch": "¡Las contraseñas no coinciden!",
+    "successMessage": "Cuenta creada para {{email}}",
+    "registrationFailed": "¡Error al registrarse!"
+  },
+  "forgotPassword": {
+    "title": "Olvidé mi contraseña",
+    "emailPlaceholder": "Introduce tu correo electrónico",
+    "resetButton": "Restablecer contraseña",
+    "backToHome": "← Volver al inicio",
+    "resetConfirmation": "Enlace de restablecimiento de contraseña enviado a {{email}}"
+  },  "restaurantMenu": {
+    "logo": "Cafetería CSUF",
+    "history": "Historial",
+    "loyalty": "Puntos de fidelidad",
+    "searchPlaceholder": "Busca algo...",
+    "loading": "Cargando...",
+    "noResults": "No se encontraron resultados",
+    "cart": "Carrito",
+    "account": "Cuenta",
+    "title": "Menú del restaurante",
+    "add": "Agregar",
+    "remove": "Eliminar",
+    "addedToCart": "Se agregó un {{name}} al carrito.",
+    "removedFromCart": "Todos los artículos de {{name}} fueron eliminados del carrito."
+  },  "pastOrders": {
+    "title": "Pedidos Anteriores",
+    "noOrders": "No tienes pedidos anteriores.",
+    "orderId": "ID del pedido:",
+    "total": "Total:",
+    "viewDetails": "Ver detalles",
+    "home": "Inicio"
+  },  "loyalty": {
+    "title": "Recompensas de Lealtad",
+    "back": "Volver al Menú",
+    "loading": "Cargando puntos de lealtad...",
+    "rewardBanner": "🎁 Recompensa de Lealtad: ¡Gana 50 puntos y obtén $5 de descuento en tu próximo pedido!",
+    "points": "Tienes {{points}} puntos.",
+    "keepOrdering": "Sigue ordenando para ganar más recompensas.",
+    "eligible": "¡Eres elegible para $5 de descuento!",
+    "redeemButton": "Canjear 50 puntos",
+    "earnMore": "Gana {{needed}} puntos más para desbloquear $5 de descuento.",
+    "historyTitle": "Historial de Puntos",
+    "noHistory": "No hay historial de puntos disponible.",
+    "order": "Pedido #{{id}}",
+    "statusAndTotal": "Estado: {{status}} • ${{total}} gastados",
+    "pointsEarned": "+{{pts}} pts",
+    "successRedeem": "🎉 ¡Recompensa de $5 canjeada!",
+    "alreadyRedeemed": "¡Descuento ya aplicado!"
+  },  "cart": {
+    "backToMenu": "Volver al menú",
+    "title": "Tu carrito",
+    "empty": "Tu carrito está vacío.",
+    "qty": "Cantidad:",
+    "delete": "Eliminar",
+    "specialRequest": "Solicitud especial",
+    "placeholder": "ej: Sin cebolla, sin pepinillos...",
+    "subtotal": "Subtotal",
+    "tax": "Impuesto (10%)",
+    "subscriptionDiscount": "Descuento por suscripción (15%)",
+    "pointDiscount": "Descuento de puntos",
+    "total": "Total",
+    "checkout": "Proceder al pago",
+    "removeError": "Error al eliminar el artículo del carrito.",
+    "customizationError": "Error al actualizar la personalización en el carrito.",
+    "fetchError": "Error al obtener artículos del carrito:",
+    "updateError": "Error al actualizar el carrito:"
+  },  "checkout": {
+    "title": "Pagar",
+    "fullName": "Nombre completo",
+    "streetAddress": "Dirección",
+    "city": "Ciudad",
+    "state": "Estado",
+    "zipCode": "Código postal",
+    "zipCodeError": "El código postal debe tener 5 dígitos",
+    "cardNumber": "Número de tarjeta",
+    "cardNumberError": "El número de tarjeta debe tener 16 dígitos",
+    "expiryDate": "Fecha de expiración (MM/AA)",
+    "expiryDateError": "La fecha de expiración debe tener formato MM/AA",
+    "cvv": "CVV",
+    "cvvError": "El CVV debe tener 3 dígitos",
+    "delivery": "Piso y sala de entrega",
+    "placeOrder": "Realizar pedido",
+    "backToCart": "← Volver al carrito",
+    "inventoryError": "No hay suficientes artículos en el inventario de la cafetería para completar el pedido. Por favor, reduce la cantidad.",
+    "genericError": "Ocurrió un error. Inténtalo de nuevo.",
+    "unexpectedResponse": "Respuesta inesperada"
+  },  "tracking": {
+    "title": "Seguimiento de Pedido",
+    "backToMenu": "Volver al Menú",
+    "orderItems": "Artículos del Pedido",
+    "loadingItems": "Cargando artículos del pedido...",
+    "qty": "Cant:",
+    "totalLabel": "Total (incluye impuestos y promociones)",
+    "loading": "Cargando...",
+    "statusTitle": "Estado Actual",
+    "statusUpdate": "Estado del pedido actualizado: {{status}}",
+    "statusError": "Error al actualizar el estado del pedido",
+    "loadError": "Error al cargar los artículos del pedido"
   }
-
 
 }

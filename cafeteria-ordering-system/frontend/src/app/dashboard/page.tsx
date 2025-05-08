@@ -3,12 +3,18 @@ import React, { useState, useEffect } from 'react';
 import './styles/styles.css';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
+import '../../i18n';
+
 
 const Cafe: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { t, i18n } = useTranslation();
+
+  if (!i18n.isInitialized) {
+    i18n.changeLanguage('en');
+  }
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);

@@ -1,4 +1,4 @@
-// File: /home/andrew-lee/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend/src/app/(userinfo)/layout.tsx
+// File: /home/kevin/Documents/GitHub/CPSC-362-Project/cafeteria-ordering-system/frontend/src/app/(userinfo)/layout.tsx
 import * as entry from '../../../../src/app/(userinfo)/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

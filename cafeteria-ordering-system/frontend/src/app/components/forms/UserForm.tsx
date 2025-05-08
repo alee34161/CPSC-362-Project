@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from 'axios';
 import React, { useState, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
-
+import '../../../i18n';
 
 
 
@@ -14,6 +14,9 @@ export function UserForm() {
   const router = useRouter();
   const [formData, setFormData] = useState({ username: "", password: "", name: "", phone: "", location: "", role: "", profileImage: "" });
   const [error, setError] = useState("");
+  if (!i18n.isInitialized) {
+    i18n.changeLanguage('en');
+  }
 
     useEffect(() => {
       axios.get('http://localhost:8080/currentuserread', {withCredentials: true})

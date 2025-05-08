@@ -14,9 +14,14 @@ import { Label } from "@radix-ui/react-label";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import '../../../i18n';
 
 export function EditInfoForm() {
+  
   const { t, i18n } = useTranslation();
+  if (!i18n.isInitialized) {
+    i18n.changeLanguage('en');
+  }
   const router = useRouter();
   const [formData, setFormData] = useState({
     username: "",

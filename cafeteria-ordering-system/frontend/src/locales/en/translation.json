@@ -118,6 +118,113 @@
     "ourCafeteria": "Our Cafeteria",
     "localRestaurants": "Local Restaurants",
     "featuredMeals": "Featured Meals"
+  },  "signup": {
+    "title": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "createAccount": "Create Account",
+    "backToHome": "← Back to Home",
+    "passwordMismatch": "Passwords do not match!",
+    "successMessage": "Account created for {{email}}",
+    "registrationFailed": "Registration failed!"
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "emailPlaceholder": "Enter your email",
+    "resetButton": "Reset Password",
+    "backToHome": "← Back to Home",
+    "resetConfirmation": "Password reset link sent to {{email}}"
+  },  "restaurantMenu": {
+    "logo": "Cafe CSUF",
+    "history": "History",
+    "loyalty": "Loyalty Points",
+    "searchPlaceholder": "Search for something...",
+    "loading": "Loading...",
+    "noResults": "No results found",
+    "cart": "Cart",
+    "account": "Account",
+    "title": "Restaurant Menu",
+    "add": "Add",
+    "remove": "Remove",
+    "addedToCart": "Added one {{name}} to cart.",
+    "removedFromCart": "All {{name}} items removed from cart."
+  },  "pastOrders": {
+    "title": "Past Orders",
+    "noOrders": "You have no past orders.",
+    "orderId": "Order ID:",
+    "total": "Total:",
+    "viewDetails": "View Details",
+    "home": "Home"
+  },  "loyalty": {
+    "title": "Loyalty Rewards",
+    "back": "Back to Menu",
+    "loading": "Loading loyalty points...",
+    "rewardBanner": "🎁 Loyalty Reward: Earn 50 points to get $5 off your next order!",
+    "points": "You have {{points}} points!",
+    "keepOrdering": "Keep ordering to earn more rewards.",
+    "eligible": "You’re eligible for $5 off!",
+    "redeemButton": "Redeem 50 Points",
+    "earnMore": "Earn {{needed}} more points to unlock $5 off!",
+    "historyTitle": "Points History",
+    "noHistory": "No point history available.",
+    "order": "Order #{{id}}",
+    "statusAndTotal": "Status: {{status}} • ${{total}} spent",
+    "pointsEarned": "+{{pts}} pts",
+    "successRedeem": "🎉 $5 off reward redeemed!",
+    "alreadyRedeemed": "Discount already applied!"
+  },  "cart": {
+    "backToMenu": "Back to Menu",
+    "title": "Your Cart",
+    "empty": "Your cart is empty.",
+    "qty": "Qty:",
+    "delete": "Delete",
+    "specialRequest": "Special Request",
+    "placeholder": "ex: No onions, no pickles...",
+    "subtotal": "Subtotal",
+    "tax": "Tax (10%)",
+    "subscriptionDiscount": "Subscription Discount (15%)",
+    "pointDiscount": "Point Discount",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "removeError": "Error removing specific item from cart.",
+    "customizationError": "Error updating customization in cart.",
+    "fetchError": "Error fetching cart items:",
+    "updateError": "Error updating cart:"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "fullName": "Full Name",
+    "streetAddress": "Street Address",
+    "city": "City",
+    "state": "State",
+    "zipCode": "Zip Code",
+    "zipCodeError": "Zip Code must be 5 digits",
+    "cardNumber": "Card Number",
+    "cardNumberError": "Card number must be 16 digits",
+    "expiryDate": "Expiry Date (MM/YY)",
+    "expiryDateError": "Expiry date must be in MM/YY format",
+    "cvv": "CVV",
+    "cvvError": "CVV must be 3 digits",
+    "delivery": "Delivery Floor and Room",
+    "placeOrder": "Place Order",
+    "backToCart": "← Back to Cart",
+    "inventoryError": "Not enough items in cafeteria inventory to fulfill order. Please lower quantity.",
+    "genericError": "An error occurred. Please try again.",
+    "unexpectedResponse": "Unexpected response"
+  },  "tracking": {
+    "title": "Order Tracking",
+    "backToMenu": "Back to Menu",
+    "orderItems": "Order Items",
+    "loadingItems": "Loading order items...",
+    "qty": "Qty:",
+    "totalLabel": "Total (incl. tax and promotions)",
+    "loading": "Loading...",
+    "statusTitle": "Current Status",
+    "statusUpdate": "Order status updated: {{status}}",
+    "statusError": "Failed to update order status",
+    "loadError": "Failed to load order items"
   }
+  
   }
   

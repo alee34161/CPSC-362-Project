@@ -3,26 +3,23 @@ import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
 import enTranslation from './locales/en/translation.json';
-import esTranslation from './locales/es/translation.json'; // example: Spanish
+import esTranslation from './locales/es/translation.json';
 
 i18n
-  .use(LanguageDetector) // Detects user language
-  .use(initReactI18next) // Passes i18n instance to react-i18next
+  .use(LanguageDetector)
+  .use(initReactI18next)
   .init({
     resources: {
-      en: {
-        translation: enTranslation,
-      },
-      es: {
-        translation: esTranslation,
-      },
+      en: { translation: enTranslation },
+      es: { translation: esTranslation },
     },
     fallbackLng: 'en',
-    lng: 'en',
-    interpolation: {
-      escapeValue: false, // React already escapes values
-    },
+    interpolation: { escapeValue: false },
     returnNull: false,
+    detection: {
+      order: ['localStorage', 'navigator'],
+      caches: ['localStorage'],
+    },
   });
 
 export default i18n;

@@ -2,10 +2,17 @@
 import axios from 'axios';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import '../../i18n';
+import { useTranslation } from 'react-i18next';
 
 export default function SignupPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({ email: "", password: "", confirmPassword: "" });
+  const { t, i18n } = useTranslation();
+
+  if (!i18n.isInitialized) {
+    i18n.changeLanguage('en');
+  }
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -41,12 +48,12 @@ export default function SignupPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 shadow-lg rounded-md w-96">
-        <h1 className="text-2xl font-bold text-center mb-4">Sign Up</h1>
+        <h1 className="text-2xl font-bold text-center mb-4">{t('signup.title')}</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder={t('signup.email')}
             value={formData.email}
             onChange={handleChange}
             className="border p-2 w-full rounded-md"
@@ -55,7 +62,7 @@ export default function SignupPage() {
           <input
             type="password"
             name="password"
-            placeholder="Password"
+            placeholder={t('signup.password')}
             value={formData.password}
             onChange={handleChange}
             className="border p-2 w-full rounded-md"
@@ -64,14 +71,14 @@ export default function SignupPage() {
           <input
             type="password"
             name="confirmPassword"
-            placeholder="Confirm Password"
+            placeholder={t('signup.confirmPassword')}
             value={formData.confirmPassword}
             onChange={handleChange}
             className="border p-2 w-full rounded-md"
             required
           />
           <button type="submit" className="bg-green-500 text-white px-4 py-2 w-full rounded-md">
-            Create Account
+          {t('signup.createAccount')}
           </button>
         </form>
         {/* ✅ Back to Home Button */}
@@ -79,7 +86,7 @@ export default function SignupPage() {
           onClick={() => router.push("/")}
           className="mt-4 text-gray-600 hover:text-gray-800"
         >
-          ← Back to Home
+          {t('signup.backToHome')}
         </button>
       </div>
     </div>
