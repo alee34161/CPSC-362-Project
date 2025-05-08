@@ -43,7 +43,7 @@ Tutorials are provided on the default page.
 
 ### HOW TO RUN FRONTEND:
 
-	On Linux the command is "npm start" in the frontend directory.
+	On Linux the command is "npm run build" and then "npm run start" in the frontend directory.
 	On a browser, use the default web address of localhost:3000
 \
 	**To test with backend, refer to HOW TO RUN BACKEND section below.**
